@@ -4,4 +4,4 @@
 
 <h2>ER Diagram</h2>
 
-![ER_Diagram](https://user-images.githubusercontent.com/46940666/136866050-1054d1ec-e8b9-4de3-9882-54a02d9d1eb0.png)
+![ER_Diagram](https://raw.githubusercontent.com/CIIC4060-ICOM5016-FALL-2021/booking-system-project-aie/main/Images/ER_Diagram_Updated.png?token=AONEEAU6ITOAKR4WA3MQDOLBONEBW)
