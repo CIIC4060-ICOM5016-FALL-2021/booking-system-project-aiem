@@ -1,0 +1,14 @@
+import psycopg2
+
+from app.config.dbconfig import aiem_config
+
+
+# Creates connection to database for easier legibility in DAO classes
+class Database:
+    def __init__(self):
+        self.connection = psycopg2.connect("dbname=%s user=%s host=%s password=%s"
+                                           % (aiem_config['dbname'], aiem_config['user'],
+                                              aiem_config['host'], aiem_config['password']))
+
+    def close(self):
+        self.connection.close()
