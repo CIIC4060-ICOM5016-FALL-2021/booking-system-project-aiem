@@ -1,3 +1,5 @@
+# I think we can eliminate this file - Emma
+
 class User:
     def __init__(self, uid, name, username, password):
         self.uid = uid
