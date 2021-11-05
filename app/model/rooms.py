@@ -1,3 +1,5 @@
+import psycopg2
+
 from app.model.db import Database
 
 
@@ -13,11 +15,55 @@ class RoomsDAO:
         rooms_list = [row for row in cur]
         return rooms_list
 
-    def create_room(self):
-        return
+    def create_room(self, name, location, type_id):
+        try:
+            # preparing INSERT operation
+            cur = self.db.connection.cursor()
+            query = """INSERT INTO "Room"(ro_name, ro_location, rt_id)
+                       VALUES(%s, %s, %s);"""
+            query_values = (
+                name,
+                location,
+                type_id
+            )
+            # executing INSERT operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
 
-    def get_room(self):
-        return
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing create_room operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection
+            if self.db.connection is not None:
+                cur.close()
+                self.db.close()
+
+    def get_room(self, id):
+        try:
+            # preparing GET operation
+            cur = self.db.connection.cursor()
+            query = """SELECT ro_id, ro_name, ro_location, rt_id 
+                       FROM "Room"
+                       WHERE ro_id = %s;"""
+            query_values = (id,)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing get_room operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection
+            if self.db.connection is not None:
+                result = cur.fetchone()
+                cur.close()
+                self.db.close()
+                return result
 
     def update_room(self):
         return

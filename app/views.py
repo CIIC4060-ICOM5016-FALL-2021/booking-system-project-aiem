@@ -8,12 +8,18 @@ from flask import render_template, request, redirect
 def home():
     return render_template("form.html")
 
-
+# ****************** ROOM ROUTES ***************************
 # Get all rooms in database
-@app.route('/rooms')
+@app.route('/rooms/add-room', methods=['POST'])
+def create_room():
+    return print("Placeholder")
+
+@app.route('/rooms/all-rooms')
 def rooms():
     return get_all_rooms()
 
+
+# **********************************************************
 
 # Create a new user in the table
 @app.route('/submit-user-info', methods=['POST'])
