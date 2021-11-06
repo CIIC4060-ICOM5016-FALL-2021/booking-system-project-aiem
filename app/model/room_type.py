@@ -3,28 +3,27 @@ import psycopg2
 from app.model.db import Database
 
 
-# Contains all necessary functions for direct operations in the Room table
-class RoomsDAO:
+# Contains all the necessary functions for direct operations in the RoomType table
+class RoomTypeDAO:
     def __init__(self):
         self.db = Database()
 
-    def get_all_rooms(self):
+    def get_all_room_types(self):
         cur = self.db.connection.cursor()
-        query = """SELECT ro_id, ro_name, ro_location, rt_id FROM "Room";"""
+        query = """SELECT rt_id, rt_name, rt_level FROM "RoomType";"""
         cur.execute(query)
-        rooms_list = [row for row in cur]
-        return rooms_list
+        room_types_list = [row for row in cur]
+        return room_types_list
 
-    def create_room(self, name, location, type_id):
+    def create_room_type(self, name, level):
         try:
             # preparing INSERT operation
             cur = self.db.connection.cursor()
-            query = """INSERT INTO "Room"(ro_id, ro_name, ro_location, rt_id)
-                       VALUES(DEFAULT, %s, %s, %s);"""
+            query = """INSERT INTO "RoomType"(rt_id, rt_name, rt_level)
+                       VALUES(DEFAULT, %s, %s);"""
             query_values = (
                 name,
-                location,
-                type_id
+                level
             )
             # executing INSERT operation
             cur.execute(query, query_values)
@@ -32,7 +31,7 @@ class RoomsDAO:
 
         except(Exception, psycopg2.Error) as error:
             # error handling
-            print("Error executing create_room operation", error)
+            print("Error executing create_room_type operation", error)
             self.db.connection = None
 
         finally:
@@ -41,21 +40,21 @@ class RoomsDAO:
                 cur.close()
                 self.db.close()
 
-    def get_room(self, room_id):
+    def get_room_type_by_name(self, name):
         try:
             # preparing GET operation
             cur = self.db.connection.cursor()
-            query = """SELECT ro_id, ro_name, ro_location, rt_id 
-                       FROM "Room"
-                       WHERE ro_id = %s;"""
-            query_values = (room_id,)
+            query = """SELECT rt_id, rt_name, rt_level
+                       FROM "RoomType"
+                       WHERE rt_name = %s;"""
+            query_values = (name,)
             # executing GET operation
             cur.execute(query, query_values)
             self.db.connection.commit()
 
         except(Exception, psycopg2.Error) as error:
             # error handling
-            print("Error executing get_room operation", error)
+            print("Error executing get_room_type_by_name operation", error)
             self.db.connection = None
 
         finally:
@@ -65,9 +64,3 @@ class RoomsDAO:
                 cur.close()
                 self.db.close()
                 return result
-
-    def update_room(self):
-        return
-
-    def delete_room(self):
-        return
