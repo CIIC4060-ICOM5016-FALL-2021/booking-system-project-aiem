@@ -1,6 +1,6 @@
 from app import app
 from app.model.db import *
-from app.controller.rooms_controller import get_all_rooms
+from app.controller.rooms_controller import *
 from flask import render_template, request, redirect
 
 
@@ -8,13 +8,35 @@ from flask import render_template, request, redirect
 def home():
     return render_template("form.html")
 
-
-# Get all rooms in database
+"""
+                                        Room Views
+"""
+# Get all rooms
 @app.route('/rooms')
 def rooms():
     return get_all_rooms()
 
+@app.route('/rooms/room-types')
+def room_types():
+    return get_all_room_types()
 
+@app.route('/rooms/room-types/<name>')
+def type_by_name(name):
+    return get_room_type_by_name(name)
+
+@app.route('/rooms/create-type', methods=['GET', 'POST'])
+def create_type():
+    if request.method == 'GET':
+        return render_template("room_type_form.html")
+
+    if request.method == 'POST':
+        name = request.form['rt_name']
+        level = request.form['rt_level']
+        create_room_type(name, level)
+
+"""
+                                        User Views
+"""
 # Create a new user in the table
 @app.route('/submit-user-info', methods=['POST'])
 def create():
