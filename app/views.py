@@ -13,19 +13,36 @@ def home():
 """
 # Get all rooms
 @app.route('/rooms')
-def rooms():
+def Vrooms():
     return get_all_rooms()
 
+@app.route('/rooms/<id>')
+def Vroom_by_id(id):
+    return get_room(id)
+
+# Requires further development to implement create/update at once
+@app.route('/rooms/update', methods=['GET', 'POST'])
+def Vupdate_room():
+    if request.method == 'GET':
+        return render_template("room_form.html")
+
+    if request.method == 'POST':
+        name = request.form['ro_name']
+        location = request.form['ro_location']
+        type = request.form['rt_name']
+        room_id = request.form['ro_id']
+        update_room(name, location, type, room_id)
+
 @app.route('/rooms/room-types')
-def room_types():
+def Vroom_types():
     return get_all_room_types()
 
 @app.route('/rooms/room-types/<name>')
-def type_by_name(name):
+def Vroom_type_by_name(name):
     return get_room_type_by_name(name)
 
 @app.route('/rooms/create-type', methods=['GET', 'POST'])
-def create_type():
+def Vcreate_room_type():
     if request.method == 'GET':
         return render_template("room_type_form.html")
 
