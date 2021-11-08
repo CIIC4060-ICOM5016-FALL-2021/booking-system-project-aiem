@@ -99,47 +99,57 @@ def remove_meeting(self, mt_id):
 
 #-Controller Methods------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+#
 def GetMeetings(self):
     return get_all_meetings(self),200
 
-def GetMeetingByID(self, json)
-    meeting = get_meeting_by_id(self, json['id'])
+#
+def GetMeetingByID(self, id)
+    meeting = get_meeting_by_id(self, id)
     if not meeting: return "NOT FOUND",404
     return meeting,200
 
-def GetAllAttendingMeeting(self, json):
-    return get_all_attending_meeting(self, json['id']),200
+#
+def GetAllAttendingMeeting(self, id):
+    return get_all_attending_meeting(self, id),200
 
-def GetMeetingsForRoomOn(self, json):
-    return get_meetings_for_room_on(self, json['id'], json['date']),200 #We don't actually check if the meeting exists but eh its not entirely necessary
 
-def GetMeetingsForUserOn(self, json):
-    return get_meetings_for_user_on(self, json['id'], json['date']),200
+def GetMeetingsForRoomOn(self, id, date):
+    return get_meetings_for_room_on(self, id, date),200 #We don't actually check if the meeting exists but eh its not entirely necessary
 
-def GetMeetingForRoomDuring(self, json):
-    return get_meetings_for_room_during(self, json['id'], json['date'], json['time']),200
+def GetMeetingsForUserOn(self, id, date, time):
+    return get_meetings_for_user_on(self, id, date),200
 
+def GetMeetingForRoomDuring(self, id, date, time):
+    return get_meetings_for_room_during(self, id, date, time),200
+
+#
 def CreateMeeting(self, json):
     result = create_meeitng(self, json['name'], json['desc'], json['date'], json['start'], json['end'], json['us_id'], json['ro_id'])
     if result = -1: return "CONFLICT FOUND",400
     return result,200
 
+#
 def AddAttending(self, json):
     return add_attending(self, json['mt_id'], json['us_id']),200
 
+#
 def UpdateMeeting(self, json):
     return update_meeting(self, json['id'], json['name'], json['desc']),200
 
+#
 def UpdateReservation(self, json):
     return update_reservation(self, json['id'], json['date'], json['start'], json['end']),200
 
+#
 def RemoveAttending(self, json):
     success = remove_attending(self, json['mt_id'], json['us_id']),200
-    if not success: return "OOPS",500
+    if not success: return "NOT FOUND",404
     return success,200
 
-def RemoveMeeting(self, json):
-    success = remove_meeting(self, json['id'])
+#
+def RemoveMeeting(self, id):
+    success = remove_meeting(self, id)
     if not success: return "OOPS",500
     return success,200
     
