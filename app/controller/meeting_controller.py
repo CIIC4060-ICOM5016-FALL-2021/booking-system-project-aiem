@@ -31,7 +31,7 @@ class MeetingController:
         dao = MeetingDAO()
         meeting_list = dao.getAllMeeting()
         meetings = [self.build_meeting_map_dict(row) for row in meeting_list]
-        return jsonify(meetings)
+        return meetings
 
     def get_meeting_by_id(self, mt_id):
         dao = MeetingDAO()
@@ -45,19 +45,19 @@ class MeetingController:
         dao = MeetingDAO()
         user_list = dao.getMeetingAttending(mt_id)
         users = [self.build_user_map_dict(row) for row in user_list]
-        return jsonify(users)
+        return users
 
     def get_meetings_for_room_on(self, ro_id, date):
         dao = MeetingDAO()
         meeting_list = dao.getMeetingsForRoomOn(ro_id, date)
         meetings = [self.build_meeting_map_dict(row) for row in meeting_list]
-        return jsonify(meetings)
+        return meetings
 
     def get_meetings_for_user_on(self, us_id, date):
         dao = MeetingDAO()
         meeting_list = dao.getMeetingsForUserOn(us_id, date)
         meetings = [self.build_meeting_map_dict(row) for row in meeting_list]
-        return jsonify(meetings)
+        return meetings
 
     def get_meetings_for_room_during(self, ro_id, date, time):
         dao = MeetingDAO()
@@ -136,30 +136,30 @@ class MeetingController:
                                      json['us_id'], json['ro_id'])
         if result == -1:
             return "CONFLICT FOUND", 400
-        return result, 200
+        return jsonify(result), 200
 
     #
     def AddAttending(self, json):
-        return self.add_attending(json['mt_id'], json['us_id']), 200
+        return jsonify(self.add_attending(json['mt_id'], json['us_id'])), 200
 
     #
     def UpdateMeeting(self, json):
-        return self.update_meeting(json['id'], json['name'], json['desc']), 200
+        return jsonify(self.update_meeting(json['id'], json['name'], json['desc'])), 200
 
     #
     def UpdateReservation(self, json):
-        return self.update_reservation(json['id'], json['date'], json['start'], json['end']), 200
+        return jsonify(self.update_reservation(json['id'], json['date'], json['start'], json['end'])), 200
 
     #
     def RemoveAttending(self, json):
         success = self.remove_attending(json['mt_id'], json['us_id']), 200
         if not success:
-            return "NOT FOUND", 404
-        return success, 200
+            return jsonify("NOT FOUND"), 404
+        return jsonify(success), 200
 
     #
     def RemoveMeeting(self, mt_id):
         success = self.remove_meeting(mt_id)
         if not success:
-            return "OOPS", 500
-        return success, 200
+            return jsonify("OOPS"), 500
+        return jsonify(success), 200
