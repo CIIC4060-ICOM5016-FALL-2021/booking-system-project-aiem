@@ -118,7 +118,7 @@ class MeetingController:
         return jsonify(self.get_meetings_for_room_on(id, date)),200 #We don't actually check if the meeting exists but eh its not entirely necessary
 
     #
-    def GetMeetingsForUserOn(self, id, date, time):
+    def GetMeetingsForUserOn(self, id, date):
         return jsonify(self.get_meetings_for_user_on(id, date)),200
 
     def GetMeetingForRoomDuring(self, id, date, time):
