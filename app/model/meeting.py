@@ -48,7 +48,9 @@ class MeetingDAO:
                    from "User" natural inner join "Attending" 
                    where mt_id=%s;"""
         cursor.execute(query, (mt_id,))
-        result = cursor.fetchone()
+        result = []
+        for row in cursor:
+            result.append(row)
         return result
 
     # Gets meetings reserved by given reserving party ordered by date descending
