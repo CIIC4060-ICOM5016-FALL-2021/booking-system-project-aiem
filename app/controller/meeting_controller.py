@@ -2,10 +2,12 @@ from flask import jsonify
 
 from app.model.meeting import MeetingDAO
 
-class MeetingController:
-    #-Dictionary builders------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    def build_meeting_map_dict(self,row):
+class MeetingController:
+    # Dictionary builders-----------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def build_meeting_map_dict(row):
         result = {'mt_id': row[0],
                   'mt_name': row[1],
                   'mt_desc': row[2],
@@ -15,15 +17,15 @@ class MeetingController:
                   're_endTime': row[6],
                   'us_id': row[7],
                   'us_name': row[8],
-                  'ro_id': row[9] }
+                  'ro_id': row[9]}
         return result
 
-
-    def build_user_map_dict(self,row):
-        result = {'us_id':row[0], 'us_name':row[1], 'us_username':row[2]}
+    @staticmethod
+    def build_user_map_dict(row):
+        result = {'us_id': row[0], 'us_name': row[1], 'us_username': row[2]}
         return result
 
-    #-Internals------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    # Internals---------------------------------------------------------------------------------------------------------
 
     def get_all_meetings(self):
         dao = MeetingDAO()
@@ -31,125 +33,133 @@ class MeetingController:
         meetings = [self.build_meeting_map_dict(row) for row in meeting_list]
         return jsonify(meetings)
 
-    def get_meeting_by_id(self, id):
+    def get_meeting_by_id(self, mt_id):
         dao = MeetingDAO()
-        row = dao.getMeetingById(id)
-        if not row: return
+        row = dao.getMeetingById(mt_id)
+        if not row:
+            return
         meeting = self.build_meeting_map_dict(row)
         return meeting
 
-    def get_all_attending_meeting(self, id):
+    def get_all_attending_meeting(self, mt_id):
         dao = MeetingDAO()
-        user_list = dao.getMeetingAttending(id)
+        user_list = dao.getMeetingAttending(mt_id)
         users = [self.build_user_map_dict(row) for row in user_list]
         return jsonify(users)
 
-    def get_meetings_for_room_on(self, id, date):
+    def get_meetings_for_room_on(self, ro_id, date):
         dao = MeetingDAO()
-        meeting_list = dao.getMeetingsForRoomOn(id,date)
+        meeting_list = dao.getMeetingsForRoomOn(ro_id, date)
         meetings = [self.build_meeting_map_dict(row) for row in meeting_list]
         return jsonify(meetings)
 
-    def get_meetings_for_user_on(self, id, date):
+    def get_meetings_for_user_on(self, us_id, date):
         dao = MeetingDAO()
-        meeting_list = dao.getMeetingsForUserOn(id,date)
+        meeting_list = dao.getMeetingsForUserOn(us_id, date)
         meetings = [self.build_meeting_map_dict(row) for row in meeting_list]
         return jsonify(meetings)
 
-    def get_meetings_for_room_during(self, id, date, time):
+    def get_meetings_for_room_during(self, ro_id, date, time):
         dao = MeetingDAO()
-        row = dao.getMeetingInRoomAtTime(id,date,time)
-        if not row: return
+        row = dao.getMeetingInRoomAtTime(ro_id, date, time)
+        if not row:
+            return
         meeting = self.build_meeting_map_dict(row)
         return meeting
 
-    def check_user_busy(self, id, date, start, end):
+    def check_user_busy(self, us_id, date, start, end):
         dao = MeetingDAO()
-        return dao.checkUserBusy(id,date,start,end)
+        return dao.checkUserBusy(us_id, date, start, end)
 
     def check_meeting_busy(self, us_id, ro_id, date, start, end):
         dao = MeetingDAO()
-        return dao.checkUserBusy(id,date,start,end)
+        return dao.checkMeetingBusy(us_id, ro_id, date, start, end)
 
-    def create_meeitng(self, name, desc, date, start, end, us_id, ro_id):
-        if not self.check_meeting_busy(us_id,ro_id,date,start,end):
+    def create_meeting(self, name, desc, date, start, end, us_id, ro_id):
+        if not self.check_meeting_busy(us_id, ro_id, date, start, end):
             return -1
         dao = MeetingDAO()
-        return dao.insertEverythingForMeeting(name,desc,date,start,end,us_id,ro_id)
+        return dao.insertEverythingForMeeting(name, desc, date, start, end, us_id, ro_id)
 
-    def add_attending(self, mt_id,us_id):
+    def add_attending(self, mt_id, us_id):
         dao = MeetingDAO()
-        return dao.insertAttending(mt_id,us_id)
+        return dao.insertAttending(mt_id, us_id)
 
-    def update_meeting(self, id, name, description):
+    def update_meeting(self, mt_id, name, description):
         dao = MeetingDAO()
-        return dao.updateMeeting(id,name,description)
+        return dao.updateMeeting(mt_id, name, description)
 
-    def update_reservation(self, id,date,start,end):
-        dao=MeetingDAO()
-        return dao.updateReservation(self,id,date,start,end)
+    def update_reservation(self, re_id, date, start, end):
+        dao = MeetingDAO()
+        return dao.updateReservation(self, re_id, date, start, end)
 
-    def remove_attending(self, mt_id,us_id):
-        dao=MeetingDAO()
-        return dao.deleteAttending(mt_id,us_id)
+    def remove_attending(self, mt_id, us_id):
+        dao = MeetingDAO()
+        return dao.deleteAttending(mt_id, us_id)
 
     def remove_meeting(self, mt_id):
-        dao=MeetingDAO()
+        dao = MeetingDAO()
         return dao.deleteMeeting(mt_id)
 
-    #-Controller Methods------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    # Controller Methods------------------------------------------------------------------------------------------------
 
     #
     def GetMeetings(self):
-        return jsonify(self.get_all_meetings()),200
+        return jsonify(self.get_all_meetings()), 200
 
     #
-    def GetMeetingByID(self, id):
-        meeting = self.get_meeting_by_id(id)
-        if not meeting: return "NOT FOUND",404
-        return jsonify(meeting),200
+    def GetMeetingByID(self, mt_id):
+        meeting = self.get_meeting_by_id(mt_id)
+        if not meeting:
+            return "NOT FOUND", 404
+        return jsonify(meeting), 200
 
     #
-    def GetAllAttendingMeeting(self, id):
-        return jsonify(self.get_all_attending_meeting(id)),200
+    def GetAllAttendingMeeting(self, mt_id):
+        return jsonify(self.get_all_attending_meeting(mt_id)), 200
 
     #
-    def GetMeetingsForRoomOn(self, id, date):
-        return jsonify(self.get_meetings_for_room_on(id, date)),200 #We don't actually check if the meeting exists but eh its not entirely necessary
+    def GetMeetingsForRoomOn(self, ro_id, date):
+        # We don't actually check if the meeting exists but eh its not entirely necessary
+        return jsonify(self.get_meetings_for_room_on(ro_id, date)), 200
 
     #
-    def GetMeetingsForUserOn(self, id, date):
-        return jsonify(self.get_meetings_for_user_on(id, date)),200
+    def GetMeetingsForUserOn(self, us_id, date):
+        return jsonify(self.get_meetings_for_user_on(us_id, date)), 200
 
-    def GetMeetingForRoomDuring(self, id, date, time):
-        return jsonify(self.get_meetings_for_room_during(id, date, time)),200
+    def GetMeetingForRoomDuring(self, ro_id, date, time):
+        return jsonify(self.get_meetings_for_room_during(ro_id, date, time)), 200
 
     #
     def CreateMeeting(self, json):
-        result = self.create_meeitng(json['name'], json['desc'], json['date'], json['start'], json['end'], json['us_id'], json['ro_id'])
-        if result == -1: return "CONFLICT FOUND",400
-        return result,200
+        result = self.create_meeting(json['name'], json['desc'], json['date'], json['start'], json['end'],
+                                     json['us_id'], json['ro_id'])
+        if result == -1:
+            return "CONFLICT FOUND", 400
+        return result, 200
 
     #
     def AddAttending(self, json):
-        return self.add_attending(json['mt_id'], json['us_id']),200
+        return self.add_attending(json['mt_id'], json['us_id']), 200
 
     #
     def UpdateMeeting(self, json):
-        return self.update_meeting(json['id'], json['name'], json['desc']),200
+        return self.update_meeting(json['id'], json['name'], json['desc']), 200
 
     #
     def UpdateReservation(self, json):
-        return self.update_reservation(json['id'], json['date'], json['start'], json['end']),200
+        return self.update_reservation(json['id'], json['date'], json['start'], json['end']), 200
 
     #
     def RemoveAttending(self, json):
-        success = self.remove_attending(json['mt_id'], json['us_id']),200
-        if not success: return "NOT FOUND",404
-        return success,200
+        success = self.remove_attending(json['mt_id'], json['us_id']), 200
+        if not success:
+            return "NOT FOUND", 404
+        return success, 200
 
     #
-    def RemoveMeeting(self, id):
-        success = self.remove_meeting(id)
-        if not success: return "OOPS",500
-        return success,200
+    def RemoveMeeting(self, mt_id):
+        success = self.remove_meeting(mt_id)
+        if not success:
+            return "OOPS", 500
+        return success, 200
