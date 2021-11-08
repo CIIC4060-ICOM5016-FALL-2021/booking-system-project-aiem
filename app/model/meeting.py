@@ -51,7 +51,7 @@ class MeetingDAO:
         return result
 
         #Gets meetings reserved by given reserver ordered by date descending
-    def getMeetingByReserver(self, us_id):
+    def getMeetingsByReserver(self, us_id):
         cursor = self.conn.cursor()
         query = GET_MEETING + " where us_id = %s" + ORDER_DATE_DESCENDING 
         cursor.execute(query, (us_id,))
@@ -61,7 +61,7 @@ class MeetingDAO:
         return result
 
         #Gets meeting reserved by given room and date
-    def getMeetingForRoomOn(self, ro_id, re_date):
+    def getMeetingsForRoomOn(self, ro_id, re_date):
         cursor = self.conn.cursor()
         query = GET_MEETING + " where ro_id = %s and re_date = %s" + ORDER_DATE_DESCENDING
         cursor.execute(query, (ro_id,re_date,))
@@ -70,7 +70,7 @@ class MeetingDAO:
             result.append(row)
         return result
 
-    def getMeetingForUserOn(self, us_id, re_date):
+    def getMeetingsForUserOn(self, us_id, re_date):
         cursor = self.conn.cursor()
         query = GET_MEETING + """ where re_date  = %s and mt_id IN
                                     (select mt_id from "Meeting" natural inner join "Attending" 
@@ -163,7 +163,7 @@ class MeetingDAO:
         return re_id
 
     #Does both in order
-    def insertMeetingAndReservation(self, mt_name, mt_desc, re_date, re_startTime, re_endTime, us_id, ro_id):
+    def insertEverythingForMeeting(self, mt_name, mt_desc, re_date, re_startTime, re_endTime, us_id, ro_id):
         re_id = insertReservaiton(self,re_date,re_startTime,re_endTime,us_id,ro_id) #Create the reservation
         mt_id = insertMeeting(self,mt_name,mt_desc,re_id) #Create the meeting
         insertAttending(self,mt_id,us_id) # Register the host as attending as well
