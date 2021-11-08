@@ -32,4 +32,33 @@ class UserTypeDAO:
                 cur.close()
                 self.db.close()
 
-    
+    def get_user_type_by_name(self, name):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT ut_id, ut_name, "ut_isAdmin", ut_level
+                       FROM "UserType"
+                       WHERE ut_name = %s;"""
+            query_values = (name,)
+
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user_type_by_name operation", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = cur.fetchone()
+                cur.close()
+                self.db.close()
+                return result
+
+    def get_all_user_types(self):
+        cur = self.db.connection.cursor()
+        query = """SELECT ut_id, ut_name, "ut_isAdmin", ut_level
+                   FROM "UserType"; """
+        cur.execute(query)
+        user_types_list = [row for row in cur]
+        return user_types_list
+
