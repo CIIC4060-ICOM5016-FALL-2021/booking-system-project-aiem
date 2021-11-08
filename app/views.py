@@ -1,7 +1,7 @@
 from app import app
 from app.model.db import *
 from app.controller.rooms_controller import *
-from app.controller.meeting_controller import *
+from app.controller.meeting_controller import MeetingController
 from flask import render_template, request, redirect
 
 
@@ -67,50 +67,50 @@ def create():
 @app.route('/meetings', methods=['GET', 'POST'])
 def handleMeeting():
     if request.method == 'POST':
-        return CreateMeeting(request.json)
+        return MeetingController().CreateMeeting(request.json)
     else:
-        return GetMeetings()
+        return MeetingController().GetMeetings()
 
 @app.route('/meetings/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def handleMeetingById(id):
     if request.method == 'GET':
-        return GetMeetingByID(id)
+        return MeetingController().GetMeetingByID(id)
     elif  request.method == 'PUT':
-        return UpdateMeeting(request.json)
+        return MeetingController().UpdateMeeting(request.json)
     elif request.method == 'DELETE':
-        return RemoveMeeting(id)
+        return MeetingController().RemoveMeeting(id)
     else:
         return jsonify("Method Not Allowed"), 405
 
 @app.route('/meetings/<int:id>/reservation', methods=['PUT'])
 def handleReservationUpdate(id):
     if request.method == 'PUT':
-        return UpdateReservation(request.json)
+        return MeetingController().UpdateReservation(request.json)
     else:
         return jsonify("Method Not Allowed"), 405
 
 @app.route('/meetings/<int:id>/attending', methods=['GET', 'POST', 'DELETE'])
 def handleAttendingById(id):
     if request.method == 'GET':
-        return GetAllAttendingMeeting(id)
+        return MeetingController().GetAllAttendingMeeting(id)
     elif  request.method == 'POST':
-        return AddAttending(request.json)
+        return MeetingController().AddAttending(request.json)
     elif request.method == 'DELETE':
-        return RemoveAttending(request.json)
+        return MeetingController().RemoveAttending(request.json)
     else:
         return jsonify("Method Not Allowed"), 405
 
 @app.route('/meetings/rooms/<int:id>/<date:d>', methods=['GET'])
 def handleRoomMeetingSchedule(id,d):
     if request.method == 'GET':
-        return GetMeetingsForRoomOn(id,d)
+        return MeetingController().GetMeetingsForRoomOn(id,d)
     else:
         return jsonify("Method Not Allowed"), 405
 
 @app.route('/meetings/rooms/<int:id>/<date:d>/<time:t>', methods=['GET'])
 def handleRoomMeetingSchedule(id,d,t):
     if request.method == 'GET':
-        return GetMeetingForRoomDuring(id,d,t)
+        return MeetingController().GetMeetingForRoomDuring(id,d,t)
     else:
         return jsonify("Method Not Allowed"), 405
 
@@ -118,6 +118,6 @@ def handleRoomMeetingSchedule(id,d,t):
 @app.route('/meetings/users/<int:id>/<date:d>', methods=['GET'])
 def handleUserMeetingSchedule(id,d):
     if request.method == 'GET':
-        return GetMeetingsForUserOn(id,d)
+        return MeetingController().GetMeetingsForUserOn(id,d)
     else:
         return jsonify("Method Not Allowed"), 405
