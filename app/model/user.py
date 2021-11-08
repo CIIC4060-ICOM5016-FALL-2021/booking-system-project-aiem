@@ -30,7 +30,7 @@ class UserDAO:
                 cur.close()
                 self.db.close()
 
-    def get_user(self, user_id)
+    def get_user(self, user_id):
         try:
             cur = self.db.connection.cursor()
             query = """SELECT us_id, us_name, us_username, ut_id
@@ -39,6 +39,24 @@ class UserDAO:
             query_values = (user_id,)
             cur.execute(query, query_values)
             self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user operation", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = cur.fetchone()
+                cur.close()
+                self.db.close()
+                return result
+
+    def get_all_users(self):
+        cur = self.db.connection.cursor()
+        query = """SELECT us_id, us_name, us_username, ut_id FROM "User";"""
+        cur.execute(query)
+        user_list = [row for row in cur]
+        return user_list
 
 
 
