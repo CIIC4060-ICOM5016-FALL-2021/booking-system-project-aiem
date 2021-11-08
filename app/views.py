@@ -100,22 +100,22 @@ def handleAttendingById(id):
     else:
         return jsonify("Method Not Allowed"), 405
 
-@app.route('/meetings/rooms/<int:id>/<date:d>', methods=['GET'])
+@app.route('/meetings/rooms/<int:id>/<string:d>', methods=['GET'])
 def handleRoomMeetingSchedule(id,d):
     if request.method == 'GET':
         return MeetingController().GetMeetingsForRoomOn(id,d)
     else:
         return jsonify("Method Not Allowed"), 405
 
-@app.route('/meetings/rooms/<int:id>/<date:d>/<time:t>', methods=['GET'])
-def handleRoomMeetingSchedule(id,d,t):
+@app.route('/meetings/rooms/<int:id>/<string:d>/<string:t>', methods=['GET'])
+def handleRoomMeetingAt(id,d,t):
     if request.method == 'GET':
         return MeetingController().GetMeetingForRoomDuring(id,d,t)
     else:
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/meetings/users/<int:id>/<date:d>', methods=['GET'])
+@app.route('/meetings/users/<int:id>/<string:d>', methods=['GET'])
 def handleUserMeetingSchedule(id,d):
     if request.method == 'GET':
         return MeetingController().GetMeetingsForUserOn(id,d)
