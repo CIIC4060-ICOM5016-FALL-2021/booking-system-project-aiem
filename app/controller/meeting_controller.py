@@ -12,9 +12,9 @@ class MeetingController:
                   'mt_name': row[1],
                   'mt_desc': row[2],
                   're_id': row[3],
-                  're_date': row[4],
-                  're_startTime': row[5],
-                  're_endTime': row[6],
+                  're_date': row[4].strftime("%Y-%m-%d"),
+                  're_startTime': row[5].strftime("%H:%M:%S"),
+                  're_endTime': row[6].strftime("%H:%M:%S"),
                   'us_id': row[7],
                   'us_name': row[8],
                   'ro_id': row[9]}
@@ -22,7 +22,9 @@ class MeetingController:
 
     @staticmethod
     def build_user_map_dict(row):
-        result = {'us_id': row[0], 'us_name': row[1], 'us_username': row[2]}
+        result = {'us_id': row[0],
+                  'us_name': row[1],
+                  'us_username': row[2]}
         return result
 
     # Internals---------------------------------------------------------------------------------------------------------
