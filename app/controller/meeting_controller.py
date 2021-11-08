@@ -104,7 +104,7 @@ def GetMeetings(self):
     return get_all_meetings(self),200
 
 #
-def GetMeetingByID(self, id)
+def GetMeetingByID(self, id):
     meeting = get_meeting_by_id(self, id)
     if not meeting: return "NOT FOUND",404
     return meeting,200
