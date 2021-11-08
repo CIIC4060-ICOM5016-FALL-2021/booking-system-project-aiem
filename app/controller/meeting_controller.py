@@ -113,10 +113,11 @@ def GetMeetingByID(self, id):
 def GetAllAttendingMeeting(self, id):
     return jsonify(get_all_attending_meeting(self, id)),200
 
-
+#
 def GetMeetingsForRoomOn(self, id, date):
     return jsonify(get_meetings_for_room_on(self, id, date)),200 #We don't actually check if the meeting exists but eh its not entirely necessary
 
+#
 def GetMeetingsForUserOn(self, id, date, time):
     return jsonify(get_meetings_for_user_on(self, id, date)),200
 
