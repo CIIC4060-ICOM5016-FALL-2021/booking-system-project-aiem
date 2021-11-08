@@ -1,5 +1,3 @@
-import psycopg2
-
 from app.model.db import Database
 
 #Handles Meeting/meeting attending DAO Operations
@@ -18,7 +16,8 @@ class MeetingDAO:
     DESC = " desc;" # Specify desc then continue 
 
     def __init__(self):
-        self.db = Database()
+        self.conn = Database().connection #this is so I don't have to radically alter the code
+
 
 #-Gets------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
