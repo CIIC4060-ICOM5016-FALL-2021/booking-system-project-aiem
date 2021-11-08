@@ -101,32 +101,32 @@ def remove_meeting(self, mt_id):
 
 #
 def GetMeetings(self):
-    return get_all_meetings(self),200
+    return jsonify(get_all_meetings(self)),200
 
 #
 def GetMeetingByID(self, id):
     meeting = get_meeting_by_id(self, id)
     if not meeting: return "NOT FOUND",404
-    return meeting,200
+    return jsonify(meeting),200
 
 #
 def GetAllAttendingMeeting(self, id):
-    return get_all_attending_meeting(self, id),200
+    return jsonify(get_all_attending_meeting(self, id)),200
 
 
 def GetMeetingsForRoomOn(self, id, date):
-    return get_meetings_for_room_on(self, id, date),200 #We don't actually check if the meeting exists but eh its not entirely necessary
+    return jsonify(get_meetings_for_room_on(self, id, date)),200 #We don't actually check if the meeting exists but eh its not entirely necessary
 
 def GetMeetingsForUserOn(self, id, date, time):
-    return get_meetings_for_user_on(self, id, date),200
+    return jsonify(get_meetings_for_user_on(self, id, date)),200
 
 def GetMeetingForRoomDuring(self, id, date, time):
-    return get_meetings_for_room_during(self, id, date, time),200
+    return jsonify(get_meetings_for_room_during(self, id, date, time)),200
 
 #
 def CreateMeeting(self, json):
     result = create_meeitng(self, json['name'], json['desc'], json['date'], json['start'], json['end'], json['us_id'], json['ro_id'])
-    if result = -1: return "CONFLICT FOUND",400
+    if result == -1: return "CONFLICT FOUND",400
     return result,200
 
 #
