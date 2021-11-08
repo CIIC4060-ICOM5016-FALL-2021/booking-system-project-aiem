@@ -110,7 +110,7 @@ def handleRoomMeetingSchedule(id,d):
 @app.route('/meetings/rooms/<int:id>/<date:d>/<time:t>', methods=['GET'])
 def handleRoomMeetingSchedule(id,d,t):
     if request.method == 'GET':
-        return GetMeetingsForRoomDuring(id,d,t)
+        return GetMeetingForRoomDuring(id,d,t)
     else:
         return jsonify("Method Not Allowed"), 405
 

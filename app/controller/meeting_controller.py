@@ -41,7 +41,7 @@ def get_meeting_by_id(self, id):
 def get_all_attending_meeting(self, id):
     dao = MeetingDAO()
     user_list = dao.getMeetingAttending(id)
-    users = [build_users_map_dict(row) for row in users_list]
+    users = [self.build_users_map_dict(row) for row in user_list]
     return jsonify(users)
 
 def get_meetings_for_room_on(self, id, date):
@@ -72,7 +72,7 @@ def check_meeting_busy(self, us_id, ro_id, date, start, end):
     return dao.checkUserBusy(id,date,start,end)
 
 def create_meeitng(self, name, desc, date, start, end, us_id, ro_id):
-    if not check_meeting_busy(us_id,ro_id,date,start,end): 
+    if not check_meeting_busy(self,us_id,ro_id,date,start,end):
         return -1
     dao = MeetingDAO()
     return dao.insertEverythingForMeeting(name,desc,date,start,end,us_id,ro_id)
@@ -87,7 +87,7 @@ def update_meeting(self, id, name, description):
 
 def update_reservation(self, id,date,start,end):
     dao=MeetingDAO()
-    return dao.updateReservation(id,date,start,end)
+    return dao.updateReservation(self,id,date,start,end)
 
 def remove_attending(self, mt_id,us_id):
     dao=MeetingDAO()

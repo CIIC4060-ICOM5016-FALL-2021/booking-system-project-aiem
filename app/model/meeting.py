@@ -25,7 +25,7 @@ class MeetingDAO:
         #Gets all meetings (along with some additional linked information including linked Reservation details, Who reserved it (User ID/Name), and where it is reserved (Room ID/Name))
     def getAllMeeting(self):
         cursor = self.conn.cursor()
-        query = GET_MEETING + ORDER_DATE_DESCENDING 
+        query = self.GET_MEETING + self.ORDER_DATE_DESCENDING
         cursor.execute(query) 
         result = []
         for row in cursor:
@@ -35,7 +35,7 @@ class MeetingDAO:
         #Gets a specified meeting
     def getMeetingById(self, mt_id):
         cursor = self.conn.cursor()
-        query = GET_MEETING + " where mt_id = %s;" #since we only get one we don't need to order
+        query = self.GET_MEETING + " where mt_id = %s;" #since we only get one we don't need to order
         cursor.execute(query, (mt_id,))
         result = cursor.fetchone()
         return result
@@ -53,7 +53,7 @@ class MeetingDAO:
         #Gets meetings reserved by given reserver ordered by date descending
     def getMeetingsByReserver(self, us_id):
         cursor = self.conn.cursor()
-        query = GET_MEETING + " where us_id = %s" + ORDER_DATE_DESCENDING 
+        query = self.GET_MEETING + " where us_id = %s" + self.ORDER_DATE_DESCENDING
         cursor.execute(query, (us_id,))
         result = []
         for row in cursor:
@@ -63,7 +63,7 @@ class MeetingDAO:
         #Gets meeting reserved by given room and date
     def getMeetingsForRoomOn(self, ro_id, re_date):
         cursor = self.conn.cursor()
-        query = GET_MEETING + " where ro_id = %s and re_date = %s" + ORDER_DATE_DESCENDING
+        query = self.GET_MEETING + " where ro_id = %s and re_date = %s" + self.ORDER_DATE_DESCENDING
         cursor.execute(query, (ro_id,re_date,))
         result = []
         for row in cursor:
@@ -72,9 +72,9 @@ class MeetingDAO:
 
     def getMeetingsForUserOn(self, us_id, re_date):
         cursor = self.conn.cursor()
-        query = GET_MEETING + """ where re_date  = %s and mt_id IN
+        query = self.GET_MEETING + """ where re_date  = %s and mt_id IN
                                     (select mt_id from "Meeting" natural inner join "Attending" 
-                                    where us_id = %s)""" + ORDER_DATE_DESCENDING
+                                    where us_id = %s)""" + self.ORDER_DATE_DESCENDING
         cursor.execute(query, (re_date,us_id,))
         result = []
         for row in cursor:
@@ -84,8 +84,8 @@ class MeetingDAO:
         #Gets meeting that is occurring at a given time in a given room
     def getMeetingInRoomAtTime(self, ro_id, date, time):
         cursor = self.conn.cursor()
-        query = GET_MEETING + """ where ro_id = %s and re_date = %s and "re_startTime" < %s and "re_endTime" > %s;"""
-        cursor.execute(query, (ro_id,re_date,time,time,))
+        query = self.GET_MEETING + """ where ro_id = %s and re_date = %s and "re_startTime" < %s and "re_endTime" > %s;"""
+        cursor.execute(query, (ro_id,date,time,time,))
         result = cursor.fetchone()
         return result
 
@@ -164,9 +164,9 @@ class MeetingDAO:
 
     #Does both in order
     def insertEverythingForMeeting(self, mt_name, mt_desc, re_date, re_startTime, re_endTime, us_id, ro_id):
-        re_id = insertReservaiton(self,re_date,re_startTime,re_endTime,us_id,ro_id) #Create the reservation
-        mt_id = insertMeeting(self,mt_name,mt_desc,re_id) #Create the meeting
-        insertAttending(self,mt_id,us_id) # Register the host as attending as well
+        re_id = self.insertReservaiton(re_date, re_startTime, re_endTime, us_id, ro_id) #Create the reservation
+        mt_id = self.insertMeeting(mt_name, mt_desc, re_id) #Create the meeting
+        self.insertAttending(mt_id, us_id) # Register the host as attending as well
         return mt_id #finally we're done after three requests que lindo
 
     #Adds an attending user
@@ -187,7 +187,7 @@ class MeetingDAO:
         query= """update "Meeting" set mt_name=%s, 
                                        mt_desc=%s 
                   where mt_id=%s;"""
-        cursor.execute(query, (mt_name,mt_desc,mt_id,))
+        cursor.execute(query, (mt_name,mt_description,mt_id,))
         self.conn.commit()
         return True
 
@@ -264,9 +264,9 @@ class MeetingDAO:
         return affected_rows !=0
 
     def deleteMeeting(self, mt_id): #We should've REALLY Just made meeting and reservation as the same thing pero oops!!!!
-        if not deleteAllAttending(self,mt_id): return false #delete all the attending
-        re_id = getgetMeetingById(self, mt_id)[3] #get the reservation ID god what a dumb idea this was oopsie dasy! :)
-        if not deleteMeetingOnly(mt_id): return false #delete the meeting holder
-        return deletedeleteReservationOnly(re_id) #delete the reservation
+        if not self.deleteAllAttending(mt_id): return False #delete all the attending
+        re_id = self.getMeetingById(mt_id)[3] #get the reservation ID god what a dumb idea this was oopsie dasy! :)
+        if not self.deleteMeetingOnly(mt_id): return False #delete the meeting holder
+        return self.deleteReservationOnly(re_id) #delete the reservation
        
 
