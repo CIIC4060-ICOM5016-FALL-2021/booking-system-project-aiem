@@ -33,23 +33,28 @@ def Vupdate_room():
         room_id = request.form['ro_id']
         update_room(name, location, type, room_id)
 
-@app.route('/rooms/room-types')
+# View all room types or create a new one
+@app.route('/rooms/room-types', methods=['GET', 'POST'])
 def Vroom_types():
-    return get_all_room_types()
+    if request.method == 'POST':
+        return create_room_type(request.json)
+    else:
+        return get_all_room_types()
 
+# View/update/delete specific room type
 @app.route('/rooms/room-types/<name>')
 def Vroom_type_by_name(name):
     return get_room_type_by_name(name)
 
-@app.route('/rooms/create-type', methods=['GET', 'POST'])
-def Vcreate_room_type():
-    if request.method == 'GET':
-        return render_template("room_type_form.html")
-
-    if request.method == 'POST':
-        name = request.form['rt_name']
-        level = request.form['rt_level']
-        create_room_type(name, level)
+# @app.route('/rooms/create-type', methods=['GET', 'POST'])
+# def Vcreate_room_type():
+#     if request.method == 'GET':
+#         return render_template("room_type_form.html")
+#
+#     if request.method == 'POST':
+#         name = request.form['rt_name']
+#         level = request.form['rt_level']
+#         create_room_type(name, level)
 
 """
                                         User Views
