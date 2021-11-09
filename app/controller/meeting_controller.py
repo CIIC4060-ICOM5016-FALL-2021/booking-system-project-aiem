@@ -78,14 +78,19 @@ class MeetingController:
         return dao.checkMeetingBusy(us_id, ro_id, date, start, end)
 
     def create_meeting(self, name, desc, date, start, end, us_id, ro_id):
-        if not self.check_meeting_busy(us_id, ro_id, date, start, end):
+        if self.check_meeting_busy(us_id, ro_id, date, start, end):
             return -1
         dao = MeetingDAO()
         return dao.insertEverythingForMeeting(name, desc, date, start, end, us_id, ro_id)
 
     def add_attending(self, mt_id, us_id):
+        meeting = self.get_meeting_by_id(mt_id)
+        if not meeting:
+            return jsonify("MEETING NOT FOUND"), 404
+        if self.check_user_busy(us_id, meeting["re_date"], meeting["re_startTime"], meeting["re_endTime"]):
+            return jsonify("USER IS BUSY"), 400
         dao = MeetingDAO()
-        return dao.insertAttending(mt_id, us_id)
+        return jsonify(dao.insertAttending(mt_id, us_id)), 200
 
     def update_meeting(self, mt_id, name, description):
         dao = MeetingDAO()
@@ -142,7 +147,8 @@ class MeetingController:
 
     #
     def AddAttending(self, json):
-        return jsonify(self.add_attending(json['mt_id'], json['us_id'])), 200
+        return self.add_attending(json['mt_id'], json['us_id'])  # Because Add Attending has 3 possibilities it handles
+                                                                 # its own JSON and code generation.
 
     #
     def UpdateMeeting(self, json):
