@@ -63,6 +63,15 @@ def update_room(ro_id, json):
     return jsonify(ro_dict), 200
 
 
+def delete_room(ro_id):
+    ro_dao = RoomsDAO()
+    result = ro_dao.delete_room(ro_id)
+    if result:
+        return jsonify("DELETED"), 200
+    else:
+        return jsonify("NOT FOUND"), 404
+
+
 def create_room_type(json):
     dao = RoomTypeDAO()
     rt_id = dao.create_room_type(json['rt_name'], json['rt_level'])

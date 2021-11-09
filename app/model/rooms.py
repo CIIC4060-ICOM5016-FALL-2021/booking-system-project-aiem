@@ -97,5 +97,27 @@ class RoomsDAO:
                 cur.close()
                 self.db.close()
 
-    def delete_room(self):
-        return
+    def delete_room(self, room_id):
+        try:
+            # preparing GET operation
+            cur = self.db.connection.cursor()
+            query = """DELETE 
+                       FROM "Room"
+                       WHERE ro_id = %s;"""
+            query_values = (room_id,)
+            # executing GET operation
+            cur.execute(query, query_values)
+            affected_rows = cur.rowcount
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing delete_room operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection
+            if self.db.connection is not None:
+                cur.close()
+                self.db.close()
+                return affected_rows != 0

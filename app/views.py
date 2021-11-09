@@ -25,7 +25,7 @@ def rooms_by_id(id):
     if request.method == 'PUT':
         return update_room(id, request.json)
     if request.method == 'DELETE':
-        return "Not ready yet"
+        return delete_room(id)
     return get_room(id)
 
 # View all room types or create a new one
@@ -40,9 +40,9 @@ def room_types():
 @app.route('/rooms/room-types/<id>', methods=['GET', 'PUT', 'DELETE'])
 def room_types_by_id(id):
     if request.method == 'PUT':
-        return "Not ready yet"
+        return "Foo"
     if request.method == 'DELETE':
-        return "Not ready yet"
+        return "Bar"
     else:
         return get_room_type(id)
 
