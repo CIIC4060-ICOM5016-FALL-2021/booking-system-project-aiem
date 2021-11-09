@@ -11,7 +11,8 @@ class UserDAO:
         try:
             cur = self.db.connection.cursor()
             query = """ INSERT INTO "User"(us_id, us_name, us_username, us_password, ut_id)
-                        VALUES(DEFAULT, %s, %s, %s, %s);"""
+                        VALUES(DEFAULT, %s, %s, %s, %s)
+                        RETURNING us_id;"""
             query_values = (
                 name,
                 username,
@@ -27,8 +28,10 @@ class UserDAO:
 
         finally:
             if self.db.connection is not None:
+                us_id = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
+                return us_id
 
     def get_user(self, user_id):
         try:
@@ -80,10 +83,8 @@ class UserDAO:
 
         finally:
             if self.db.connection is not None:
-                result = cur.fetchone()
                 cur.close()
                 self.db.close()
-                return result
 
     def delete_user(self, user_id):
         try:
@@ -92,6 +93,7 @@ class UserDAO:
                        WHERE us_id = %s;"""
             query_values = (user_id,)
             cur.execute(query, query_values)
+            affected_rows = cur.rowcount
             self.db.connection.commit()
 
         except(Exception, psycopg2.Error) as error:
@@ -100,10 +102,9 @@ class UserDAO:
 
         finally:
             if self.db.connection is not None:
-                result = cur.fetchone()
                 cur.close()
                 self.db.close()
-                return result
+                return affected_rows != 0
 
 
 

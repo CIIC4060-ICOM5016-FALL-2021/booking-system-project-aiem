@@ -1,12 +1,13 @@
 from app import app
 from app.model.db import *
 from app.controller.rooms_controller import *
+from app.controller.user_controller import *
 from flask import render_template, request, redirect
 
 
 @app.route('/')
 def home():
-    return render_template("form.html")
+    return render_template("home.html")
 
 """
                                         Room Views
@@ -34,27 +35,57 @@ def create_type():
         level = request.form['rt_level']
         create_room_type(name, level)
 
+
 """
                                         User Views
 """
+
 # Create a new user in the table
-@app.route('/submit-user-info', methods=['POST'])
-def create():
-    # Setup the DB
-    db = Database()
-    con = db.connection
-    cur = con.cursor()
+#@app.route('/user/create-user', methods=['GET', 'POST'])
+#def create_new_user():
+#    if request.method == 'GET':
+#        return render_template("user_form.html")
 
-    # Get info from HTML form
-    us_name = request.form['us_name']
-    us_username = request.form['us_username']
-    us_password = request.form['us_password']
+#    if request.method == 'POST':
+#        us_name = request.form['us_name']
+#        us_username = request.form['us_username']
+#        us_password = request.form['us_password']
+#        ut_level = request.form['ut_level']
+#        create_user(us_name, us_username, us_password, ut_level)
 
-    # Submit the information into the Database
-    # cur.execute("""INSERT INTO "User"(us_name, us_username, us_password) VALUES(%s, %s, %s)""",
-    # (us_name, us_username, us_password))
-    con.commit()
-    cur.close()
-    db.close()
+#    return redirect("home.html")
 
-    return redirect("form.html")
+
+@app.route('/users', methods=['GET', 'POST'])
+def users():
+    if request.method == 'POST':
+        return create_user(request.json)
+    else:
+        return get_all_users()
+
+
+@app.route('/users/<id>', methods=['GET', 'PUT', 'DELETE'])
+def users_by_id(id):
+    if request.method == 'PUT':
+        return update_user(id, request.json)
+    if request.method == 'DELETE':
+        return delete_user(id)
+    return get_user(id)
+
+
+@app.route('/users/user-types/<id>', methods=['GET', 'PUT', 'DELETE'])
+def user_types_by_id(id):
+    if request.method == 'UNDER CONSTRUCTION':
+        return "FOO"
+    if request.method == 'UNDER CONSTRUCTION':
+        return "BAR"
+    else:
+        get_user_type(id)
+
+
+@app.route('/users/user-types', methods=['GET', 'POST'])
+def user_types():
+    if request.method == 'POST':
+        return create_user_type(request.json)
+    else:
+        return get_all_user_types()
