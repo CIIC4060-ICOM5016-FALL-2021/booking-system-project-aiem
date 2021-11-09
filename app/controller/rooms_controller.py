@@ -30,13 +30,16 @@ def get_all_room_types():
 
 
 # operating under the assumption that there already exists a room type of type_name
-def create_room(name, location, type_name):
+def create_room(json):
     ro_dao = RoomsDAO()
-    rt_dao = RoomTypeDAO()
-    # building rt dictionary and extracting id
-    rt_dict = build_room_type_map_dict(rt_dao.get_room_type_by_name(type_name))
-    rt_id = rt_dict.get('rt_id')
-    ro_dao.create_room(name, location, rt_id)
+    # extract new id -> build room = [id, name, location, type id] -> build dict
+    ro_id = ro_dao.create_room(json['ro_name'], json['ro_location'], json['rt_id'])
+    room = (ro_id,
+            json['ro_name'],
+            json['ro_location'],
+            json['rt_id'])
+    ro_dict = build_room_map_dict(room)
+    return jsonify(ro_dict), 201
 
 
 def get_room(room_id):
@@ -56,12 +59,15 @@ def update_room(name, location, type_name, room_id):
 
 def create_room_type(json):
     dao = RoomTypeDAO()
-    room_type = [dao.create_room_type(json['rt_name'], json['rt_level']), json['rt_name'], json['rt_level']]
+    rt_id = dao.create_room_type(json['rt_name'], json['rt_level'])
+    room_type = (rt_id,
+                 json['rt_name'],
+                 json['rt_level'])
     rt_dict = build_room_type_map_dict(room_type)
     return jsonify(rt_dict), 201
 
 
-def get_room_type_by_name(name):
+def get_room_type(rt_id):
     dao = RoomTypeDAO()
-    room_type = build_room_type_map_dict(dao.get_room_type_by_name(name))
+    room_type = build_room_type_map_dict(dao.get_room_type(rt_id))
     return jsonify(room_type)

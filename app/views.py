@@ -12,26 +12,33 @@ def home():
                                         Room Views
 """
 # Get all rooms
-@app.route('/rooms')
+@app.route('/rooms', methods=['GET', 'POST'])
 def Vrooms():
-    return get_all_rooms()
+    if request.method == 'POST':
+        return create_room(request.json)
+    else:
+        return get_all_rooms()
 
-@app.route('/rooms/<id>')
+@app.route('/rooms/<id>', methods=['GET', 'PUT', 'DELETE'])
 def Vroom_by_id(id):
+    if request.method == 'PUT':
+        return "Not ready yet"
+    if request.method == 'DELETE':
+        return "Not ready yet"
     return get_room(id)
 
-# Requires further development to implement create/update at once
-@app.route('/rooms/update', methods=['GET', 'POST'])
-def Vupdate_room():
-    if request.method == 'GET':
-        return render_template("room_form.html")
-
-    if request.method == 'POST':
-        name = request.form['ro_name']
-        location = request.form['ro_location']
-        type = request.form['rt_name']
-        room_id = request.form['ro_id']
-        update_room(name, location, type, room_id)
+# # Requires further development to implement create/update at once
+# @app.route('/rooms/update', methods=['GET', 'POST'])
+# def Vupdate_room():
+#     if request.method == 'GET':
+#         return render_template("room_form.html")
+#
+#     if request.method == 'POST':
+#         name = request.form['ro_name']
+#         location = request.form['ro_location']
+#         type = request.form['rt_name']
+#         room_id = request.form['ro_id']
+#         update_room(name, location, type, room_id)
 
 # View all room types or create a new one
 @app.route('/rooms/room-types', methods=['GET', 'POST'])
@@ -42,9 +49,14 @@ def Vroom_types():
         return get_all_room_types()
 
 # View/update/delete specific room type
-@app.route('/rooms/room-types/<name>')
-def Vroom_type_by_name(name):
-    return get_room_type_by_name(name)
+@app.route('/rooms/room-types/<id>', methods=['GET', 'PUT', 'DELETE'])
+def Vroom_type_by_name(id):
+    if request.method == 'PUT':
+        return "Not ready yet"
+    if request.method == 'DELETE':
+        return "Not ready yet"
+    else:
+        return get_room_type(id)
 
 # @app.route('/rooms/create-type', methods=['GET', 'POST'])
 # def Vcreate_room_type():

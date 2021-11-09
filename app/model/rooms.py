@@ -20,7 +20,8 @@ class RoomsDAO:
             # preparing INSERT operation
             cur = self.db.connection.cursor()
             query = """INSERT INTO "Room"(ro_id, ro_name, ro_location, rt_id)
-                       VALUES(DEFAULT, %s, %s, %s);"""
+                       VALUES(DEFAULT, %s, %s, %s)
+                       RETURNING ro_id;"""
             query_values = (
                 name,
                 location,
@@ -38,8 +39,10 @@ class RoomsDAO:
         finally:
             # closing the connection
             if self.db.connection is not None:
+                ro_id = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
+                return ro_id
 
     def get_room(self, room_id):
         try:
