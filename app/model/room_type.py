@@ -20,7 +20,8 @@ class RoomTypeDAO:
             # preparing INSERT operation
             cur = self.db.connection.cursor()
             query = """INSERT INTO "RoomType"(rt_id, rt_name, rt_level)
-                       VALUES(DEFAULT, %s, %s);"""
+                       VALUES(DEFAULT, %s, %s)
+                       RETURNING rt_id;"""
             query_values = (
                 name,
                 level
@@ -37,8 +38,35 @@ class RoomTypeDAO:
         finally:
             # closing the connection
             if self.db.connection is not None:
+                rt_id = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
+                return rt_id
+
+    def get_room_type(self, rt_id):
+        try:
+            # preparing GET operation
+            cur = self.db.connection.cursor()
+            query = """SELECT rt_id, rt_name, rt_level
+                       FROM "RoomType"
+                       WHERE rt_id = %s;"""
+            query_values = (rt_id,)
+            # executing GET operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing get_room_type_by_name operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection
+            if self.db.connection is not None:
+                result = cur.fetchone()
+                cur.close()
+                self.db.close()
+                return result
 
     def get_room_type_by_name(self, name):
         try:
