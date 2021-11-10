@@ -231,7 +231,7 @@ class MeetingDAO:
 
     # delete------------------------------------------------------------------------------------------------------------
     # Delete just the meeting
-    def deleteMeetingOnly(self, mt_id):
+    def deleteMeeting(self, mt_id):
         cursor = self.conn.cursor()
         query = """delete from "Meeting" where mt_id=%s;"""
         cursor.execute(query, (mt_id,))
@@ -270,12 +270,3 @@ class MeetingDAO:
         affected_rows = cursor.rowcount
         self.conn.commit()
         return affected_rows != 0
-
-    # Delete the Meeting
-    def deleteMeeting(self, mt_id):  # We should've REALLY Just made meeting and reservation as the same thing pero oops
-        if not self.deleteAllAttending(mt_id):
-            return False  # delete all the attending
-        re_id = self.getMeetingById(mt_id)[3]  # get the reservation ID god what a dumb idea this was oopsie dasy! :)
-        if not self.deleteMeetingOnly(mt_id):
-            return False  # delete the meeting holder
-        return self.deleteReservationOnly(re_id)  # delete the reservation
