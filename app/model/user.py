@@ -56,7 +56,7 @@ class UserDAO:
 
     def get_all_users(self):
         cur = self.db.connection.cursor()
-        query = """SELECT us_id, us_name, us_username, ut_id FROM "User";"""
+        query = """SELECT us_id, us_name, us_username, us_password, ut_id FROM "User";"""
         cur.execute(query)
         user_list = [row for row in cur]
         return user_list
@@ -65,7 +65,7 @@ class UserDAO:
         try:
             cur = self.db.connection.cursor()
             query = """ UPDATE "User" 
-                    SET us_name = %s, us_username = %s, us_password = %S, ut_id = %S
+                    SET us_name = %s, us_username = %s, us_password = %s, ut_id = %s
                     WHERE us_id = %s;"""
             query_values = (
                 name,

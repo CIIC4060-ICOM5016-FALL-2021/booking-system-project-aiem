@@ -75,12 +75,12 @@ def users_by_id(id):
 
 @app.route('/users/user-types/<id>', methods=['GET', 'PUT', 'DELETE'])
 def user_types_by_id(id):
-    if request.method == 'UNDER CONSTRUCTION':
-        return "FOO"
-    if request.method == 'UNDER CONSTRUCTION':
-        return "BAR"
+    if request.method == 'PUT':
+        return "UNDER CONSTRUCTION"
+    if request.method == 'DELETE':
+        return "UNDER CONSTRUCTION"
     else:
-        get_user_type(id)
+        return get_user_type(id)
 
 
 @app.route('/users/user-types', methods=['GET', 'POST'])

@@ -5,7 +5,7 @@ from app.model.user_type import UserTypeDAO
 
 
 def build_user_map_dict(row):
-    result = {'us_id': row[0], 'us_name': row[1], 'us_username': row[2], 'ut_id': row[4]}
+    result = {'us_id': row[0], 'us_name': row[1], 'us_username': row[2],'us_password': row[3], 'ut_id': row[4]}
     return result
 
 
@@ -37,7 +37,6 @@ def delete_user(us_id):
 
 def create_user(json):
     u_dao = UserDAO()
-
     #Old Method
     #ut_dao = UserTypeDAO()
     #ut_dict = build_user_type_dict(ut_dao.get_user_type_by_name(type_name))
