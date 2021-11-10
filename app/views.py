@@ -116,7 +116,6 @@ def handleUserMeetingSchedule(id,d):
                                         User Views
 """
 
-=======
 #@app.route('/user/create-user', methods=['GET', 'POST'])
 #def create_new_user():
 #    if request.method == 'GET':
