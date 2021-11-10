@@ -71,3 +71,13 @@ class RoomsDAO:
 
     def delete_room(self):
         return
+
+    #Global Statistic
+    def most_booked_rooms(self):
+        cur = self.db.connection.cursor()
+        query =  """select ro_name, count(ro_id)
+                    from "RoomUnavailability" Natural Inner Join "Room"
+                    group by ro_name order by count(ro_id) DESC LIMIT 10"""
+        cur.execute(query)
+        rooms_list = [row for row in cur]
+        return rooms_list

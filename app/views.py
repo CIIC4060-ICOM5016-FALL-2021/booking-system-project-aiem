@@ -3,7 +3,6 @@ from app.model.db import *
 from app.controller.rooms_controller import *
 from flask import render_template, request, redirect
 
-
 @app.route('/')
 def home():
     return render_template("form.html")
@@ -34,6 +33,11 @@ def create_type():
         level = request.form['rt_level']
         create_room_type(name, level)
 
+@app.route('/rooms/most')
+def most_booked_rooms():
+    return get_most_booked_room()
+
+
 """
                                         User Views
 """
@@ -58,3 +62,4 @@ def create():
     db.close()
 
     return redirect("form.html")
+

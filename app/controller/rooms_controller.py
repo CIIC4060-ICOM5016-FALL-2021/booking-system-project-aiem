@@ -14,6 +14,9 @@ def build_room_type_map_dict(row):
     result = {'rt_id': row[0], 'rt_name': row[1], 'rt_level': row[2]}
     return result
 
+def build_most_booked_room(row):
+    result = {'ro_name': row[0], 'count': row[1]}
+    return result
 
 def get_all_rooms():
     dao = RoomsDAO()
@@ -34,6 +37,11 @@ def get_room_type_by_name(name):
     room_type = [build_room_type_map_dict(dao.get_room_type_by_name(name))]
     return jsonify(room_type)
 
+def get_most_booked_room():
+    dao = RoomsDAO()
+    room_list = dao.most_booked_rooms()
+    rooms = [build_most_booked_room(row) for row in room_list]
+    return jsonify(rooms)
 
 # operating under the assumption that there already exists a room type of type_name
 def create_room(name, location, type_name):
