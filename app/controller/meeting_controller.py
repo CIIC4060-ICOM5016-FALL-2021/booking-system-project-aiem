@@ -90,7 +90,7 @@ class MeetingController:
         if self.check_user_busy(us_id, meeting["re_date"], meeting["re_startTime"], meeting["re_endTime"]):
             return jsonify("USER IS BUSY"), 400
         dao = MeetingDAO()
-        return jsonify(dao.insertAttending(mt_id, us_id)), 200
+        return jsonify(dao.insertAttending(mt_id, us_id)), 201
 
     def update_meeting(self, mt_id, name, description):
         dao = MeetingDAO()
