@@ -107,5 +107,12 @@ class UserDAO:
                 return affected_rows != 0
 
 
-
-
+        # Global Statistic to find top 10 most booking user
+    def most_booked_user(self):
+        cur = self.db.connection.cursor()
+        query =  """select us_name, count(us_id)
+                    from "UserUnavailability" Natural Inner Join "User"
+                    group by us_name order by count(us_id) DESC LIMIT 10"""
+        cur.execute(query)
+        rooms_list = [row for row in cur]
+        return rooms_list

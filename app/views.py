@@ -49,8 +49,14 @@ def room_types_by_id(id):
         return get_room_type(id)
 
 
+@app.route('/rooms/most')
+def most_booked_rooms():
+    return get_most_booked_room()
+
 """
+                                        =============
                                         Meeting Views
+                                        =============
 """
 
 @app.route('/meetings', methods=['GET', 'POST'])
@@ -112,16 +118,13 @@ def handleUserMeetingSchedule(id,d):
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/rooms/most')
-def most_booked_rooms():
-    return get_most_booked_room()
-
-
 """
+                                        ==========
                                         User Views
+                                        ==========
 """
 
-=======
+
 #@app.route('/user/create-user', methods=['GET', 'POST'])
 #def create_new_user():
 #    if request.method == 'GET':
@@ -171,3 +174,6 @@ def user_types():
     else:
         return get_all_user_types()
 
+@app.route('/users/most')
+def most_booked_user():
+    return get_most_booked_users()

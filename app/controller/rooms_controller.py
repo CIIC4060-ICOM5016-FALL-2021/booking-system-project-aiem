@@ -14,7 +14,7 @@ def build_room_type_map_dict(row):
     result = {'rt_id': row[0], 'rt_name': row[1], 'rt_level': row[2]}
     return result
 
-def build_most_booked_room(row):
+def build_most_booked_room_map_dict(row):
     result = {'ro_name': row[0], 'count': row[1]}
     return result
 
@@ -43,12 +43,6 @@ def create_room(json):
             json['rt_id'])
     ro_dict = build_room_map_dict(room)
     return jsonify(ro_dict), 201
-
-def get_most_booked_room():
-    dao = RoomsDAO()
-    room_list = dao.most_booked_rooms()
-    rooms = [build_most_booked_room(row) for row in room_list]
-    return jsonify(rooms)
 
 def get_room(ro_id):
     ro_dao = RoomsDAO()
@@ -94,3 +88,10 @@ def get_room_type(rt_id):
     dao = RoomTypeDAO()
     room_type = build_room_type_map_dict(dao.get_room_type(rt_id))
     return jsonify(room_type)
+
+def get_most_booked_room():
+    dao = RoomsDAO()
+    room_list = dao.most_booked_rooms()
+    rooms = [build_most_booked_room_map_dict(row) for row in room_list]
+    return jsonify(rooms)
+
