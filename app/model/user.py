@@ -36,7 +36,7 @@ class UserDAO:
     def get_user(self, user_id):
         try:
             cur = self.db.connection.cursor()
-            query = """SELECT us_id, us_name, us_username, ut_id
+            query = """SELECT us_id, us_name, us_username, us_password, ut_id
                        FROM "User"
                        WHERE us_id = %s;"""
             query_values = (user_id,)
