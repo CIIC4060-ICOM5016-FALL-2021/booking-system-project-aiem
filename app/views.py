@@ -1,6 +1,7 @@
 from app import app
 from app.model.db import *
 from app.controller.rooms_controller import *
+from app.controller.meeting_controller import MeetingController
 from app.controller.user_controller import *
 from flask import render_template, request, redirect
 
@@ -37,10 +38,73 @@ def create_type():
 
 
 """
+                                        Meeting Views
+"""
+
+@app.route('/meetings', methods=['GET', 'POST'])
+def handleMeeting():
+    if request.method == 'POST':
+        return MeetingController().CreateMeeting(request.json)
+    else:
+        return MeetingController().GetMeetings()
+
+@app.route('/meetings/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+def handleMeetingById(id):
+    if request.method == 'GET':
+        return MeetingController().GetMeetingByID(id)
+    elif  request.method == 'PUT':
+        return MeetingController().UpdateMeeting(request.json)
+    elif request.method == 'DELETE':
+        return MeetingController().RemoveMeeting(id)
+    else:
+        return jsonify("Method Not Allowed"), 405
+
+@app.route('/meetings/<int:id>/reservation', methods=['PUT'])
+def handleReservationUpdate(id):
+    if request.method == 'PUT':
+        return MeetingController().UpdateReservation(request.json)
+    else:
+        return jsonify("Method Not Allowed"), 405
+
+@app.route('/meetings/<int:id>/attending', methods=['GET', 'POST', 'DELETE'])
+def handleAttendingById(id):
+    if request.method == 'GET':
+        return MeetingController().GetAllAttendingMeeting(id)
+    elif  request.method == 'POST':
+        return MeetingController().AddAttending(request.json)
+    elif request.method == 'DELETE':
+        return MeetingController().RemoveAttending(request.json)
+    else:
+        return jsonify("Method Not Allowed"), 405
+
+@app.route('/meetings/rooms/<int:id>/<string:d>', methods=['GET'])
+def handleRoomMeetingSchedule(id,d):
+    if request.method == 'GET':
+        return MeetingController().GetMeetingsForRoomOn(id,d)
+    else:
+        return jsonify("Method Not Allowed"), 405
+
+@app.route('/meetings/rooms/<int:id>/<string:d>/<string:t>', methods=['GET'])
+def handleRoomMeetingAt(id,d,t):
+    if request.method == 'GET':
+        return MeetingController().GetMeetingForRoomDuring(id,d,t)
+    else:
+        return jsonify("Method Not Allowed"), 405
+
+
+@app.route('/meetings/users/<int:id>/<string:d>', methods=['GET'])
+def handleUserMeetingSchedule(id,d):
+    if request.method == 'GET':
+        return MeetingController().GetMeetingsForUserOn(id,d)
+    else:
+        return jsonify("Method Not Allowed"), 405
+
+
+"""
                                         User Views
 """
 
-# Create a new user in the table
+=======
 #@app.route('/user/create-user', methods=['GET', 'POST'])
 #def create_new_user():
 #    if request.method == 'GET':
