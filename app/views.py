@@ -13,28 +13,40 @@ def home():
 """
                                         Room Views
 """
-# Get all rooms
-@app.route('/rooms')
+# View all rooms or create a new one
+@app.route('/rooms', methods=['GET', 'POST'])
 def rooms():
-    return get_all_rooms()
-
-@app.route('/rooms/room-types')
-def room_types():
-    return get_all_room_types()
-
-@app.route('/rooms/room-types/<name>')
-def type_by_name(name):
-    return get_room_type_by_name(name)
-
-@app.route('/rooms/create-type', methods=['GET', 'POST'])
-def create_type():
-    if request.method == 'GET':
-        return render_template("room_type_form.html")
-
     if request.method == 'POST':
-        name = request.form['rt_name']
-        level = request.form['rt_level']
-        create_room_type(name, level)
+        return create_room(request.json)
+    else:
+        return get_all_rooms()
+
+# View/update/delete specific room
+@app.route('/rooms/<id>', methods=['GET', 'PUT', 'DELETE'])
+def rooms_by_id(id):
+    if request.method == 'PUT':
+        return update_room(id, request.json)
+    if request.method == 'DELETE':
+        return delete_room(id)
+    return get_room(id)
+
+# View all room types or create a new one
+@app.route('/rooms/room-types', methods=['GET', 'POST'])
+def room_types():
+    if request.method == 'POST':
+        return create_room_type(request.json)
+    else:
+        return get_all_room_types()
+
+# View/update/delete specific room type
+@app.route('/rooms/room-types/<id>', methods=['GET', 'PUT', 'DELETE'])
+def room_types_by_id(id):
+    if request.method == 'PUT':
+        return "Foo"
+    if request.method == 'DELETE':
+        return "Bar"
+    else:
+        return get_room_type(id)
 
 
 """
