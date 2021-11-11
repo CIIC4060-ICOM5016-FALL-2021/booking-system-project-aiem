@@ -164,3 +164,24 @@ def user_types():
         return create_user_type(request.json)
     else:
         return get_all_user_types()
+
+
+@app.route('/users/availability', methods=['GET', 'POST', 'DELETE'])
+def user_availability():
+    if request.method == 'POST':
+        return mark_user_unavailability(request.json)
+    if request.method == 'DELETE':
+        return delete_user_unavailability(request.json)
+    #else:
+        #return all_user_unavailability
+
+
+@app.route('/users/availability/<id>', methods=['GET', 'DELETE'])
+def user_availability_by_id(id):
+    if request.method == 'DELETE':
+        return delete_user_unavailability_by_id(id)
+    #else:
+        #return user_availability_by_id
+
+
+

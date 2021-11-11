@@ -14,6 +14,11 @@ def build_user_type_map_dict(row):
     return result
 
 
+def build_user_availability_map_dict(row):
+    result = {'uu_id': row[0], 'uu_date': row[1], 'uu_startTime': row[2], 'uu_endTime': row[3], 'us_id': row[4]}
+    return result
+
+
 def update_user(us_id, json):
     us_dao = UserDAO()
     us_dao.update_user(json['us_name'], json['us_username'], json['us_password'], json['ut_id'], us_id)
@@ -29,6 +34,24 @@ def update_user(us_id, json):
 def delete_user(us_id):
     us_dao = UserDAO()
     result = us_dao.delete_user(us_id)
+    if result:
+        return jsonify("DELETED"), 200
+    else:
+        return jsonify("NOT FOUND"), 404
+
+
+def delete_user_unavailability(json):
+    us_dao = UserDAO()
+    result = us_dao.delete_user_unavailability(json['uu_startTime'], json['uu_endTime'], json['us_id'])
+    if result:
+        return jsonify("DELETED"), 200
+    else:
+        return jsonify("NOT FOUND"), 404
+
+
+def delete_user_unavailability_by_id(uu_id):
+    us_dao = UserDAO()
+    result = us_dao.delete_user_unavailability_by_id(uu_id)
     if result:
         return jsonify("DELETED"), 200
     else:
@@ -64,6 +87,18 @@ def create_user_type(json):
     return jsonify(ut_dict), 201
 
 
+def mark_user_unavailability(json):
+    us_dao = UserDAO()
+    uu_id = us_dao.mark_user_unavailability(json['uu_date'], json['uu_startTime'], json['uu_endTime'], json['us_id'])
+    unavailability = (uu_id,
+                      json['uu_date'],
+                      json['uu_startTime'],
+                      json['uu_endTime'],
+                      json['us_id'])
+    ua_dict = build_user_availability_map_dict(unavailability)
+    return jsonify(ua_dict), 201
+
+
 def get_user(us_id):
     us_dao = UserDAO()
     user = us_dao.get_user(us_id)
@@ -92,3 +127,6 @@ def get_all_user_types():
     user_types_list = dao.get_all_user_types()
     user_types = [build_user_type_map_dict(row) for row in user_types_list]
     return jsonify(user_types)
+
+
+
