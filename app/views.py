@@ -31,8 +31,13 @@ def rooms_by_id(id):
     else:
         return RoomsController().get_room(id)
 
+@app.route('/rooms/<int:id>/schedule')
+def rooms_schedule(id):
+    print(request.args.get("date"))
+    return RoomsController().get_room_schedule(id, request.args.get("date"))
+
 @app.route('/rooms/<int:id>/schedule-unavailable', methods=['GET', 'POST'])
-def rooms_schedule_by_id(id):
+def rooms_unavailable_by_room(id):
     if request.method == 'POST':
         admin = get_admin_status(request.json['us_id'])
         return RoomsController().set_room_unavailability(id, admin, request.json)
@@ -41,6 +46,15 @@ def rooms_schedule_by_id(id):
             return RoomsController().get_room_unavailability(id,request.args.get("date"))
         else:
             return RoomsController().get_room_unavailability(id,None)
+
+@app.route('/rooms/<int:ro_id>/schedule-unavailable/<int:ru_id>', methods=['GET', 'PUT', 'DELETE'])
+def rooms_unavailable_by_id(ro_id, ru_id):
+    if request.method == 'PUT':
+        return "PUT"
+    if request.method == 'DELETE':
+        return "DELETE"
+    else:
+        return "GET"
 
 # View all room types or create a new one
 @app.route('/rooms/room-types', methods=['GET', 'POST'])

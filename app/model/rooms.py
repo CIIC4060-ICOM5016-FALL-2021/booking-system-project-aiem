@@ -100,6 +100,44 @@ class RoomsDAO:
                 self.db.close()
                 return result
 
+    def get_room_schedule(self, room_id, date):
+        try:
+            # preparing GET operation
+            cur = self.db.connection.cursor()
+            query = """SELECT rstart, rend, title, rdesc FROM ((
+                            SELECT "re_startTime" AS rstart, "re_endTime" AS rend, mt_name AS title, mt_desc AS rdesc
+                            FROM "Reservation" NATURAL INNER JOIN "Meeting"
+                            WHERE re_date = %s
+                            AND ro_id = %s
+                        )UNION(
+                            SELECT "ru_startTime" AS rstart, "ru_endTime" AS rend, 'Unavailable' AS title, '' AS rdesc
+                            FROM "RoomUnavailability"
+                            WHERE ru_date = %s
+                            AND ro_id = %s
+                        )) AS schedule ORDER BY rstart ASC;"""
+            query_values = (
+                date,
+                room_id,
+                date,
+                room_id
+            )
+            # executing GET operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing get_room operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection
+            if self.db.connection is not None:
+                result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
+
     def create_room(self, name, location, type_id):
         try:
             # preparing INSERT operation

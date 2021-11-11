@@ -30,6 +30,14 @@ class RoomsController:
                   'ro_id': row[4]}
         return result
 
+    @staticmethod
+    def build_room_schedule_dict(row):
+        result = {'rstart': row[0].strftime("%H:%M:%S"),
+                  'rend': row[1].strftime("%H:%M:%S"),
+                  'title': row[2],
+                  'rdesc': row[3]}
+        return result
+
     def get_all_rooms(self):
         ro_dao = RoomsDAO()
         rooms_list = ro_dao.get_all_rooms()
@@ -69,6 +77,12 @@ class RoomsController:
             room_unavailable_list = ro_dao.get_room_unavailability(ro_id)
             ru_dict = [self.build_room_unavailability_dict(row) for row in room_unavailable_list]
             return jsonify(ru_dict), 200
+
+    def get_room_schedule(self, ro_id, date):
+        ro_dao = RoomsDAO()
+        room_schedule = ro_dao.get_room_schedule(ro_id, date)
+        schedule_dict = [self.build_room_schedule_dict(row) for row in room_schedule]
+        return jsonify(schedule_dict), 200
 
     # operating under the assumption that there already exists a room type of type_name
     def create_room(self, json):
