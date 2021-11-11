@@ -52,11 +52,12 @@ def rooms_unavailable_by_room(id):
 @app.route('/rooms/<int:ro_id>/schedule-unavailable/<int:ru_id>', methods=['GET', 'PUT', 'DELETE'])
 def rooms_unavailable_by_id(ro_id, ru_id):
     if request.method == 'PUT':
-        return "PUT"
+        admin = get_admin_status(request.json['us_id'])
+        return RoomsController().update_room_unavailability(ru_id, ro_id, admin, request.json)
     if request.method == 'DELETE':
         return "DELETE"
     else:
-        return "GET"
+        return RoomsController().get_room_unavailability_by_id(ru_id, ro_id)
 
 # View all room types or create a new one
 @app.route('/rooms/room-types', methods=['GET', 'POST'])

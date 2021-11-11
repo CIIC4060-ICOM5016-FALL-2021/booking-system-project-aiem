@@ -37,6 +37,7 @@ class RoomsController:
                   'title': row[2],
                   'rdesc': row[3]}
         return result
+
     @staticmethod
     def build_most_booked_room_map_dict(row):
         result = {'ro_name': row[0], 'count': row[1]}
@@ -70,6 +71,33 @@ class RoomsController:
             return jsonify(ru_dict), 201
         else:
             return jsonify("Forbidden"), 403
+
+    def update_room_unavailability(self, ru_id, ro_id, admin, json):
+        ro_dao = RoomsDAO()
+        if admin:
+            ro_dao.update_room_unavailability(ru_id,
+                                              json["ru_date"],
+                                              json["ru_startTime"],
+                                              json["ru_endTime"],
+                                              ro_id)
+            unavailability = (ru_id,
+                              json["ru_date"],
+                              json["ru_startTime"],
+                              json["ru_endTime"],
+                              ro_id)
+            ru_dict = self.build_room_unavailability_dict(unavailability)
+            return jsonify(ru_dict), 201
+        else:
+            return jsonify("Forbidden"), 403
+
+    def get_room_unavailability_by_id(self, ru_id, ro_id):
+        ro_dao = RoomsDAO()
+        unavailable = ro_dao.get_room_unavailability_by_id(ru_id, ro_id)
+        if not unavailable:
+            return jsonify("Not Found"), 404
+        else:
+            ru_dict = self.build_room_unavailability_dict(unavailable)
+            return jsonify(ru_dict), 200
 
     def get_room_unavailability(self, ro_id, ru_date):
         ro_dao = RoomsDAO()
@@ -123,9 +151,9 @@ class RoomsController:
         ro_dao = RoomsDAO()
         result = ro_dao.delete_room(ro_id)
         if result:
-            return jsonify("DELETED"), 200
+            return jsonify("Deleted"), 200
         else:
-            return jsonify("NOT FOUND"), 404
+            return jsonify("Not Found"), 404
 
     def create_room_type(self, json):
         dao = RoomTypeDAO()
@@ -146,4 +174,3 @@ class RoomsController:
         room_list = dao.most_booked_rooms()
         rooms = [self.build_most_booked_room_map_dict(row) for row in room_list]
         return jsonify(rooms)
-

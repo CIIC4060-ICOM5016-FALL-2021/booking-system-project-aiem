@@ -15,7 +15,6 @@ class RoomsDAO:
         rooms_list = [row for row in cur]
         return rooms_list
 
-    # pending
     def set_room_unavailability(self, date, start, end, room_id):
         try:
             # preparing INSERT operation
@@ -39,12 +38,41 @@ class RoomsDAO:
             self.db.connection = None
 
         finally:
-            # closing the connection
+            # closing the connection and returning id of the seperated unavailable time
             if self.db.connection is not None:
                 ru_id = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
                 return ru_id
+
+    def update_room_unavailability(self, room_uid, date, start, end, room_id):
+        try:
+            # preparing UPDATE operation
+            cur = self.db.connection.cursor()
+            query = """UPDATE "RoomUnavailability"
+                       SET ru_date = %s, "ru_startTime" = %s, "ru_endTime" = %s, ro_id = %s
+                       WHERE ru_id = %s;"""
+            query_values = (
+                date,
+                start,
+                end,
+                room_id,
+                room_uid
+            )
+            # executing UPDATE operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing create_room operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection
+            if self.db.connection is not None:
+                cur.close()
+                self.db.close()
 
     def get_room_unavailability(self, room_id):
         try:
@@ -64,9 +92,38 @@ class RoomsDAO:
             self.db.connection = None
 
         finally:
-            # closing the connection
+            # closing the connection and returning the list of unavailable times for a room
             if self.db.connection is not None:
                 result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
+
+    def get_room_unavailability_by_id(self, room_uid, room_id):
+        try:
+            # preparing GET operation
+            cur = self.db.connection.cursor()
+            query = """SELECT ru_id, ru_date, "ru_startTime", "ru_endTime", ro_id
+                        FROM "RoomUnavailability"
+                        WHERE ru_id = %s
+                        AND ro_id = %s;"""
+            query_values = (
+                room_uid,
+                room_id
+            )
+            # executing GET operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing get_room operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection and returning the unavailable slot for a room
+            if self.db.connection is not None:
+                result = cur.fetchone()
                 cur.close()
                 self.db.close()
                 return result
@@ -93,7 +150,8 @@ class RoomsDAO:
             self.db.connection = None
 
         finally:
-            # closing the connection
+            # closing the connection and returning the list of unavailable times
+            # for a room at a specific date
             if self.db.connection is not None:
                 result = [row for row in cur]
                 cur.close()
@@ -131,7 +189,8 @@ class RoomsDAO:
             self.db.connection = None
 
         finally:
-            # closing the connection
+            # closing the connection and returning the all day schedule of a room
+            # including unavailable times and names and descriptions of meetings
             if self.db.connection is not None:
                 result = [row for row in cur]
                 cur.close()
@@ -160,7 +219,7 @@ class RoomsDAO:
             self.db.connection = None
 
         finally:
-            # closing the connection
+            # closing the connection and returning the id of the created room
             if self.db.connection is not None:
                 ro_id = cur.fetchone()[0]
                 cur.close()
@@ -185,7 +244,7 @@ class RoomsDAO:
             self.db.connection = None
 
         finally:
-            # closing the connection
+            # closing the connection and returning the room
             if self.db.connection is not None:
                 result = cur.fetchone()
                 cur.close()
@@ -194,7 +253,7 @@ class RoomsDAO:
 
     def update_room(self, name, location, type_id, room_id):
         try:
-            # preparing GET operation
+            # preparing UPDATE operation
             cur = self.db.connection.cursor()
             query = """ UPDATE "Room"
                         SET ro_name = %s, ro_location = %s, rt_id = %s
@@ -205,7 +264,7 @@ class RoomsDAO:
                 type_id,
                 room_id
             )
-            # executing GET operation
+            # executing UPDATE operation
             cur.execute(query, query_values)
             self.db.connection.commit()
 
@@ -222,13 +281,13 @@ class RoomsDAO:
 
     def delete_room(self, room_id):
         try:
-            # preparing GET operation
+            # preparing DELETE operation
             cur = self.db.connection.cursor()
             query = """DELETE 
                        FROM "Room"
                        WHERE ro_id = %s;"""
             query_values = (room_id,)
-            # executing GET operation
+            # executing DELETE operation
             cur.execute(query, query_values)
             affected_rows = cur.rowcount
             self.db.connection.commit()
@@ -239,16 +298,16 @@ class RoomsDAO:
             self.db.connection = None
 
         finally:
-            # closing the connection
+            # closing the connection and returning affected rows status
             if self.db.connection is not None:
                 cur.close()
                 self.db.close()
                 return affected_rows != 0
 
-    #Global Statistic
+    # Global Statistic
     def most_booked_rooms(self):
         cur = self.db.connection.cursor()
-        query =  """select ro_name, count(ro_id)
+        query = """select ro_name, count(ro_id)
                     from "RoomUnavailability" Natural Inner Join "Room"
                     group by ro_name order by count(ro_id) DESC LIMIT 10"""
         cur.execute(query)
