@@ -11,7 +11,9 @@ def home():
     return render_template("home.html")
 
 """
+                                        ==========
                                         Room Views
+                                        ==========
 """
 # View all rooms or create a new one
 @app.route('/rooms', methods=['GET', 'POST'])
@@ -70,8 +72,14 @@ def room_types_by_id(id):
         return RoomsController().get_room_type(id)
 
 
+@app.route('/rooms/most')
+def most_booked_rooms():
+    return get_most_booked_room()
+
 """
+                                        =============
                                         Meeting Views
+                                        =============
 """
 
 @app.route('/meetings', methods=['GET', 'POST'])
@@ -132,10 +140,17 @@ def handleUserMeetingSchedule(id,d):
     else:
         return jsonify("Method Not Allowed"), 405
 
+@app.route('/meetings/busiest')
+def busiest_hour():
+    result = MeetingController()
+    return result.get_busiest_hour()
 
 """
+                                        ==========
                                         User Views
+                                        ==========
 """
+
 
 #@app.route('/user/create-user', methods=['GET', 'POST'])
 #def create_new_user():
@@ -185,3 +200,11 @@ def user_types():
         return create_user_type(request.json)
     else:
         return get_all_user_types()
+
+@app.route('/users/most')
+def most_booked_user():
+    return get_most_booked_users()
+
+@app.route('/users/room/<string:d>')
+def most_used_rooms(d):
+    return get_user_most_used_room(d)

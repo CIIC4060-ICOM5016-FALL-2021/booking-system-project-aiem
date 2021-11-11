@@ -37,6 +37,10 @@ class RoomsController:
                   'title': row[2],
                   'rdesc': row[3]}
         return result
+    @staticmethod
+    def build_most_booked_room_map_dict(row):
+        result = {'ro_name': row[0], 'count': row[1]}
+        return result
 
     def get_all_rooms(self):
         ro_dao = RoomsDAO()
@@ -136,3 +140,10 @@ class RoomsController:
         dao = RoomTypeDAO()
         room_type = self.build_room_type_dict(dao.get_room_type(rt_id))
         return jsonify(room_type)
+
+    def get_most_booked_room(self):
+        dao = RoomsDAO()
+        room_list = dao.most_booked_rooms()
+        rooms = [self.build_most_booked_room_map_dict(row) for row in room_list]
+        return jsonify(rooms)
+

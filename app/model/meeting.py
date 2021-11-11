@@ -270,3 +270,12 @@ class MeetingDAO:
         affected_rows = cursor.rowcount
         self.conn.commit()
         return affected_rows != 0
+
+    def busiest_hour(self):
+        cur = self.conn.cursor()
+        query = """select "re_startTime", "re_endTime", count("re_startTime")
+                    from "Reservation" group by "re_startTime", "re_endTime"
+                    order by count("re_startTime") DESC LIMIT 5"""
+        cur.execute(query)
+        rooms_list = [row for row in cur]
+        return rooms_list
