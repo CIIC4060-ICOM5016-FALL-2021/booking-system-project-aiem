@@ -24,9 +24,9 @@ class RoomsController:
     @staticmethod
     def build_room_unavailability_dict(row):
         result = {'ru_id': row[0],
-                  'ru_date': row[1],
-                  'ru_startTime': row[2],
-                  'ru_endTime': row[3],
+                  'ru_date': row[1].strftime("%Y-%m-%d"),
+                  'ru_startTime': row[2].strftime("%H:%M:%S"),
+                  'ru_endTime': row[3].strftime("%H:%M:%S"),
                   'ro_id': row[4]}
         return result
 
@@ -34,13 +34,13 @@ class RoomsController:
         ro_dao = RoomsDAO()
         rooms_list = ro_dao.get_all_rooms()
         rooms = [self.build_room_dict(row) for row in rooms_list]
-        return jsonify(rooms)
+        return jsonify(rooms), 200
 
     def get_all_room_types(self):
         rt_dao = RoomTypeDAO()
         room_types_list = rt_dao.get_all_room_types()
         room_types = [self.build_room_type_dict(row) for row in room_types_list]
-        return jsonify(room_types)
+        return jsonify(room_types), 200
 
     def set_room_unavailability(self, ro_id, admin, json):
         ro_dao = RoomsDAO()
@@ -58,6 +58,17 @@ class RoomsController:
             return jsonify(ru_dict), 201
         else:
             return jsonify("Forbidden"), 403
+
+    def get_room_unavailability(self, ro_id, ru_date):
+        ro_dao = RoomsDAO()
+        if ru_date is not None:
+            room_unavailable_list = ro_dao.get_room_unavailability_date(ro_id, ru_date)
+            ru_dict = [self.build_room_unavailability_dict(row) for row in room_unavailable_list]
+            return jsonify(ru_dict), 200
+        else:
+            room_unavailable_list = ro_dao.get_room_unavailability(ro_id)
+            ru_dict = [self.build_room_unavailability_dict(row) for row in room_unavailable_list]
+            return jsonify(ru_dict), 200
 
     # operating under the assumption that there already exists a room type of type_name
     def create_room(self, json):

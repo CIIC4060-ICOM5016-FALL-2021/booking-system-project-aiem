@@ -31,13 +31,16 @@ def rooms_by_id(id):
     else:
         return RoomsController().get_room(id)
 
-@app.route('/rooms/<int:id>/schedule-u', methods=['GET', 'POST'])
+@app.route('/rooms/<int:id>/schedule-unavailable', methods=['GET', 'POST'])
 def rooms_schedule_by_id(id):
     if request.method == 'POST':
         admin = get_admin_status(request.json['us_id'])
         return RoomsController().set_room_unavailability(id, admin, request.json)
     else:
-        return "Schedule"
+        if request.args:
+            return RoomsController().get_room_unavailability(id,request.args.get("date"))
+        else:
+            return RoomsController().get_room_unavailability(id,None)
 
 # View all room types or create a new one
 @app.route('/rooms/room-types', methods=['GET', 'POST'])

@@ -15,7 +15,7 @@ class RoomsDAO:
         rooms_list = [row for row in cur]
         return rooms_list
 
-# pending
+    # pending
     def set_room_unavailability(self, date, start, end, room_id):
         try:
             # preparing INSERT operation
@@ -45,6 +45,60 @@ class RoomsDAO:
                 cur.close()
                 self.db.close()
                 return ru_id
+
+    def get_room_unavailability(self, room_id):
+        try:
+            # preparing GET operation
+            cur = self.db.connection.cursor()
+            query = """SELECT ru_id, ru_date, "ru_startTime", "ru_endTime", ro_id
+                        FROM "RoomUnavailability"
+                        WHERE ro_id = %s;"""
+            query_values = (room_id,)
+            # executing GET operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing get_room operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection
+            if self.db.connection is not None:
+                result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
+
+    def get_room_unavailability_date(self, room_id, date):
+        try:
+            # preparing GET operation
+            cur = self.db.connection.cursor()
+            query = """SELECT ru_id, ru_date, "ru_startTime", "ru_endTime", ro_id
+                        FROM "RoomUnavailability"
+                        WHERE ro_id = %s
+                        AND ru_date = %s;"""
+            query_values = (
+                room_id,
+                date
+            )
+            # executing GET operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing get_room operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection
+            if self.db.connection is not None:
+                result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
 
     def create_room(self, name, location, type_id):
         try:
