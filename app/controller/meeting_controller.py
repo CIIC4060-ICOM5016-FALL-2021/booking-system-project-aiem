@@ -1,3 +1,5 @@
+import json
+
 from flask import jsonify
 
 from app.model.meeting import MeetingDAO
@@ -25,6 +27,12 @@ class MeetingController:
         result = {'us_id': row[0],
                   'us_name': row[1],
                   'us_username': row[2]}
+        return result
+
+    @staticmethod
+    def build_busiest_hour_map_dict(row):
+        result = {'re_starTime': row[0].strftime("%H:%M:%S"),
+                  're_endTime': row[1].strftime("%H:%M:%S"), 'count': row[2]}
         return result
 
     # Internals---------------------------------------------------------------------------------------------------------
@@ -171,3 +179,12 @@ class MeetingController:
         if not success:
             return jsonify("OOPS"), 500
         return jsonify(success), 200
+
+    #
+    def get_busiest_hour(self):
+        dao = MeetingDAO()
+        meeting_list = dao.busiest_hour()
+        for row in meeting_list:
+            build = self.build_busiest_hour_map_dict(row)
+            meeting = [build for row in meeting_list]
+        return jsonify(meeting)

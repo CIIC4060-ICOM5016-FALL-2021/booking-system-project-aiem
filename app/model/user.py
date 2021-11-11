@@ -174,6 +174,49 @@ class UserDAO:
                 self.db.close()
                 return affected_rows != 0
 
+    def get_admin_status(self, user_id):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT "ut_isAdmin"
+                       FROM "User" natural inner join "UserType"
+                       WHERE us_id = %s;"""
+            query_values = (user_id,)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
 
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_admin_status operation", error)
+            self.db.connection = None
 
+        finally:
+            if self.db.connection is not None:
+                result = cur.fetchone()[0]
+                cur.close()
+                self.db.close()
+                return result
 
+        # Global Statistic to find top 10 most booking user
+    def most_booked_user(self):
+        cur = self.db.connection.cursor()
+        query =  """select us_name, count(us_id)
+                    from "UserUnavailability" Natural Inner Join "User"
+                    group by us_name order by count(us_id) DESC LIMIT 10"""
+        cur.execute(query)
+        users_list = [row for row in cur]
+        return users_list
+
+    def most_used_room(self, us_name):
+        try:
+            cur = self.db.connection.cursor()
+            query = """select us_name, ro_name, count(ro_id)
+                       from "Room" Natural Inner Join "User" 
+                       Natural Inner Join "Reservation"
+                       Where us_name=%s group by us_name, ro_name
+                       order by count(ro_id) DESC LIMIT 1"""
+            query_values = (us_name,)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing most_used_room operation", error)
+            self.db.connection = None

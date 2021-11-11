@@ -1,6 +1,6 @@
 from app import app
 from app.model.db import *
-from app.controller.rooms_controller import *
+from app.controller.rooms_controller import RoomsController
 from app.controller.meeting_controller import MeetingController
 from app.controller.user_controller import *
 from flask import render_template, request, redirect
@@ -11,46 +11,76 @@ def home():
     return render_template("home.html")
 
 """
+                                        ==========
                                         Room Views
+                                        ==========
 """
 # View all rooms or create a new one
 @app.route('/rooms', methods=['GET', 'POST'])
 def rooms():
     if request.method == 'POST':
-        return create_room(request.json)
+        return RoomsController().create_room(request.json)
     else:
-        return get_all_rooms()
+        return RoomsController().get_all_rooms()
 
 # View/update/delete specific room
-@app.route('/rooms/<id>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/rooms/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def rooms_by_id(id):
     if request.method == 'PUT':
-        return update_room(id, request.json)
+        return RoomsController().update_room(id, request.json)
     if request.method == 'DELETE':
-        return delete_room(id)
-    return get_room(id)
+        return RoomsController().delete_room(id)
+    else:
+        return RoomsController().get_room(id)
+
+@app.route('/rooms/<int:id>/schedule')
+def rooms_schedule(id):
+    print(request.args.get("date"))
+    return RoomsController().get_room_schedule(id, request.args.get("date"))
+
+@app.route('/rooms/<int:id>/schedule-unavailable', methods=['GET', 'POST'])
+def rooms_unavailable_by_room(id):
+    if request.method == 'POST':
+        admin = get_admin_status(request.json['us_id'])
+        return RoomsController().set_room_unavailability(id, admin, request.json)
+    else:
+        if request.args:
+            return RoomsController().get_room_unavailability(id,request.args.get("date"))
+        else:
+            return RoomsController().get_room_unavailability(id,None)
+
+@app.route('/rooms/<int:ro_id>/schedule-unavailable/<int:ru_id>', methods=['GET', 'PUT', 'DELETE'])
+def rooms_unavailable_by_id(ro_id, ru_id):
+    if request.method == 'PUT':
+        admin = get_admin_status(request.json['us_id'])
+        return RoomsController().update_room_unavailability(ru_id, ro_id, admin, request.json)
+    if request.method == 'DELETE':
+        return "DELETE"
+    else:
+        return RoomsController().get_room_unavailability_by_id(ru_id, ro_id)
 
 # View all room types or create a new one
 @app.route('/rooms/room-types', methods=['GET', 'POST'])
 def room_types():
     if request.method == 'POST':
-        return create_room_type(request.json)
+        return RoomsController().create_room_type(request.json)
     else:
-        return get_all_room_types()
+        return RoomsController().get_all_room_types()
 
 # View/update/delete specific room type
-@app.route('/rooms/room-types/<id>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/rooms/room-types/<id>')
 def room_types_by_id(id):
-    if request.method == 'PUT':
-        return "Foo"
-    if request.method == 'DELETE':
-        return "Bar"
-    else:
-        return get_room_type(id)
+        return RoomsController().get_room_type(id)
 
+
+@app.route('/rooms/most')
+def most_booked_rooms():
+    return RoomsController().get_most_booked_room()
 
 """
+                                        =============
                                         Meeting Views
+                                        =============
 """
 
 @app.route('/meetings', methods=['GET', 'POST'])
@@ -111,10 +141,17 @@ def handleUserMeetingSchedule(id,d):
     else:
         return jsonify("Method Not Allowed"), 405
 
+@app.route('/meetings/busiest')
+def busiest_hour():
+    result = MeetingController()
+    return result.get_busiest_hour()
 
 """
+                                        ==========
                                         User Views
+                                        ==========
 """
+
 
 #@app.route('/user/create-user', methods=['GET', 'POST'])
 #def create_new_user():
@@ -184,4 +221,10 @@ def user_availability_by_id(id):
         #return user_availability_by_id
 
 
+@app.route('/users/most')
+def most_booked_user():
+    return get_most_booked_users()
 
+@app.route('/users/room/<string:d>')
+def most_used_rooms(d):
+    return get_user_most_used_room(d)
