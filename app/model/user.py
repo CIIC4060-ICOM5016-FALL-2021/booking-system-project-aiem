@@ -114,5 +114,5 @@ class UserDAO:
                     from "UserUnavailability" Natural Inner Join "User"
                     group by us_name order by count(us_id) DESC LIMIT 10"""
         cur.execute(query)
-        rooms_list = [row for row in cur]
-        return rooms_list
+        users_list = [row for row in cur]
+        return users_list

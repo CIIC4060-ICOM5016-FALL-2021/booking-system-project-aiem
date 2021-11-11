@@ -117,6 +117,11 @@ def handleUserMeetingSchedule(id,d):
     else:
         return jsonify("Method Not Allowed"), 405
 
+@app.route('/meetings/busiest')
+def busiest_hour():
+    result = MeetingController()
+    return result.get_busiest_hour()
+
 
 """
                                         ==========
