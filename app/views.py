@@ -11,7 +11,9 @@ def home():
     return render_template("home.html")
 
 """
+                                        ==========
                                         Room Views
+                                        ==========
 """
 # View all rooms or create a new one
 @app.route('/rooms', methods=['GET', 'POST'])
@@ -122,7 +124,6 @@ def busiest_hour():
     result = MeetingController()
     return result.get_busiest_hour()
 
-
 """
                                         ==========
                                         User Views
@@ -182,3 +183,7 @@ def user_types():
 @app.route('/users/most')
 def most_booked_user():
     return get_most_booked_users()
+
+@app.route('/users/room/<string:d>')
+def most_used_rooms(d):
+    return get_user_most_used_room(d)

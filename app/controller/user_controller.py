@@ -17,6 +17,9 @@ def build_most_booked_user_map_dict(row):
     result = {'us_name': row[0], 'count': row[1]}
     return result
 
+def build_user_most_used_room_map_dict(row):
+    result = {'us_name': row[0], 'ro_name': row[1], 'count': row[2]}
+    return result
 
 def update_user(us_id, json):
     us_dao = UserDAO()
@@ -99,6 +102,12 @@ def get_all_user_types():
 
 def get_most_booked_users():
     dao = UserDAO()
-    room_list = dao.most_booked_user()
-    rooms = [build_most_booked_user_map_dict(row) for row in room_list]
-    return jsonify(rooms)
+    users_list = dao.most_booked_user()
+    users = [build_most_booked_user_map_dict(row) for row in users_list]
+    return jsonify(users)
+
+def get_user_most_used_room(us_name):
+    dao = UserDAO()
+    users_list = dao.most_used_room(us_name)
+    users = [build_user_most_used_room_map_dict(row) for row in users_list]
+    return jsonify(users)
