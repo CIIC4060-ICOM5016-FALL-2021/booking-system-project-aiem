@@ -36,7 +36,7 @@ class UserDAO:
     def get_user(self, user_id):
         try:
             cur = self.db.connection.cursor()
-            query = """SELECT us_id, us_name, us_username, ut_id
+            query = """SELECT us_id, us_name, us_username, us_password, ut_id
                        FROM "User"
                        WHERE us_id = %s;"""
             query_values = (user_id,)
@@ -106,6 +106,23 @@ class UserDAO:
                 self.db.close()
                 return affected_rows != 0
 
+    def get_admin_status(self, user_id):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT "ut_isAdmin"
+                       FROM "User" natural inner join "UserType"
+                       WHERE us_id = %s;"""
+            query_values = (user_id,)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
 
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_admin_status operation", error)
+            self.db.connection = None
 
-
+        finally:
+            if self.db.connection is not None:
+                result = cur.fetchone()[0]
+                cur.close()
+                self.db.close()
+                return result

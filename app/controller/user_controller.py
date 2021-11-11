@@ -92,3 +92,8 @@ def get_all_user_types():
     user_types_list = dao.get_all_user_types()
     user_types = [build_user_type_map_dict(row) for row in user_types_list]
     return jsonify(user_types)
+
+
+def get_admin_status(us_id):
+    dao = UserDAO()
+    return dao.get_admin_status(us_id)

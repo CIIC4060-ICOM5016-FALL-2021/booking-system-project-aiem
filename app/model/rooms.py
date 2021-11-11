@@ -15,6 +15,37 @@ class RoomsDAO:
         rooms_list = [row for row in cur]
         return rooms_list
 
+# pending
+    def set_room_unavailability(self, date, start, end, room_id):
+        try:
+            # preparing INSERT operation
+            cur = self.db.connection.cursor()
+            query = """INSERT INTO "RoomUnavailability"(ru_id, ru_date, "ru_startTime", "ru_endTime", ro_id)
+                       VALUES(DEFAULT, %s, %s, %s, %s)
+                       RETURNING ru_id;"""
+            query_values = (
+                date,
+                start,
+                end,
+                room_id
+            )
+            # executing INSERT operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing create_room operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection
+            if self.db.connection is not None:
+                ru_id = cur.fetchone()[0]
+                cur.close()
+                self.db.close()
+                return ru_id
+
     def create_room(self, name, location, type_id):
         try:
             # preparing INSERT operation
