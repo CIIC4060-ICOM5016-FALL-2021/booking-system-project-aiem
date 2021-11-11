@@ -1,3 +1,5 @@
+from datetime import datetime, date
+
 from flask import jsonify
 
 from app.model.room_type import RoomTypeDAO
@@ -81,9 +83,9 @@ class RoomsController:
                                               json["ru_endTime"],
                                               ro_id)
             unavailability = (ru_id,
-                              json["ru_date"],
-                              json["ru_startTime"],
-                              json["ru_endTime"],
+                              datetime.strptime(json["ru_date"], "%Y-%m-%d").date(),
+                              datetime.strptime(json["ru_startTime"], "%H:%M:%S").time(),
+                              datetime.strptime(json["ru_endTime"], "%H:%M:%S").time(),
                               ro_id)
             ru_dict = self.build_room_unavailability_dict(unavailability)
             return jsonify(ru_dict), 201
