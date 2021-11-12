@@ -152,3 +152,46 @@ class UserDAO:
         except(Exception, psycopg2.Error) as error:
             print("Error executing most_used_room operation", error)
             self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = cur.fetchall()
+                cur.close()
+                self.db.close()
+                return result
+
+    def user_most_meeting_with_user(self, us_id):
+        try:
+            cur = self.db.connection.cursor()
+
+            #Three queries:
+            #   1st we find us_id meetings
+            #   2nd we find all others who are connected in that meeting, except user
+            #   3rd we count to find the user who connects the most with the input
+
+            query = """select us_name as Name, count(us_id)
+            from (
+                select M.mt_id, M.us_id
+                from (select mt_id as MT1
+                      from "Attending"
+                      where us_id = %s) as A,
+                "Attending" as M
+                where M.mt_id = A.MT1
+                EXCEPT (SELECT * FROM "Attending" where us_id = 11)
+            ) as R  natural inner join "User"
+            group by us_name
+            order by count(us_id) DESC LIMIT 1"""
+            query_values = (us_id,)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing user_most_meeting_with_user operation", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = cur.fetchall()
+                cur.close()
+                self.db.close()
+                return result
