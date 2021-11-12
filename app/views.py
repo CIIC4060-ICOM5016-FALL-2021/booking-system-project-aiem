@@ -187,3 +187,7 @@ def most_booked_user():
 @app.route('/users/room/<string:d>')
 def most_used_rooms(d):
     return get_user_most_used_room(d)
+
+@app.route('/users/meetings/<string:d>')
+def most_meeting_users(d):
+    return get_user_most_meeting_with_user(d)
