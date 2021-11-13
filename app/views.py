@@ -84,6 +84,7 @@ def room_types_by_id(id):
 def most_booked_rooms():
     return RoomsController().get_most_booked_room()
 
+
 """
                                         =============
                                         Meeting Views
