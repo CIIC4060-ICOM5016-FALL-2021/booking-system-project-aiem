@@ -197,6 +197,48 @@ class RoomsDAO:
                 self.db.close()
                 return result
 
+    def get_available_by_date_and_time(self, date, start, end):
+        try:
+            # preparing GET operation
+            cur = self.db.connection.cursor()
+            query = """SELECT ro_id, ro_name, ro_location, rt_id
+                       FROM "Room"
+                       WHERE ro_id
+                           NOT IN (
+                              SELECT ro_id
+                              FROM "RoomUnavailability"
+                                       NATURAL INNER JOIN "Reservation"
+                              WHERE (ru_date = %s AND re_date = %s)
+                                AND (("re_startTime" >= %s AND "re_endTime" <= %s)
+                                  OR ("ru_startTime" >= %s AND "ru_endTime" <= %s))
+                          )
+                       GROUP BY ro_id;"""
+            query_values = (
+                date,
+                date,
+                start,
+                end,
+                start,
+                end
+            )
+            # executing GET operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing get_available_by_date_and_time", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection and returning a list of available rooms
+            # at the specified date and time frame
+            if self.db.connection is not None:
+                result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
+
     def create_room(self, name, location, type_id):
         try:
             # preparing INSERT operation
