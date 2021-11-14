@@ -1,7 +1,9 @@
 from flask import jsonify
 
+from datetime import datetime
 from app.model.user import UserDAO
 from app.model.user_type import UserTypeDAO
+from app.controller.level_validation_controller import UserLevelValidationController
 
 
 class UserController:
@@ -18,7 +20,7 @@ class UserController:
 
     @staticmethod
     def build_user_availability_map_dict(row):
-        result = {'uu_id': row[0], 'uu_date': row[1], 'uu_startTime': row[2], 'uu_endTime': row[3], 'us_id': row[4]}
+        result = {'uu_id': row[0], 'uu_date': row[1], 'uu_startTime': row[2].strftime("%H:%M:%S"), 'uu_endTime': row[3].strftime("%H:%M:%S"), 'us_id': row[4]}
         return result
 
     @staticmethod
@@ -58,21 +60,31 @@ class UserController:
         else:
             return jsonify("NOT FOUND"), 404
 
-    def delete_user_unavailability(self, json):
+    def delete_user_unavailability(self, json, session_id):
         us_dao = UserDAO()
-        result = us_dao.delete_user_unavailability(json['uu_startTime'], json['uu_endTime'], json['us_id'])
-        if result:
-            return jsonify("DELETED"), 200
-        else:
-            return jsonify("NOT FOUND"), 404
 
-    def delete_user_unavailability_by_id(self, uu_id):
-        us_dao = UserDAO()
-        result = us_dao.delete_user_unavailability_by_id(uu_id)
-        if result:
-            return jsonify("DELETED"), 200
+        if json['us_id'] == session_id:
+            result = us_dao.delete_user_unavailability(json['uu_startTime'], json['uu_endTime'], json['us_id'])
+            if result:
+                return jsonify("DELETED"), 200
+            else:
+                return jsonify("NOT FOUND"), 404
         else:
-            return jsonify("NOT FOUND"), 404
+            return jsonify("User cannot delete a different user's availability"), 403
+
+    def delete_user_unavailability_by_id(self, uu_id, session_id):
+        uv_cont = UserLevelValidationController()
+        us_id = uv_cont.get_us_id_from_uu_id(uu_id)
+
+        if us_id == session_id:
+            us_dao = UserDAO()
+            result = us_dao.delete_user_unavailability_by_id(uu_id)
+            if result:
+                return jsonify("DELETED"), 200
+            else:
+                return jsonify("NOT FOUND"), 404
+        else:
+            return jsonify("User cannot delete a different user's availability"), 403
 
     def create_user(self, json):
         u_dao = UserDAO()
@@ -101,27 +113,26 @@ class UserController:
         ut_dict = self.build_user_type_map_dict(user_type)
         return jsonify(ut_dict), 201
 
-    def mark_user_unavailability(self, json):
+    def mark_user_unavailability(self, json, session_id):
         us_dao = UserDAO()
-        uu_id = us_dao.mark_user_unavailability(json['uu_date'], json['uu_startTime'], json['uu_endTime'], json['us_id'])
-        unavailability = (uu_id,
-                          json['uu_date'],
-                          json['uu_startTime'],
-                          json['uu_endTime'],
-                          json['us_id'])
-        ua_dict = self.build_user_availability_map_dict(unavailability)
-        return jsonify(ua_dict), 201
-
-    def get_user_unavailability(self, us_id, uu_date):
-        us_dao = UserDAO()
-        if uu_date is not None:
-            user_unavailability_list = us_dao.get_user_unavailability_date(us_id, uu_date)
-            uu_dict = [self.build_user_availability_map_dict(row) for row in user_unavailability_list]
-            return jsonify(uu_dict), 200
+        us_id = json['us_id']
+        if us_id == session_id:
+            uu_id = us_dao.mark_user_unavailability(json['uu_date'], json['uu_startTime'], json['uu_endTime'], json['us_id'])
+            unavailability = (uu_id,
+                              datetime.strptime(json["uu_date"], "%Y-%m-%d").date(),
+                              datetime.strptime(json["uu_startTime"], "%H:%M:%S").time(),
+                              datetime.strptime(json["uu_endTime"], "%H:%M:%S").time(),
+                              json['us_id'])
+            ua_dict = self.build_user_availability_map_dict(unavailability)
+            return jsonify(ua_dict), 201
         else:
-            user_unavailability_list = us_dao.get_user_unavailability(us_id)
-            uu_dict = [self.build_user_availability_map_dict(row) for row in user_unavailability_list]
-            return jsonify(uu_dict), 200
+            return jsonify("User cannot mark a different user as unavailable"), 403
+
+    def get_user_unavailability(self, us_id):
+        us_dao = UserDAO()
+        user_unavailability_list = us_dao.get_user_unavailability(us_id)
+        uu_dict = [self.build_user_availability_map_dict(row) for row in user_unavailability_list]
+        return jsonify(uu_dict), 200
 
     def get_user_schedule(self, us_id, r_date):
         us_dao = UserDAO()

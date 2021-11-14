@@ -129,7 +129,7 @@ class MeetingController:
     def add_attending(self, mt_id, us_id, session_id):
         ownership = UserLevelValidationController().validate_owner_through_mt_id(session_id, mt_id)
         if ownership:
-            meeting = self.get_meeting_by_id(mt_id)
+            meeting = self.get_meeting_by_id(mt_id, session_id)
             if not meeting:
                 return jsonify("MEETING NOT FOUND"), 404
             if self.check_user_busy(us_id, meeting["re_date"], meeting["re_startTime"], meeting["re_endTime"]):
@@ -154,7 +154,7 @@ class MeetingController:
 
         if ownership:
             dao = MeetingDAO()
-            return dao.updateReservation(self, re_id, date, start, end)
+            return dao.updateReservation(re_id, date, start, end)
         else:
             return "User is not creator of this reservation. Cannot modify", 403
 
@@ -208,7 +208,7 @@ class MeetingController:
                                      json['us_id'], json['ro_id'])
         if result == -1:
             return "CONFLICT FOUND", 400
-        return jsonify(result), 200
+        return jsonify(result), 201
 
     #
     def AddAttending(self, json, session_id):

@@ -98,15 +98,15 @@ def most_booked_rooms():
 """
 
 
-@app.route('/meetings/<session_id>', methods=['GET', 'POST'])
-def handleMeeting(session_id):
+@app.route('/meetings', methods=['GET', 'POST'])
+def handleMeeting():
     if request.method == 'POST':
         return MeetingController().CreateMeeting(request.json)
     else:
         return MeetingController().GetMeetings()
 
 
-@app.route('/meetings/<int:id>/<session_id>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/meetings/<int:id>/<int:session_id>', methods=['GET', 'PUT', 'DELETE'])
 def handleMeetingById(id, session_id):
     if request.method == 'GET':
         return MeetingController().GetMeetingByID(id, session_id)
@@ -118,7 +118,7 @@ def handleMeetingById(id, session_id):
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/meetings/<int:id>/reservation/<session_id>', methods=['PUT'])
+@app.route('/meetings/<int:id>/reservation/<int:session_id>', methods=['PUT'])
 def handleReservationUpdate(id, session_id):
     if request.method == 'PUT':
         return MeetingController().UpdateReservation(request.json, session_id)
@@ -126,7 +126,7 @@ def handleReservationUpdate(id, session_id):
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/meetings/<int:id>/attending/<session_id>', methods=['GET', 'POST', 'DELETE'])
+@app.route('/meetings/<int:id>/attending/<int:session_id>', methods=['GET', 'POST', 'DELETE'])
 def handleAttendingById(id, session_id):
     if request.method == 'GET':
         return MeetingController().GetAllAttendingMeeting(id, session_id)
@@ -138,15 +138,15 @@ def handleAttendingById(id, session_id):
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/meetings/rooms/<int:id>/<string:d>/<session_id>', methods=['GET'])
+@app.route('/meetings/rooms/<int:id>/<string:d>/<int:session_id>', methods=['GET'])
 def handleRoomMeetingSchedule(id, d, session_id):
     if request.method == 'GET':
-        return MeetingController().GetMeetingsForRoomOn(id,d, session_id)
+        return MeetingController().GetMeetingsForRoomOn(id, d, session_id)
     else:
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/meetings/rooms/<int:id>/<string:d>/<string:t>/<session_id>', methods=['GET'])
+@app.route('/meetings/rooms/<int:id>/<string:d>/<string:t>/<int:session_id>', methods=['GET'])
 def handleRoomMeetingAt(id,d,t, session_id):
     if request.method == 'GET':
         return MeetingController().GetMeetingForRoomDuring(id,d,t, session_id)
@@ -212,17 +212,14 @@ def users_by_id(id):
         return UserController().update_user(id, request.json)
     if request.method == 'DELETE':
         return UserController().delete_user(id)
-    return UserController().get_user(id)
-
-
-@app.route('/users/user-types/<id>', methods=['GET', 'PUT', 'DELETE'])
-def user_types_by_id(id):
-    if request.method == 'PUT':
-        return "UNDER CONSTRUCTION"
-    if request.method == 'DELETE':
-        return "UNDER CONSTRUCTION"
     else:
-        return UserController().get_user_type(id)
+        return UserController().get_user(id)
+
+
+@app.route('/users/user-types/<id>', methods=['GET'])
+def user_types_by_id(id):
+
+    return UserController().get_user_type(id)
 
 
 @app.route('/users/user-types', methods=['GET', 'POST'])
@@ -233,20 +230,18 @@ def user_types():
         return UserController().get_all_user_types()
 
 
-@app.route('/users/availability', methods=['GET', 'POST', 'DELETE'])
-def user_availability():
+@app.route('/users/availability/<int:session_id>', methods=['POST', 'DELETE'])
+def user_availability(session_id):
     if request.method == 'POST':
-        return UserController().mark_user_unavailability(request.json)
+        return UserController().mark_user_unavailability(request.json, session_id)
     if request.method == 'DELETE':
-        return UserController().delete_user_unavailability(request.json)
-    #else:
-        #return all_user_unavailability
+        return UserController().delete_user_unavailability(request.json, session_id)
 
 
-@app.route('/users/availability/<id>', methods=['GET', 'DELETE'])
-def user_availability_by_id(id):
+@app.route('/users/availability/<id>/<int:session_id>', methods=['GET', 'DELETE'])
+def user_availability_by_id(id, session_id):
     if request.method == 'DELETE':
-        return UserController().delete_user_unavailability_by_id(id)
+        return UserController().delete_user_unavailability_by_id(id, session_id)
     else:
         return UserController().get_user_unavailability(id)
 
@@ -267,5 +262,5 @@ def most_used_rooms(d):
 
 @app.route('/users/meetings/<string:d>')
 def most_meeting_users(d):
-    return UserController().get_user_most_meeting_with_user(d)
+    return UserDAO().user_most_meeting_with_user(d)
 
