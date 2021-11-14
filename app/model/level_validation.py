@@ -126,7 +126,7 @@ class UserLevelValidationDAO:
 
         finally:
             if self.db.connection is not None:
-                result = cur.fetchone()
+                result = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
                 return result

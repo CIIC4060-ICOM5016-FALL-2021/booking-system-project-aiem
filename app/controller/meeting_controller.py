@@ -166,7 +166,7 @@ class MeetingController:
 
     # ONLY OWNER CAN DO THIS TO OTHER PEOPLE, UNLESS YOU WANT TO REMOVE YOURSELF - DONE
     def remove_attending(self, mt_id, us_id, session_id):
-        ownership = UserLevelValidationController().validate_owner_through_mt_id(mt_id, session_id)
+        ownership = UserLevelValidationController().validate_owner_through_mt_id(session_id, mt_id)
 
         if ownership or (us_id == session_id):
             dao = MeetingDAO()
