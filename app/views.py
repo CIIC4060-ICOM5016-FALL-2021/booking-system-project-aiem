@@ -139,6 +139,12 @@ def handleRoomMeetingAt(id,d,t):
     else:
         return jsonify("Method Not Allowed"), 405
 
+@app.route('/meetings/users')
+def getUserInfoByRoomAndTime():
+    return MeetingController().get_reserver_by_time(request.args.get("room"),
+                                                    request.args.get("time"),
+                                                    request.args.get("date"))
+
 @app.route('/meetings/users/<int:id>/<string:d>', methods=['GET'])
 def handleUserMeetingSchedule(id,d):
     if request.method == 'GET':

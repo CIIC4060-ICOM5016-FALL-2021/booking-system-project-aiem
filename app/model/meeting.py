@@ -271,6 +271,37 @@ class MeetingDAO:
         self.conn.commit()
         return affected_rows != 0
 
+    def get_reserver_by_time(self, ro_id, start_time, date):
+        cursor = self.conn.cursor()
+        query = """ select person.us_id, person.us_name, person.us_username, person.us_password, person.ut_id
+                    from (select us_id
+                          from "Reservation"
+                          where "re_startTime" = %s
+                            and "re_date" = %s
+                            and ro_id = %s) as reserver,
+                         "User" as person
+                    where person.us_id = reserver.us_id;"""
+        values = (
+            start_time,
+            date,
+            ro_id
+        )
+        cursor.execute(query, values)
+        result = cursor.fetchone()
+        cursor.close()
+        self.conn.close()
+        return result
+
+    # in progress
+    def get_available_time_attendees(self, mt_id):
+        cursor = self.conn.cursor()
+        query = """pending"""
+        cursor.execute(query, )
+        result = []
+        for row in cursor:
+            result.append(row)
+        return result
+
     def busiest_hour(self):
         cur = self.conn.cursor()
         query = """select "re_startTime", "re_endTime", count("re_startTime")
