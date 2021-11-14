@@ -43,14 +43,19 @@ class UserController:
 
     def update_user(self, us_id, json):
         us_dao = UserDAO()
-        us_dao.update_user(json['us_name'], json['us_username'], json['us_password'], json['ut_id'], us_id)
-        user = (us_id,
-                json['us_name'],
-                json['us_username'],
-                json['us_password'],
-                json['ut_id'])
-        us_dict = self.build_user_map_dict(user)
-        return jsonify(us_dict), 200
+        user_exists = us_dao.get_user(us_id)
+        if user_exists:
+            us_dao = UserDAO()
+            us_dao.update_user(json['us_name'], json['us_username'], json['us_password'], json['ut_id'], us_id)
+            user = (us_id,
+                    json['us_name'],
+                    json['us_username'],
+                    json['us_password'],
+                    json['ut_id'])
+            us_dict = self.build_user_map_dict(user)
+            return jsonify(us_dict), 200
+        else:
+            return jsonify("No such user"), 404
 
     def delete_user(self, us_id):
         us_dao = UserDAO()
