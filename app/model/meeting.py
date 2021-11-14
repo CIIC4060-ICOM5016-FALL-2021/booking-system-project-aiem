@@ -169,7 +169,7 @@ class MeetingDAO:
     def insertReservation(self, re_date, re_startTime, re_endTime, us_id, ro_id):
         cursor = self.conn.cursor()
         query = """insert into "Reservation" (re_date, "re_startTime","re_endTime",us_id,ro_id) values 
-                                (%s,%s,%s,%s,%s) returning mt_id;"""
+                                (%s,%s,%s,%s,%s) returning re_id;"""
         cursor.execute(query, (re_date, re_startTime, re_endTime, us_id, ro_id,))
         re_id = cursor.fetchone()[0]
         self.conn.commit()

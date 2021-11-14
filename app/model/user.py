@@ -33,6 +33,114 @@ class UserDAO:
                 self.db.close()
                 return us_id
 
+    def mark_user_unavailability(self, uu_date, start_time, end_time, user_id):
+        try:
+            cur = self.db.connection.cursor()
+            query = """INSERT INTO "UserUnavailability"(uu_id, uu_date, "uu_startTime", "uu_endTime", us_id)
+                       VALUES(DEFAULT, %s, %s, %s, %s)
+                       RETURNING uu_id;"""
+            query_values = (
+                uu_date,
+                start_time,
+                end_time,
+                user_id
+            )
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing mark_user_unavailability", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                uu_id = cur.fetchone()[0]
+                cur.close()
+                self.db.close()
+                return uu_id
+
+    def delete_user_unavailability(self, start_time, end_time, user_id):
+        try:
+            cur = self.db.connection.cursor()
+            query = """DELETE FROM "UserUnavailability"
+                       WHERE "uu_startTime" = %s AND "uu_endTime" = %s AND us_id = %s;"""
+            query_value = (start_time,
+                           end_time,
+                           user_id)
+            cur.execute(query, query_value)
+            affected_rows = cur.rowcount
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing delete_user_unavailability (By us_id, start_time and end_time)"), error
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                cur.close()
+                self.db.close()
+                return affected_rows != 0
+
+    def delete_user_unavailability_by_id(self, uu_id):
+        try:
+            cur = self.db.connection.cursor()
+            query = """DELETE FROM "UserUnavailability"
+                       WHERE uu_id = %s;"""
+            query_values = (uu_id,)
+            cur.execute(query, query_values)
+            affected_rows = cur.rowcount
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing delete_user_unavailability_by_id"), error
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                cur.close()
+                self.db.close()
+                return affected_rows != 0
+
+    def get_user_unavailability(self, us_id):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT uu_id, uu_date, "uu_startTime", "uu_endTime", us_id
+                       FROM "UserUnavailability" WHERE us_id = %s; """
+            query_values = (us_id,)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user_unavailability", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
+
+    def get_user_unavailability_date(self, us_id, date):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT uu_id, uu_date, "uu_startTime", "uu_endTime", us_id
+                       FROM "UserUnavailability" WHERE us_id = %s AND uu_date = %s; """
+            query_values = (us_id, date)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user_unavailability_date", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
+
     def get_user(self, user_id):
         try:
             cur = self.db.connection.cursor()
@@ -50,6 +158,38 @@ class UserDAO:
         finally:
             if self.db.connection is not None:
                 result = cur.fetchone()
+                cur.close()
+                self.db.close()
+                return result
+
+    def get_user_schedule(self, us_id, date):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT rstart, rend, title, rdesc FROM ((
+                                        SELECT "re_startTime" AS rstart, "re_endTime" AS rend, mt_name AS title, mt_desc AS rdesc
+                                        FROM "Reservation" NATURAL INNER JOIN "Meeting"
+                                        WHERE re_date = %s
+                                        AND us_id = %s
+                                    )UNION(
+                                        SELECT "uu_startTime" AS rstart, "uu_endTime" AS rend, 'Unavailable' AS title, '' AS rdesc
+                                        FROM "UserUnavailability"
+                                        WHERE uu_date = %s
+                                        AND us_id = %s
+                                    )) AS schedule ORDER BY rstart ASC;"""
+            query_values = (date,
+                            us_id,
+                            date,
+                            us_id)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user_schedule operation", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = [row for row in cur]
                 cur.close()
                 self.db.close()
                 return result
