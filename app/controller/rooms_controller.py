@@ -59,65 +59,89 @@ class RoomsController:
         return jsonify(room_types), 200
 
     def set_room_unavailability(self, ro_id, admin, json):
-        ro_dao = RoomsDAO()
         if admin:
-            ru_id = ro_dao.set_room_unavailability(json["ru_date"],
-                                                   json["ru_startTime"],
-                                                   json["ru_endTime"],
-                                                   ro_id)
-            unavailability = (ru_id,
-                              json["ru_date"],
-                              json["ru_startTime"],
-                              json["ru_endTime"],
-                              ro_id)
-            ru_dict = self.build_room_unavailability_dict(unavailability)
-            return jsonify(ru_dict), 201
+            ro_dao = RoomsDAO()
+            room_exists = ro_dao.get_room(ro_id)
+            if room_exists:
+                ro_dao = RoomsDAO()
+                ru_id = ro_dao.set_room_unavailability(json["ru_date"],
+                                                       json["ru_startTime"],
+                                                       json["ru_endTime"],
+                                                       ro_id)
+                unavailability = (ru_id,
+                                  datetime.strptime(json["ru_date"], "%Y-%m-%d").date(),
+                                  datetime.strptime(json["ru_startTime"], "%H:%M:%S").time(),
+                                  datetime.strptime(json["ru_endTime"], "%H:%M:%S").time(),
+                                  ro_id)
+                ru_dict = self.build_room_unavailability_dict(unavailability)
+                return jsonify(ru_dict), 201
+            else:
+                return jsonify("No such room"), 404
         else:
             return jsonify("Forbidden"), 403
 
     def update_room_unavailability(self, ru_id, ro_id, admin, json):
-        ro_dao = RoomsDAO()
         if admin:
-            ro_dao.update_room_unavailability(ru_id,
-                                              json["ru_date"],
-                                              json["ru_startTime"],
-                                              json["ru_endTime"],
-                                              ro_id)
-            unavailability = (ru_id,
-                              datetime.strptime(json["ru_date"], "%Y-%m-%d").date(),
-                              datetime.strptime(json["ru_startTime"], "%H:%M:%S").time(),
-                              datetime.strptime(json["ru_endTime"], "%H:%M:%S").time(),
-                              ro_id)
-            ru_dict = self.build_room_unavailability_dict(unavailability)
-            return jsonify(ru_dict), 201
+            ro_dao = RoomsDAO()
+            unavailable = ro_dao.get_room_unavailability_by_id(ru_id, ro_id)
+            ro_dao = RoomsDAO()
+            room = ro_dao.get_room(ro_id)
+            if unavailable and room:
+                ro_dao = RoomsDAO()
+                ro_dao.update_room_unavailability(ru_id,
+                                                  json["ru_date"],
+                                                  json["ru_startTime"],
+                                                  json["ru_endTime"],
+                                                  ro_id)
+                unavailability = (ru_id,
+                                  datetime.strptime(json["ru_date"], "%Y-%m-%d").date(),
+                                  datetime.strptime(json["ru_startTime"], "%H:%M:%S").time(),
+                                  datetime.strptime(json["ru_endTime"], "%H:%M:%S").time(),
+                                  ro_id)
+                ru_dict = self.build_room_unavailability_dict(unavailability)
+                return jsonify(ru_dict), 201
+            else:
+                return jsonify("No such room or unavailable slot"), 404
         else:
             return jsonify("Forbidden"), 403
 
     def get_room_unavailability_by_id(self, ru_id, ro_id):
         ro_dao = RoomsDAO()
         unavailable = ro_dao.get_room_unavailability_by_id(ru_id, ro_id)
-        if not unavailable:
-            return jsonify("Not Found"), 404
-        else:
+        ro_dao = RoomsDAO()
+        room = ro_dao.get_room(ro_id)
+        if unavailable and room:
             ru_dict = self.build_room_unavailability_dict(unavailable)
             return jsonify(ru_dict), 200
+        else:
+            return jsonify("No such room or unavailable slot"), 404
 
     def get_room_unavailability(self, ro_id, ru_date):
         ro_dao = RoomsDAO()
-        if ru_date is not None:
-            room_unavailable_list = ro_dao.get_room_unavailability_date(ro_id, ru_date)
-            ru_dict = [self.build_room_unavailability_dict(row) for row in room_unavailable_list]
-            return jsonify(ru_dict), 200
+        room_exists = ro_dao.get_room(ro_id)
+        if room_exists:
+            ro_dao = RoomsDAO()
+            if ru_date is not None:
+                room_unavailable_list = ro_dao.get_room_unavailability_date(ro_id, ru_date)
+                ru_dict = [self.build_room_unavailability_dict(row) for row in room_unavailable_list]
+                return jsonify(ru_dict), 200
+            else:
+                room_unavailable_list = ro_dao.get_room_unavailability(ro_id)
+                ru_dict = [self.build_room_unavailability_dict(row) for row in room_unavailable_list]
+                return jsonify(ru_dict), 200
         else:
-            room_unavailable_list = ro_dao.get_room_unavailability(ro_id)
-            ru_dict = [self.build_room_unavailability_dict(row) for row in room_unavailable_list]
-            return jsonify(ru_dict), 200
+            return jsonify("No such room"), 404
 
     def get_room_schedule(self, ro_id, r_date):
         ro_dao = RoomsDAO()
-        room_schedule = ro_dao.get_room_schedule(ro_id, r_date)
-        schedule_dict = [self.build_room_schedule_dict(row) for row in room_schedule]
-        return jsonify(schedule_dict), 200
+        room_exists = ro_dao.get_room(ro_id)
+        if room_exists:
+            ro_dao = RoomsDAO()
+            room_schedule = ro_dao.get_room_schedule(ro_id, r_date)
+            schedule_dict = [self.build_room_schedule_dict(row) for row in room_schedule]
+            return jsonify(schedule_dict), 200
+        else:
+            return jsonify("No such room"), 404
 
     def get_available_by_date_and_time(self, r_date, r_start, r_end):
         ro_dao = RoomsDAO()
@@ -140,21 +164,26 @@ class RoomsController:
     def get_room(self, ro_id):
         ro_dao = RoomsDAO()
         room = ro_dao.get_room(ro_id)
-        if not room:
-            return jsonify("Not Found"), 404
-        else:
+        if room:
             ro_dict = self.build_room_dict(room)
             return jsonify(ro_dict), 200
+        else:
+            return jsonify("Room not found"), 404
 
     def update_room(self, ro_id, json):
         ro_dao = RoomsDAO()
-        ro_dao.update_room(json['ro_name'], json['ro_location'], json['rt_id'], ro_id)
-        room = (ro_id,
-                json['ro_name'],
-                json['ro_location'],
-                json['rt_id'])
-        ro_dict = self.build_room_dict(room)
-        return jsonify(ro_dict), 200
+        room_exists = ro_dao.get_room(ro_id)
+        if room_exists:
+            ro_dao = RoomsDAO()
+            ro_dao.update_room(json['ro_name'], json['ro_location'], json['rt_id'], ro_id)
+            room = (ro_id,
+                    json['ro_name'],
+                    json['ro_location'],
+                    json['rt_id'])
+            ro_dict = self.build_room_dict(room)
+            return jsonify(ro_dict), 200
+        else:
+            return jsonify("No such room"), 404
 
     def delete_room(self, ro_id):
         ro_dao = RoomsDAO()
@@ -162,21 +191,27 @@ class RoomsController:
         if result:
             return jsonify("Deleted"), 200
         else:
-            return jsonify("Not Found"), 404
+            return jsonify("No such room"), 404
 
     def create_room_type(self, json):
-        dao = RoomTypeDAO()
-        rt_id = dao.create_room_type(json['rt_name'], json['rt_level'])
-        room_type = (rt_id,
-                     json['rt_name'],
-                     json['rt_level'])
-        rt_dict = self.build_room_type_dict(room_type)
-        return jsonify(rt_dict), 201
+        if 4 > json['rt_level'] > 0:
+            dao = RoomTypeDAO()
+            rt_id = dao.create_room_type(json['rt_name'], json['rt_level'])
+            room_type = (rt_id,
+                         json['rt_name'],
+                         json['rt_level'])
+            rt_dict = self.build_room_type_dict(room_type)
+            return jsonify(rt_dict), 201
+        else:
+            return jsonify("Invalid level number"), 422
 
     def get_room_type(self, rt_id):
         dao = RoomTypeDAO()
-        room_type = self.build_room_type_dict(dao.get_room_type(rt_id))
-        return jsonify(room_type)
+        room_type = dao.get_room_type(rt_id)
+        if room_type:
+            return jsonify(self.build_room_type_dict(room_type)), 200
+        else:
+            return jsonify("No such room type"), 404
 
     def get_most_booked_room(self):
         dao = RoomsDAO()
