@@ -22,6 +22,14 @@ class UserController:
         return result
 
     @staticmethod
+    def build_user_schedule_map_dict(row):
+        result = {'rstart': row[0].strftime("%H:%M:%S"),
+                  'rend': row[1].strftime("%H:%M:%S"),
+                  'title': row[2],
+                  'rdesc': row[3]}
+        return result
+
+    @staticmethod
     def build_most_booked_user_map_dict(row):
         result = {'us_name': row[0], 'count': row[1]}
         return result
@@ -103,6 +111,23 @@ class UserController:
                           json['us_id'])
         ua_dict = self.build_user_availability_map_dict(unavailability)
         return jsonify(ua_dict), 201
+
+    def get_user_unavailability(self, us_id, uu_date):
+        us_dao = UserDAO()
+        if uu_date is not None:
+            user_unavailability_list = us_dao.get_user_unavailability_date(us_id, uu_date)
+            uu_dict = [self.build_user_availability_map_dict(row) for row in user_unavailability_list]
+            return jsonify(uu_dict), 200
+        else:
+            user_unavailability_list = us_dao.get_user_unavailability(us_id)
+            uu_dict = [self.build_user_availability_map_dict(row) for row in user_unavailability_list]
+            return jsonify(uu_dict), 200
+
+    def get_user_schedule(self, us_id, r_date):
+        us_dao = UserDAO
+        user_schedule = us_dao.get_user_schedule(us_id, r_date)
+        schedule_dict = [self.build_user_schedule_map_dict(row) for row in user_schedule]
+        return jsonify(schedule_dict), 200
 
     def get_user(self, us_id):
         us_dao = UserDAO()

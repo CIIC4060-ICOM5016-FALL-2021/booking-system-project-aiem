@@ -2,7 +2,6 @@ from app import app
 from app.controller.rooms_controller import *
 from app.controller.meeting_controller import *
 from app.controller.user_controller import *
-from app.controller.level_validation_controller import *
 from flask import render_template, request, jsonify
 
 
@@ -134,7 +133,7 @@ def handleAttendingById(id, session_id):
 
 
 @app.route('/meetings/rooms/<int:id>/<string:d>/<session_id>', methods=['GET'])
-def handleRoomMeetingSchedule(id,d, session_id):
+def handleRoomMeetingSchedule(id, d, session_id):
     if request.method == 'GET':
         return MeetingController().GetMeetingsForRoomOn(id,d, session_id)
     else:
@@ -233,8 +232,13 @@ def user_availability():
 def user_availability_by_id(id):
     if request.method == 'DELETE':
         return UserController().delete_user_unavailability_by_id(id)
-    #else:
-        #return user_availability_by_id
+    else:
+        return UserController().get_user_unavailability(id)
+
+@app.route('/users/<int:id>/schedule')
+def user_schedule(id):
+    print(request.args.get("date"))
+    return UserController().get_user_schedule(id, request.args.get("date"))
 
 
 @app.route('/users/most')

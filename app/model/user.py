@@ -101,6 +101,46 @@ class UserDAO:
                 self.db.close()
                 return affected_rows != 0
 
+    def get_user_unavailability(self, us_id):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT uu_id, uu_date, "uu_startTime", "uu_endTime", us_id
+                       FROM "UserUnavailability" WHERE us_id = %s; """
+            query_values = (us_id,)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user_unavailability", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
+
+    def get_user_unavailability_date(self, us_id, date):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT uu_id, uu_date, "uu_startTime", "uu_endTime", us_id
+                       FROM "UserUnavailability" WHERE us_id = %s AND uu_date = %s; """
+            query_values = (us_id, date)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user_unavailability_date", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
+
     def get_user(self, user_id):
         try:
             cur = self.db.connection.cursor()
@@ -118,6 +158,38 @@ class UserDAO:
         finally:
             if self.db.connection is not None:
                 result = cur.fetchone()
+                cur.close()
+                self.db.close()
+                return result
+
+    def get_user_schedule(self, us_id, date):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT rstart, rend, title, rdesc FROM ((
+                                        SELECT "re_startTime" AS rstart, "re_endTime" AS rend, mt_name AS title, mt_desc AS rdesc
+                                        FROM "Reservation" NATURAL INNER JOIN "Meeting"
+                                        WHERE re_date = %s
+                                        AND us_id = %s
+                                    )UNION(
+                                        SELECT "uu_startTime" AS rstart, "uu_endTime" AS rend, 'Unavailable' AS title, '' AS rdesc
+                                        FROM "UserUnavailability"
+                                        WHERE uu_date = %s
+                                        AND us_id = %s
+                                    )) AS schedule ORDER BY rstart ASC;"""
+            query_values = (date,
+                            us_id,
+                            date,
+                            us_id)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user_schedule operation", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = [row for row in cur]
                 cur.close()
                 self.db.close()
                 return result
