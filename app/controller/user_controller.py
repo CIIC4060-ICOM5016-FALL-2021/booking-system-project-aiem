@@ -114,14 +114,17 @@ class UserController:
         return jsonify(u_dict), 201
 
     def create_user_type(self, json):
-        ut_dao = UserTypeDAO()
-        ut_id = ut_dao.create_user_type(json['ut_name'], json['ut_isAdmin'], json['ut_level'])
-        user_type = (ut_id,
-                     json['ut_name'],
-                     json['ut_isAdmin'],
-                     json['ut_level'])
-        ut_dict = self.build_user_type_map_dict(user_type)
-        return jsonify(ut_dict), 201
+        if 4 > json['ut_level'] > 0:
+            ut_dao = UserTypeDAO()
+            ut_id = ut_dao.create_user_type(json['ut_name'], json['ut_isAdmin'], json['ut_level'])
+            user_type = (ut_id,
+                         json['ut_name'],
+                         json['ut_isAdmin'],
+                         json['ut_level'])
+            ut_dict = self.build_user_type_map_dict(user_type)
+            return jsonify(ut_dict), 201
+        else:
+            return jsonify("Invalid level number"), 422
 
     def mark_user_unavailability(self, json, session_id):
         us_dao = UserDAO()
@@ -145,15 +148,25 @@ class UserController:
 
     def get_user_unavailability(self, us_id):
         us_dao = UserDAO()
-        user_unavailability_list = us_dao.get_user_unavailability(us_id)
-        uu_dict = [self.build_user_availability_map_dict(row) for row in user_unavailability_list]
-        return jsonify(uu_dict), 200
+        user_exists = us_dao.get_user(us_id)
+        if user_exists:
+            us_dao = UserDAO()
+            user_unavailability_list = us_dao.get_user_unavailability(us_id)
+            uu_dict = [self.build_user_availability_map_dict(row) for row in user_unavailability_list]
+            return jsonify(uu_dict), 200
+        else:
+            return jsonify("No such user"), 404
 
     def get_user_schedule(self, us_id, r_date):
         us_dao = UserDAO()
-        user_schedule = us_dao.get_user_schedule(us_id, r_date)
-        schedule_dict = [self.build_user_schedule_map_dict(row) for row in user_schedule]
-        return jsonify(schedule_dict), 200
+        user_exists = us_dao.get_user(us_id)
+        if user_exists:
+            us_dao = UserDAO()
+            user_schedule = us_dao.get_user_schedule(us_id, r_date)
+            schedule_dict = [self.build_user_schedule_map_dict(row) for row in user_schedule]
+            return jsonify(schedule_dict), 200
+        else:
+            return jsonify("No such user"), 404
 
     def get_user(self, us_id):
         us_dao = UserDAO()
