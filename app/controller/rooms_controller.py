@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime
 
 from flask import jsonify
 
@@ -112,11 +112,17 @@ class RoomsController:
             ru_dict = [self.build_room_unavailability_dict(row) for row in room_unavailable_list]
             return jsonify(ru_dict), 200
 
-    def get_room_schedule(self, ro_id, date):
+    def get_room_schedule(self, ro_id, r_date):
         ro_dao = RoomsDAO()
-        room_schedule = ro_dao.get_room_schedule(ro_id, date)
+        room_schedule = ro_dao.get_room_schedule(ro_id, r_date)
         schedule_dict = [self.build_room_schedule_dict(row) for row in room_schedule]
         return jsonify(schedule_dict), 200
+
+    def get_available_by_date_and_time(self, r_date, r_start, r_end):
+        ro_dao = RoomsDAO()
+        available_rooms = ro_dao.get_available_by_date_and_time(r_date, r_start, r_end)
+        available_dict = [self.build_room_dict(row) for row in available_rooms]
+        return jsonify(available_dict), 200
 
     # operating under the assumption that there already exists a room type of type_name
     def create_room(self, json):

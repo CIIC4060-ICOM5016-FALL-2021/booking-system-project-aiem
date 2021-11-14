@@ -177,11 +177,14 @@ class UserDAO:
                       where us_id = %s) as A,
                 "Attending" as M
                 where M.mt_id = A.MT1
-                EXCEPT (SELECT * FROM "Attending" where us_id = 11)
+                EXCEPT (SELECT * FROM "Attending" where us_id = %s)
             ) as R  natural inner join "User"
             group by us_name
             order by count(us_id) DESC LIMIT 1"""
-            query_values = (us_id,)
+            query_values = (
+                us_id,
+                us_id
+            )
             cur.execute(query, query_values)
             self.db.connection.commit()
 
