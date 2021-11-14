@@ -323,17 +323,17 @@ class MeetingDAO:
                           WHERE sslots.sid = eslots.sid) AS ts
                     WHERE (ts.start < us.start OR ts.start >= us.finish)
                     AND (ts.finish <= us.start OR ts.finish > us.finish)
-                    group by ts.start, ts.finish
-                    ORDER BY random() LIMIT 1;"""
+                    ORDER BY ts.start;"""
         values = (
             date,
             date,
             attendees
         )
         cursor.execute(query, values)
-        result = cursor.fetchone()
+        result = [row for row in cursor]
         cursor.close()
         self.conn.close()
+        print(result)
         return result
 
     def busiest_hour(self):
