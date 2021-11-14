@@ -333,7 +333,6 @@ class MeetingDAO:
         result = [row for row in cursor]
         cursor.close()
         self.conn.close()
-        print(result)
         return result
 
     def busiest_hour(self):

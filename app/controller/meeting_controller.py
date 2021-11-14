@@ -250,9 +250,11 @@ class MeetingController:
         return jsonify(time_slot_dict), 200
 
     def getReserverByTime(self, ro_id, start_time, date):
-        return jsonify(self.build_user_map_dict(
-            [row for row in MeetingDAO().get_reserver_by_time(ro_id, start_time, date)])
-        ), 200
+        reserver = MeetingDAO().get_reserver_by_time(ro_id, start_time, date)
+        if reserver:
+            return jsonify(self.build_user_map_dict(reserver)), 200
+        else:
+            return jsonify("Room not booked at this time"), 404
 
     def get_busiest_hour(self):
         dao = MeetingDAO()
