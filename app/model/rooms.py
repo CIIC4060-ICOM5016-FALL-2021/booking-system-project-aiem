@@ -34,7 +34,7 @@ class RoomsDAO:
 
         except(Exception, psycopg2.Error) as error:
             # error handling
-            print("Error executing create_room operation", error)
+            print("Error executing set_room_unavailability operation", error)
             self.db.connection = None
 
         finally:
@@ -65,7 +65,7 @@ class RoomsDAO:
 
         except(Exception, psycopg2.Error) as error:
             # error handling
-            print("Error executing create_room operation", error)
+            print("Error executing update_room_unavailability operation", error)
             self.db.connection = None
 
         finally:
@@ -88,7 +88,7 @@ class RoomsDAO:
 
         except(Exception, psycopg2.Error) as error:
             # error handling
-            print("Error executing get_room operation", error)
+            print("Error executing get_room_unavailability operation", error)
             self.db.connection = None
 
         finally:
@@ -117,7 +117,7 @@ class RoomsDAO:
 
         except(Exception, psycopg2.Error) as error:
             # error handling
-            print("Error executing get_room operation", error)
+            print("Error executing get_room_unavailability_by_id operation", error)
             self.db.connection = None
 
         finally:
@@ -146,7 +146,7 @@ class RoomsDAO:
 
         except(Exception, psycopg2.Error) as error:
             # error handling
-            print("Error executing get_room operation", error)
+            print("Error executing get_room_unavailability_date operation", error)
             self.db.connection = None
 
         finally:
@@ -185,7 +185,7 @@ class RoomsDAO:
 
         except(Exception, psycopg2.Error) as error:
             # error handling
-            print("Error executing get_room operation", error)
+            print("Error executing get_room_schedule operation", error)
             self.db.connection = None
 
         finally:

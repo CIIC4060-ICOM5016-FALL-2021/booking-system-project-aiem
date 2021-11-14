@@ -303,7 +303,7 @@ class UserDAO:
                 self.db.close()
                 return result
 
-    def user_most_meeting_with_user(self, us_id):
+    def user_most_meeting_with_user(self, us_name):
         try:
             cur = self.db.connection.cursor()
 
@@ -312,21 +312,22 @@ class UserDAO:
             #   2nd we find all others who are connected in that meeting, except user
             #   3rd we count to find the user who connects the most with the input
 
-            query = """select us_name as Name, count(us_id)
+            query = """select us_name as Name, count(us_name)
             from (
                 select M.mt_id, M.us_id
                 from (select mt_id as MT1
-                      from "Attending"
-                      where us_id = %s) as A,
+                      from "Attending" natural inner join
+                      "User" where us_name = %s) as A,
                 "Attending" as M
                 where M.mt_id = A.MT1
-                EXCEPT (SELECT * FROM "Attending" where us_id = %s)
+                EXCEPT (SELECT mt_id, us_id FROM "Attending"
+                natural inner join "User" where us_name = %s)
             ) as R  natural inner join "User"
             group by us_name
             order by count(us_id) DESC LIMIT 1"""
             query_values = (
-                us_id,
-                us_id
+                us_name,
+                us_name,
             )
             cur.execute(query, query_values)
             self.db.connection.commit()
