@@ -124,7 +124,7 @@ class UserController:
             return jsonify(uu_dict), 200
 
     def get_user_schedule(self, us_id, r_date):
-        us_dao = UserDAO
+        us_dao = UserDAO()
         user_schedule = us_dao.get_user_schedule(us_id, r_date)
         schedule_dict = [self.build_user_schedule_map_dict(row) for row in user_schedule]
         return jsonify(schedule_dict), 200

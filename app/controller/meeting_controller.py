@@ -248,9 +248,9 @@ class MeetingController:
 
     def getReserverByTime(self, ro_id, start_time, date):
         return jsonify(self.build_user_map_dict(
-            [row for row in MeetingDAO().get_reserver_by_time(ro_id,start_time, date)])
+            [row for row in MeetingDAO().get_reserver_by_time(ro_id, start_time, date)])
         ), 200
-    #
+
     def get_busiest_hour(self):
         dao = MeetingDAO()
         meeting_list = dao.busiest_hour()

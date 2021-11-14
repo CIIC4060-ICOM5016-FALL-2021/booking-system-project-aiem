@@ -166,16 +166,19 @@ class UserDAO:
         try:
             cur = self.db.connection.cursor()
             query = """SELECT rstart, rend, title, rdesc FROM ((
-                                        SELECT "re_startTime" AS rstart, "re_endTime" AS rend, mt_name AS title, mt_desc AS rdesc
-                                        FROM "Reservation" NATURAL INNER JOIN "Meeting"
-                                        WHERE re_date = %s
-                                        AND us_id = %s
+                                        SELECT res."re_startTime" as rstart, res."re_endTime" as rend, met.mt_name AS title, met.mt_desc AS rdesc
+                                        FROM (SELECT * FROM "Reservation" WHERE re_date = %s) as res,
+                                             (SELECT * FROM "Meeting") as met,
+                                             (SELECT * FROM "Attending") as att
+                                        WHERE met.re_id = res.re_id
+                                        AND met.mt_id = att.mt_id
+                                        AND %s in (att.us_id)
                                     )UNION(
                                         SELECT "uu_startTime" AS rstart, "uu_endTime" AS rend, 'Unavailable' AS title, '' AS rdesc
                                         FROM "UserUnavailability"
                                         WHERE uu_date = %s
                                         AND us_id = %s
-                                    )) AS schedule ORDER BY rstart ASC;"""
+                                    )) AS schedule ORDER BY rstart;"""
             query_values = (date,
                             us_id,
                             date,
