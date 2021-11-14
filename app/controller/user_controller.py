@@ -67,38 +67,43 @@ class UserController:
 
     def delete_user_unavailability(self, json, session_id):
         us_dao = UserDAO()
-
-        if json['us_id'] == session_id:
-            result = us_dao.delete_user_unavailability(json['uu_startTime'], json['uu_endTime'], json['us_id'])
-            if result:
-                return jsonify("DELETED"), 200
+        user_exists = us_dao.get_user(json['us_id'])
+        if user_exists:
+            us_dao = UserDAO()
+            if json['us_id'] == session_id:
+                result = us_dao.delete_user_unavailability(json['uu_startTime'], json['uu_endTime'], json['us_id'])
+                if result:
+                    return jsonify("DELETED"), 200
+                else:
+                    return jsonify("NOT FOUND"), 404
             else:
-                return jsonify("NOT FOUND"), 404
+                return jsonify("User cannot delete a different user's availability"), 403
         else:
-            return jsonify("User cannot delete a different user's availability"), 403
+            return jsonify("User does not exist"), 404
 
     def delete_user_unavailability_by_id(self, uu_id, session_id):
+        us_dao = UserDAO()
         uv_cont = UserLevelValidationController()
         us_id = uv_cont.get_us_id_from_uu_id(uu_id)
-
-        if us_id == session_id:
-            us_dao = UserDAO()
-            result = us_dao.delete_user_unavailability_by_id(uu_id)
-            if result:
-                return jsonify("DELETED"), 200
+        user_exists = us_dao.get_user(us_id)
+        if user_exists:
+            uv_cont = UserLevelValidationController()
+            us_id = uv_cont.get_us_id_from_uu_id(uu_id)
+            print("This is us_id: ", us_id)
+            if us_id == session_id:
+                us_dao = UserDAO()
+                result = us_dao.delete_user_unavailability_by_id(uu_id)
+                if result:
+                    return jsonify("DELETED"), 200
+                else:
+                    return jsonify("NOT FOUND"), 404
             else:
-                return jsonify("NOT FOUND"), 404
+                return jsonify("User cannot delete a different user's availability"), 403
         else:
-            return jsonify("User cannot delete a different user's availability"), 403
+            return jsonify("User does not exist"), 404
 
     def create_user(self, json):
         u_dao = UserDAO()
-        #Old Method
-        #ut_dao = UserTypeDAO()
-        #ut_dict = build_user_type_dict(ut_dao.get_user_type_by_name(type_name))
-        #ut_id = ut_dict.get('ut_id')
-        #u_dao.create_user(name, username, password, ut_id)
-
         u_id = u_dao.create_user(json['us_name'], json['us_username'], json['us_password'], json['ut_id'])
         user = (u_id,
                 json['us_name'],
@@ -120,18 +125,23 @@ class UserController:
 
     def mark_user_unavailability(self, json, session_id):
         us_dao = UserDAO()
-        us_id = json['us_id']
-        if us_id == session_id:
-            uu_id = us_dao.mark_user_unavailability(json['uu_date'], json['uu_startTime'], json['uu_endTime'], json['us_id'])
-            unavailability = (uu_id,
-                              datetime.strptime(json["uu_date"], "%Y-%m-%d").date(),
-                              datetime.strptime(json["uu_startTime"], "%H:%M:%S").time(),
-                              datetime.strptime(json["uu_endTime"], "%H:%M:%S").time(),
-                              json['us_id'])
-            ua_dict = self.build_user_availability_map_dict(unavailability)
-            return jsonify(ua_dict), 201
+        user_exists = us_dao.get_user(json['us_id'])
+        if user_exists:
+            us_dao = UserDAO()
+            us_id = json['us_id']
+            if us_id == session_id:
+                uu_id = us_dao.mark_user_unavailability(json['uu_date'], json['uu_startTime'], json['uu_endTime'], json['us_id'])
+                unavailability = (uu_id,
+                                  datetime.strptime(json["uu_date"], "%Y-%m-%d").date(),
+                                  datetime.strptime(json["uu_startTime"], "%H:%M:%S").time(),
+                                  datetime.strptime(json["uu_endTime"], "%H:%M:%S").time(),
+                                  json['us_id'])
+                ua_dict = self.build_user_availability_map_dict(unavailability)
+                return jsonify(ua_dict), 201
+            else:
+                return jsonify("User cannot mark a different user as unavailable"), 403
         else:
-            return jsonify("User cannot mark a different user as unavailable"), 403
+            return jsonify("User does not exist"), 404
 
     def get_user_unavailability(self, us_id):
         us_dao = UserDAO()
@@ -156,8 +166,12 @@ class UserController:
 
     def get_user_type(self, ut_id):
         ut_dao = UserTypeDAO()
-        user_type = self.build_user_type_map_dict(ut_dao.get_user_type(ut_id))
-        return jsonify(user_type)
+        user_type = ut_dao.get_user_type(ut_id)
+        if not user_type:
+            return jsonify("Not Found"), 404
+        else:
+            ut_dict = self.build_user_type_map_dict(user_type)
+            return jsonify(ut_dict), 200
 
     def get_all_users(self):
         dao = UserDAO()
