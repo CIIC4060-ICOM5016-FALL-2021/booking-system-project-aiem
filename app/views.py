@@ -2,7 +2,8 @@ from app import app
 from app.controller.rooms_controller import *
 from app.controller.meeting_controller import *
 from app.controller.user_controller import *
-from flask import render_template, request
+from app.controller.level_validation_controller import *
+from flask import render_template, request, jsonify
 
 
 @app.route('/')
@@ -92,58 +93,58 @@ def most_booked_rooms():
 """
 
 
-@app.route('/meetings', methods=['GET', 'POST'])
-def handleMeeting():
+@app.route('/meetings/<session_id>', methods=['GET', 'POST'])
+def handleMeeting(session_id):
     if request.method == 'POST':
         return MeetingController().CreateMeeting(request.json)
     else:
         return MeetingController().GetMeetings()
 
 
-@app.route('/meetings/<int:id>', methods=['GET', 'PUT', 'DELETE'])
-def handleMeetingById(id):
+@app.route('/meetings/<int:id>/<session_id>', methods=['GET', 'PUT', 'DELETE'])
+def handleMeetingById(id, session_id):
     if request.method == 'GET':
-        return MeetingController().GetMeetingByID(id)
+        return MeetingController().GetMeetingByID(id, session_id)
     elif  request.method == 'PUT':
-        return MeetingController().UpdateMeeting(request.json)
+        return MeetingController().UpdateMeeting(request.json, session_id)
     elif request.method == 'DELETE':
         return MeetingController().RemoveMeeting(id)
     else:
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/meetings/<int:id>/reservation', methods=['PUT'])
-def handleReservationUpdate(id):
+@app.route('/meetings/<int:id>/reservation/<session_id>', methods=['PUT'])
+def handleReservationUpdate(id, session_id):
     if request.method == 'PUT':
-        return MeetingController().UpdateReservation(request.json)
+        return MeetingController().UpdateReservation(request.json, session_id)
     else:
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/meetings/<int:id>/attending', methods=['GET', 'POST', 'DELETE'])
-def handleAttendingById(id):
+@app.route('/meetings/<int:id>/attending/<session_id>', methods=['GET', 'POST', 'DELETE'])
+def handleAttendingById(id, session_id):
     if request.method == 'GET':
-        return MeetingController().GetAllAttendingMeeting(id)
+        return MeetingController().GetAllAttendingMeeting(id, session_id)
     elif  request.method == 'POST':
-        return MeetingController().AddAttending(request.json)
+        return MeetingController().AddAttending(request.json, session_id)
     elif request.method == 'DELETE':
-        return MeetingController().RemoveAttending(request.json)
+        return MeetingController().RemoveAttending(request.json, session_id)
     else:
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/meetings/rooms/<int:id>/<string:d>', methods=['GET'])
-def handleRoomMeetingSchedule(id,d):
+@app.route('/meetings/rooms/<int:id>/<string:d>/<session_id>', methods=['GET'])
+def handleRoomMeetingSchedule(id,d, session_id):
     if request.method == 'GET':
-        return MeetingController().GetMeetingsForRoomOn(id,d)
+        return MeetingController().GetMeetingsForRoomOn(id,d, session_id)
     else:
         return jsonify("Method Not Allowed"), 405
 
 
-@app.route('/meetings/rooms/<int:id>/<string:d>/<string:t>', methods=['GET'])
-def handleRoomMeetingAt(id,d,t):
+@app.route('/meetings/rooms/<int:id>/<string:d>/<string:t>/<session_id>', methods=['GET'])
+def handleRoomMeetingAt(id,d,t, session_id):
     if request.method == 'GET':
-        return MeetingController().GetMeetingForRoomDuring(id,d,t)
+        return MeetingController().GetMeetingForRoomDuring(id,d,t, session_id)
     else:
         return jsonify("Method Not Allowed"), 405
 

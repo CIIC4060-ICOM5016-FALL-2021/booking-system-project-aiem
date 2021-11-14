@@ -4,6 +4,7 @@ from flask import jsonify
 
 from app.model.room_type import RoomTypeDAO
 from app.model.rooms import RoomsDAO
+from app.controller.level_validation_controller import UserLevelValidationController
 
 
 class RoomsController:
