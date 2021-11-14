@@ -293,14 +293,14 @@ class MeetingDAO:
         return result
 
     # in progress
-    def get_available_time_attendees(self, mt_id):
-        cursor = self.conn.cursor()
-        query = """pending"""
-        cursor.execute(query, )
-        result = []
-        for row in cursor:
-            result.append(row)
-        return result
+    # def get_available_time_attendees(self, mt_id):
+    #     cursor = self.conn.cursor()
+    #     query = """pending"""
+    #     cursor.execute(query, )
+    #     result = []
+    #     for row in cursor:
+    #         result.append(row)
+    #     return result
 
     def busiest_hour(self):
         cur = self.conn.cursor()
