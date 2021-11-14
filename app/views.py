@@ -25,6 +25,13 @@ def rooms():
         return RoomsController().get_all_rooms()
 
 
+# View all available rooms at given date and time
+@app.route('/rooms/available')
+def rooms_available():
+    return RoomsController().get_available_by_date_and_time(request.args.get("date"),
+                                                            request.args.get("start"),
+                                                            request.args.get("end"))
+
 # View/update/delete specific room
 @app.route('/rooms/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def rooms_by_id(id):
@@ -38,7 +45,6 @@ def rooms_by_id(id):
 
 @app.route('/rooms/<int:id>/schedule')
 def rooms_schedule(id):
-    print(request.args.get("date"))
     return RoomsController().get_room_schedule(id, request.args.get("date"))
 
 
@@ -147,6 +153,15 @@ def handleRoomMeetingAt(id,d,t, session_id):
     else:
         return jsonify("Method Not Allowed"), 405
 
+@app.route('/meetings/users')
+def getUserInfoByRoomAndTime():
+    return MeetingController().getReserverByTime(request.args.get("room"),
+                                                 request.args.get("time"),
+                                                 request.args.get("date"))
+
+@app.route('/meetings/users/available')
+def getDefaultMeetingTime():
+    return MeetingController().getDefaultMeetingTime(request.json)
 
 @app.route('/meetings/users/<int:id>/<string:d>', methods=['GET'])
 def handleUserMeetingSchedule(id,d):
@@ -249,3 +264,8 @@ def most_booked_user():
 @app.route('/users/room/<string:d>')
 def most_used_rooms(d):
     return UserController().get_user_most_used_room(d)
+
+@app.route('/users/meetings/<string:d>')
+def most_meeting_users(d):
+    return UserController().get_user_most_meeting_with_user(d)
+

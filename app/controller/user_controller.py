@@ -170,4 +170,3 @@ class UserController:
         users_list = dao.most_used_room(us_name)
         users = [self.build_user_most_used_room_map_dict(row) for row in users_list]
         return jsonify(users)
-

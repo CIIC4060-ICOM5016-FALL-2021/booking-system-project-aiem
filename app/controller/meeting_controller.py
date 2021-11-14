@@ -172,6 +172,7 @@ class MeetingController:
         dao = MeetingDAO()
         return dao.deleteMeeting(mt_id)
 
+
     # Controller Methods------------------------------------------------------------------------------------------------
 
     #
@@ -236,6 +237,19 @@ class MeetingController:
             return jsonify("OOPS"), 500
         return jsonify(success), 200
 
+    def getDefaultMeetingTime(self, json):
+        time_slot = MeetingDAO().get_available_time_attendees(json['date'],
+                                                              tuple(json['attendees']))
+        result = {
+            'start_time': time_slot[0].strftime("%H:%M:%S"),
+            'end_time': time_slot[1].strftime("%H:%M:%S")
+        }
+        return jsonify(result), 200
+
+    def getReserverByTime(self, ro_id, start_time, date):
+        return jsonify(self.build_user_map_dict(
+            [row for row in MeetingDAO().get_reserver_by_time(ro_id,start_time, date)])
+        ), 200
     #
     def get_busiest_hour(self):
         dao = MeetingDAO()
