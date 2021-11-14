@@ -274,7 +274,7 @@ class UserDAO:
     def most_booked_user(self):
         cur = self.db.connection.cursor()
         query =  """select us_name, count(us_id)
-                    from "UserUnavailability" Natural Inner Join "User"
+                    from "Reservation" Natural Inner Join "User"
                     group by us_name order by count(us_id) DESC LIMIT 10"""
         cur.execute(query)
         users_list = [row for row in cur]
@@ -287,7 +287,7 @@ class UserDAO:
                        from "Room" Natural Inner Join "User" 
                        Natural Inner Join "Reservation"
                        Where us_name=%s group by us_name, ro_name
-                       order by count(ro_id) DESC LIMIT 1"""
+                       order by count(ro_id) DESC LIMIT 10"""
             query_values = (us_name,)
             cur.execute(query, query_values)
             self.db.connection.commit()

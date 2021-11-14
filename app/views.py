@@ -251,12 +251,12 @@ def user_schedule(id):
     return UserController().get_user_schedule(id, request.args.get("date"))
 
 
-@app.route('/users/most')
+@app.route('/users/most-booked')
 def most_booked_user():
     return UserController().get_most_booked_users()
 
 
-@app.route('/users/room/<string:d>')
+@app.route('/users/most-rooms/<string:d>')
 def most_used_rooms(d):
     return UserController().get_user_most_used_room(d)
 
