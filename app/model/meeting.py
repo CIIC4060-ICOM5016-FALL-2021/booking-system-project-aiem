@@ -292,15 +292,49 @@ class MeetingDAO:
         self.conn.close()
         return result
 
-    # in progress
-    # def get_available_time_attendees(self, mt_id):
-    #     cursor = self.conn.cursor()
-    #     query = """pending"""
-    #     cursor.execute(query, )
-    #     result = []
-    #     for row in cursor:
-    #         result.append(row)
-    #     return result
+    # Returns a tuple of start and end time as a default for a meeting made up of
+    # attendees who will go at a certain date
+    def get_available_time_attendees(self, date, attendees):
+        cursor = self.conn.cursor()
+        query = """ SELECT ts.start, ts.finish
+                    FROM (SELECT min(start) AS start, max(finish) AS finish
+                          FROM ((
+                                    SELECT "re_startTime" AS start, "re_endTime" AS finish, us_id
+                                    FROM "Reservation"
+                                             NATURAL INNER JOIN "Meeting"
+                                             NATURAL INNER JOIN "Attending"
+                                    WHERE re_date = %s
+                                ) UNION
+                                (
+                                    SELECT "uu_startTime" AS start, "uu_endTime" AS finish, us_id
+                                    FROM "UserUnavailability"
+                                    WHERE uu_date = %s
+                                )) AS schedule
+                          WHERE us_id IN %s) AS us,
+                         (SELECT sslots.slots AS start, eslots.slots AS finish
+                          FROM (SELECT row_number() OVER (ORDER BY slots) AS sid, slots::time
+                                FROM generate_series(TIMESTAMP '1969-12-30',
+                                                     TIMESTAMP '1969-12-31 23:40:00',
+                                                     INTERVAL '20 min') t(slots)) AS sslots,
+                               (SELECT row_number() OVER (ORDER BY slots) AS sid, slots::time
+                                FROM generate_series(TIMESTAMP '1969-12-30 00:20:00',
+                                                     TIMESTAMP '1969-12-31',
+                                                     INTERVAL '20 min') t(slots)) AS eslots
+                          WHERE sslots.sid = eslots.sid) AS ts
+                    WHERE (ts.start < us.start OR ts.start >= us.finish)
+                    AND (ts.finish <= us.start OR ts.finish > us.finish)
+                    group by ts.start, ts.finish
+                    ORDER BY random() LIMIT 1;"""
+        values = (
+            date,
+            date,
+            attendees
+        )
+        cursor.execute(query, values)
+        result = cursor.fetchone()
+        cursor.close()
+        self.conn.close()
+        return result
 
     def busiest_hour(self):
         cur = self.conn.cursor()
