@@ -32,6 +32,8 @@ class UserLevelValidationController:
         mt_dao = UserLevelValidationDAO()
         owner_id = mt_dao.get_owner_id_from_mt_id(mt_id)
 
+        print(owner_id)
+
         if session_id == owner_id:
             return True
         else:
@@ -55,6 +57,13 @@ class UserLevelValidationController:
             return True
         else:
             return False
+
+    def get_us_id_from_uu_id(self, uu_id):
+        uu_dao = UserLevelValidationDAO()
+        result = uu_dao.get_us_id_from_uu_id(uu_id)
+        print(result)
+        return result
+
 
 
 

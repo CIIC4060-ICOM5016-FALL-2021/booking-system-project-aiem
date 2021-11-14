@@ -216,14 +216,13 @@ class MeetingDAO:
         self.conn.commit()
         return True
 
-    def updateReservation(self, re_id, re_date, re_startTime, re_endTime, ro_id):
+    def updateReservation(self, re_id, re_date, re_startTime, re_endTime):
         cursor = self.conn.cursor()
         query = """update "Reservation" set re_date = %s, 
                                            "re_startTime" = %s, 
-                                           "re_endTime" = %s, 
-                                           ro_id = %s 
+                                           "re_endTime" = %s 
                   where re_id = %s;"""
-        cursor.execute(query, (re_date, re_startTime, re_endTime, ro_id, re_id,))
+        cursor.execute(query, (re_date, re_startTime, re_endTime, re_id,))
         self.conn.commit()
         return True
 

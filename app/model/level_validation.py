@@ -43,7 +43,7 @@ class UserLevelValidationDAO:
 
         finally:
             if self.db.connection is not None:
-                result = cur.fetchone()
+                result = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
                 return result
@@ -84,7 +84,7 @@ class UserLevelValidationDAO:
 
         finally:
             if self.db.connection is not None:
-                result = cur.fetchone()
+                result = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
                 return result
@@ -105,7 +105,7 @@ class UserLevelValidationDAO:
 
         finally:
             if self.db.connection is not None:
-                result = cur.fetchone()
+                result = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
                 return result
@@ -126,7 +126,7 @@ class UserLevelValidationDAO:
 
         finally:
             if self.db.connection is not None:
-                result = cur.fetchone()
+                result = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
                 return result
@@ -146,7 +146,7 @@ class UserLevelValidationDAO:
 
         finally:
             if self.db.connection is not None:
-                result = cur.fetchone()
+                result = cur.fetchone()[0]
                 cur.close()
                 self.db.close()
                 return result
@@ -171,3 +171,22 @@ class UserLevelValidationDAO:
                 self.db.close()
                 return result
 
+    def get_us_id_from_uu_id(self, uu_id):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT us_id FROM "UserUnavailability"
+                       WHERE uu_id = %s;"""
+            query_value = (uu_id,)
+            cur.execute(query, query_value)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_us_id_from_uu_id", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = cur.fetchone()[0]
+                cur.close()
+                self.db.close()
+                return result
