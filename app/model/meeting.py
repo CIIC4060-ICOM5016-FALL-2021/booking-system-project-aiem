@@ -27,10 +27,11 @@ class MeetingDAO:
     def getAllMeeting(self):
         cursor = self.conn.cursor()
         query = self.GET_MEETING + self.ORDER_DATE_DESCENDING
-        cursor.execute(query) 
+        cursor.execute(query)
         result = []
         for row in cursor:
             result.append(row)
+        cursor.close()
         return result
 
     # Gets a specified meeting
@@ -39,6 +40,7 @@ class MeetingDAO:
         query = self.GET_MEETING + " where mt_id = %s;"  # since we only get one we don't need to order
         cursor.execute(query, (mt_id,))
         result = cursor.fetchone()
+        cursor.close()
         return result
         
     # Gets a list of every user that is attending a given meeting
@@ -51,6 +53,7 @@ class MeetingDAO:
         result = []
         for row in cursor:
             result.append(row)
+        cursor.close()
         return result
 
     # Gets meetings reserved by given reserving party ordered by date descending
@@ -61,6 +64,7 @@ class MeetingDAO:
         result = []
         for row in cursor:
             result.append(row)
+        cursor.close()
         return result
 
     # Gets meetings for a certain date in certain room
@@ -71,6 +75,7 @@ class MeetingDAO:
         result = []
         for row in cursor:
             result.append(row)
+        cursor.close()
         return result
 
     # Gets meetings for a certain date with certain user
@@ -83,6 +88,7 @@ class MeetingDAO:
         result = []
         for row in cursor:
             result.append(row)
+        cursor.close()
         return result
 
     # Gets meeting that is occurring at a given time in a given room
@@ -92,6 +98,7 @@ class MeetingDAO:
                                         and "re_startTime" < %s and "re_endTime" > %s;"""
         cursor.execute(query, (ro_id, date, time, time,))
         result = cursor.fetchone()
+        cursor.close()
         return result
 
     # def getAvailableRoomAtTimeRange(self, date, start, end):
@@ -123,6 +130,7 @@ class MeetingDAO:
         """
         cursor.execute(query, (us_id, us_id, date, start, start, end, end, start, end,))
         result = cursor.fetchone()
+        cursor.close()
         return result[0] >= 1  # if there's 1 or more in these things, the user is busy
 
     # Check if a meeting is possible (IE The reserve user is not busy/unavailable and the room is not busy/unavailable).
@@ -154,6 +162,7 @@ class MeetingDAO:
                 ;"""
         cursor.execute(query, (us_id, ro_id, us_id, ro_id, date, start, start, end, end, start, end,))
         result = cursor.fetchone()
+        cursor.close()
         return result[0] >= 1  # if there's 1 or more in these things, the user or the room is busy or unavailable
         
     # Insert------------------------------------------------------------------------------------------------------------
@@ -163,6 +172,7 @@ class MeetingDAO:
         cursor.execute(query, (mt_name, mt_desc, re_id,))
         mt_id = cursor.fetchone()[0]
         self.conn.commit()
+        cursor.close()
         return mt_id
 
     # This should be done BEFORE insert meeting
@@ -173,6 +183,7 @@ class MeetingDAO:
         cursor.execute(query, (re_date, re_startTime, re_endTime, us_id, ro_id,))
         re_id = cursor.fetchone()[0]
         self.conn.commit()
+        cursor.close()
         return re_id
 
     # Does both in order
@@ -189,6 +200,7 @@ class MeetingDAO:
         cursor.execute(query, (mt_id, us_id,))
         # re_id = cursor.fetchone()[0] #Here we don't actually need to fetch anything
         self.conn.commit()
+        cursor.close()
         return True
 
     # Update------------------------------------------------------------------------------------------------------------
@@ -199,6 +211,7 @@ class MeetingDAO:
                   where mt_id=%s;"""
         cursor.execute(query, (mt_name, mt_description, mt_id,))
         self.conn.commit()
+        cursor.close()
         return True
 
     def updateMeetingReservation(self, mt_id, re_date, re_startTime, re_endTime, ro_id):
@@ -214,6 +227,7 @@ class MeetingDAO:
                 );"""
         cursor.execute(query, (re_date, re_startTime, re_endTime, ro_id, mt_id,))
         self.conn.commit()
+        cursor.close()
         return True
 
     def updateReservation(self, re_id, re_date, re_startTime, re_endTime):
@@ -224,6 +238,7 @@ class MeetingDAO:
                   where re_id = %s;"""
         cursor.execute(query, (re_date, re_startTime, re_endTime, re_id,))
         self.conn.commit()
+        cursor.close()
         return True
 
     # There is no update for attending. You either create it or delete it. That's it
@@ -241,6 +256,7 @@ class MeetingDAO:
         
         # if affected rows == 0, the part was not found and hence not deleted
         # otherwise, it was deleted, so check if affected_rows != 0
+        cursor.close()
         return affected_rows != 0
 
     # Deletes a meeting's tied reservation
@@ -250,6 +266,7 @@ class MeetingDAO:
         cursor.execute(query, (re_id,))
         affected_rows = cursor.rowcount
         self.conn.commit()
+        cursor.close()
         return affected_rows != 0
 
     # Delete a specific attender
@@ -259,6 +276,7 @@ class MeetingDAO:
         cursor.execute(query, (mt_id, us_id,))
         affected_rows = cursor.rowcount
         self.conn.commit()
+        cursor.close()
         return affected_rows != 0
     
     # Delete all those attending a certain meeting
@@ -268,6 +286,7 @@ class MeetingDAO:
         cursor.execute(query, (mt_id,))
         affected_rows = cursor.rowcount
         self.conn.commit()
+        cursor.close()
         return affected_rows != 0
 
     def get_reserver_by_time(self, ro_id, start_time, date):
@@ -289,6 +308,7 @@ class MeetingDAO:
         result = cursor.fetchone()
         cursor.close()
         self.conn.close()
+        cursor.close()
         return result
 
     # Returns a tuple of start and end time as a default for a meeting made up of
@@ -332,6 +352,7 @@ class MeetingDAO:
         result = [row for row in cursor]
         cursor.close()
         self.conn.close()
+        cursor.close()
         return result
 
     def busiest_hour(self):
@@ -341,4 +362,8 @@ class MeetingDAO:
                     order by count("re_startTime") DESC LIMIT 5"""
         cur.execute(query)
         rooms_list = [row for row in cur]
+        cur.close()
         return rooms_list
+
+    def dispose(self):
+        self.conn.close()
