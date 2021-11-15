@@ -1,0 +1,1336 @@
+{
+	"info": {
+		"_postman_id": "61256350-fbed-4e3c-af74-7daae7158651",
+		"name": "AIEM DB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Room",
+			"item": [
+				{
+					"name": "Delete Room With ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/14",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"14"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Room",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ro_location\": \"Physics\",\r\n    \"ro_name\": \"Cool Lab\",\r\n    \"rt_id\": \"2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Rooms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Room By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/5",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"5"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Room With ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{  \r\n    \"ro_location\": \"S113\",\r\n    \"ro_name\": \"El Matadero\",\r\n    \"rt_id\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/59",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"59"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Room Types",
+			"item": [
+				{
+					"name": "Get All Room Types",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/room-types",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"room-types"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Room Type By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/room-types/45",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"room-types",
+								"45"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Lab",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Room Type",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"rt_level\": 3,\r\n    \"rt_name\": \"Amphitheater\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/room-types",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"room-types"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Unavailable Room",
+			"item": [
+				{
+					"name": "Get Unavailable Times For Room",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/6/schedule-unavailable",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"6",
+								"schedule-unavailable"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unavailable Times For Room By ID and Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/6/schedule-unavailable?date=2021-09-16",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"6",
+								"schedule-unavailable"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2021-09-16"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Unavailable Slot For Room By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/6/schedule-unavailable/17",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"6",
+								"schedule-unavailable",
+								"17"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Specific Unavailable Slot For Room by ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"us_id\": 12,\r\n    \"ru_date\": \"2021-09-15\",\r\n    \"ru_endTime\": \"12:00:40\",\r\n    \"ru_startTime\": \"09:00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/6/schedule-unavailable/13",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"6",
+								"schedule-unavailable",
+								"13"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Set Unavailable Slot For Room by ID",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"us_id\": \"11\",\r\n    \"ru_date\": \"2021-10-18\",\r\n    \"ru_startTime\": \"08:00:00\",\r\n    \"ru_endTime\": \"12:00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/6/schedule-unavailable",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"6",
+								"schedule-unavailable"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reservation/Availability",
+			"item": [
+				{
+					"name": "Get Schedule For Specific Room by Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/6/schedule?date=2021-09-16",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"6",
+								"schedule"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2021-09-16"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Available by Date and Time",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/available?date=2021-10-31&start=18:00:00&end=19:20:00",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"available"
+							],
+							"query": [
+								{
+									"key": "date",
+									"value": "2021-10-31"
+								},
+								{
+									"key": "start",
+									"value": "18:00:00"
+								},
+								{
+									"key": "end",
+									"value": "19:20:00"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Who Reserved What Room and When",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/users?room=6&time=18:00:00&date=2021-11-11",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"users"
+							],
+							"query": [
+								{
+									"key": "room",
+									"value": "6"
+								},
+								{
+									"key": "time",
+									"value": "18:00:00"
+								},
+								{
+									"key": "date",
+									"value": "2021-11-11"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "When is Everyone Available",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"date\": \"2021-11-16\",\r\n    \"attendees\": [\r\n        12,\r\n        11,\r\n        21\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/users/available",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"users",
+								"available"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\"us_name\" : \"Manuel\",\r\n\"us_username\" : \"Best_professor\",\r\n\"us_password\" : \"ElDataExpert\",\r\n\"ut_id\": \"4\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/24",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"24"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User By ID",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"us_name\": \"Moana\",\r\n    \"us_username\": \"Water\",\r\n    \"us_password\": \"Island\",\r\n    \"ut_id\": 3\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/22",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"22"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User By ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/25",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"25"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": null
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Types",
+			"item": [
+				{
+					"name": "Get User Type By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/user-types/3",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"user-types",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All User Types",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/user-types",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"user-types"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User Types",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"ut_name\": \"Department Staff\",\r\n    \"ut_isAdmin\": true,\r\n    \"ut_level\": 3\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/user-types",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"user-types"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Unavailability",
+			"item": [
+				{
+					"name": "Delete User Unavailability",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"us_id\": 24,\r\n    \"uu_date\": \"2021-11-12\",\r\n    \"uu_startTime\": \"10:00:00\",\r\n    \"uu_endTime\": \"15:00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/availability/24",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"availability",
+								"24"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User Unavailability",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"us_id\": 24,\r\n    \"uu_date\": \"2021-11-12\",\r\n    \"uu_startTime\": \"10:00:00\",\r\n    \"uu_endTime\": \"15:00:00\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/availability/24",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"availability",
+								"24"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Unavailability by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/availability/11/18",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"availability",
+								"11",
+								"18"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User Unavailability by ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/availability/20/11",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"availability",
+								"20",
+								"11"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Statistic",
+			"item": [
+				{
+					"name": "Get Top 10 User Who Booked the Most",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/most-booked",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"most-booked"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Most Booked Rooms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/most-rooms/11",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"most-rooms",
+								"11"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Top 5 Busiest Hours",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/busiest",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"busiest"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Most Meeting with User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/users/meetings/11",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"users",
+								"meetings",
+								"11"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get 10 Most Booked Rooms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/rooms/most-booked",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"rooms",
+								"most-booked"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Meetings",
+			"item": [
+				{
+					"name": "Get All Meetings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create a Meeting",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"History\",\r\n    \"desc\": \"Star Wars Review\",\r\n    \"date\": \"2021-12-04\",\r\n    \"start\": \"10:00:00\",\r\n    \"end\": \"12:00:00\",\r\n    \"us_id\": \"12\",\r\n    \"ro_id\": \"9\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Meeting By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/10/12",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"10",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Meeting Information",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 10,\r\n    \"name\": \"Test\",\r\n    \"desc\": \"Working\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/10/12",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"10",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Meeting by ID",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/10/12",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"10",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Room Meeting Schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/rooms/9/2021-09-26/12",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"rooms",
+								"9",
+								"2021-09-26",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Room Meeting At",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/rooms/9/2021-09-26/14:30:00/12",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"rooms",
+								"9",
+								"2021-09-26",
+								"14:30:00",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User Info by Room",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/users?room=6&time=13:00:00&date=2021-09-16",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"users"
+							],
+							"query": [
+								{
+									"key": "room",
+									"value": "6"
+								},
+								{
+									"key": "time",
+									"value": "13:00:00"
+								},
+								{
+									"key": "date",
+									"value": "2021-09-16"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Default Meeting Time",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"date\": \"2021-11-16\",\r\n    \"attendees\": [11]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/users/available",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"users",
+								"available"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Meeting Schedule",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/users/12/2021-12-04",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"users",
+								"12",
+								"2021-12-04"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Attending/Reservation",
+			"item": [
+				{
+					"name": "Reservation Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": 15,\r\n    \"date\": \"2021-12-04\",\r\n    \"start\": \"09:00:00\",\r\n    \"end\": \"12:00:00\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/10/reservation/12",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"10",
+								"reservation",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Attending by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/10/attending/12",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"10",
+								"attending",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Attending",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"mt_id\": 10,\r\n    \"us_id\": 11\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/10/attending/12",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"10",
+								"attending",
+								"12"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User From Attending",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"mt_id\": 10,\r\n    \"us_id\": 11\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://aiem.herokuapp.com/meetings/10/attending/12",
+							"protocol": "http",
+							"host": [
+								"aiem",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"meetings",
+								"10",
+								"attending",
+								"12"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "Name",
+			"value": "<Name>"
+		}
+	]
+}
