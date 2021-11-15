@@ -42,12 +42,16 @@ class MeetingController:
                   'end_time': row[1].strftime("%H:%M:%S")}
         return result
 
+    # Init--------------------------------------------------------------------------------------------------------------
+
+    def __init__(self):
+        self.dao = MeetingDAO();
+
     # Internals---------------------------------------------------------------------------------------------------------
 
     # This will kinda be like an Admin Function?
     def get_all_meetings(self):
-        dao = MeetingDAO()
-        meeting_list = dao.getAllMeeting()
+        meeting_list = self.dao.getAllMeeting()
         meetings = [self.build_meeting_map_dict(row) for row in meeting_list]
         return meetings
 
@@ -56,8 +60,7 @@ class MeetingController:
         attending = UserLevelValidationController().validate_attendee(session_id, mt_id)
 
         if attending:
-            dao = MeetingDAO()
-            row = dao.getMeetingById(mt_id)
+            row = self.dao.getMeetingById(mt_id)
             if not row:
                 return
             meeting = self.build_meeting_map_dict(row)
@@ -70,8 +73,7 @@ class MeetingController:
         attending = UserLevelValidationController().validate_attendee(session_id, mt_id)
 
         if attending:
-            dao = MeetingDAO()
-            user_list = dao.getMeetingAttending(mt_id)
+            user_list = self.dao.getMeetingAttending(mt_id)
             users = [self.build_user_map_dict(row) for row in user_list]
             return users
         else:
@@ -82,8 +84,7 @@ class MeetingController:
         validate = UserLevelValidationController().validate_permission_to_create(session_id, ro_id)
 
         if validate:
-            dao = MeetingDAO()
-            meeting_list = dao.getMeetingsForRoomOn(ro_id, date)
+            meeting_list = self.dao.getMeetingsForRoomOn(ro_id, date)
             meetings = [self.build_meeting_map_dict(row) for row in meeting_list]
             return meetings
         else:
@@ -91,8 +92,7 @@ class MeetingController:
 
     # This will kinda be like an Admin Function?
     def get_meetings_for_user_on(self, us_id, date):
-        dao = MeetingDAO()
-        meeting_list = dao.getMeetingsForUserOn(us_id, date)
+        meeting_list = self.dao.getMeetingsForUserOn(us_id, date)
         meetings = [self.build_meeting_map_dict(row) for row in meeting_list]
         return meetings
 
@@ -101,8 +101,7 @@ class MeetingController:
         validate = UserLevelValidationController().validate_permission_to_create(session_id, ro_id)
 
         if validate:
-            dao = MeetingDAO()
-            row = dao.getMeetingInRoomAtTime(ro_id, date, time)
+            row = self.dao.getMeetingInRoomAtTime(ro_id, date, time)
             if not row:
                 return
             meeting = self.build_meeting_map_dict(row)
@@ -112,13 +111,11 @@ class MeetingController:
 
     # This will kinda be like an Admin Function?
     def check_user_busy(self, us_id, date, start, end):
-        dao = MeetingDAO()
-        return dao.checkUserBusy(us_id, date, start, end)
+        return self.dao.checkUserBusy(us_id, date, start, end)
 
     # This will kinda be like an Admin Function?
     def check_meeting_busy(self, us_id, ro_id, date, start, end):
-        dao = MeetingDAO()
-        return dao.checkMeetingBusy(us_id, ro_id, date, start, end)
+        return self.dao.checkMeetingBusy(us_id, ro_id, date, start, end)
 
     # ONLY A USER THAT MEETS ROOM LEVEL CAN DO THIS - DONE
     def create_meeting(self, name, desc, date, start, end, us_id, ro_id):
@@ -126,8 +123,7 @@ class MeetingController:
         if validate:
             if self.check_meeting_busy(us_id, ro_id, date, start, end):
                 return -1
-            dao = MeetingDAO()
-            return dao.insertEverythingForMeeting(name, desc, date, start, end, us_id, ro_id)
+            return self.dao.insertEverythingForMeeting(name, desc, date, start, end, us_id, ro_id)
         else:
             return "User does not have permission for this room", 403
 
@@ -140,8 +136,7 @@ class MeetingController:
                 return jsonify("MEETING NOT FOUND"), 404
             if self.check_user_busy(us_id, meeting["re_date"], meeting["re_startTime"], meeting["re_endTime"]):
                 return jsonify("USER IS BUSY"), 400
-            dao = MeetingDAO()
-            return jsonify(dao.insertAttending(mt_id, us_id)), 201
+            return jsonify(self.dao.insertAttending(mt_id, us_id)), 201
         else:
             return "User is not creator of the meeting. Cannot modify", 403
 
@@ -149,8 +144,7 @@ class MeetingController:
     def update_meeting(self, mt_id, name, description, session_id):
         ownership = UserLevelValidationController().validate_owner_through_mt_id(session_id, mt_id)
         if ownership:
-            dao = MeetingDAO()
-            return dao.updateMeeting(mt_id, name, description)
+            return self.dao.updateMeeting(mt_id, name, description)
         else:
             return "User is not creator of the meeting. Cannot modify", 403
 
@@ -159,8 +153,7 @@ class MeetingController:
         ownership = UserLevelValidationController().validate_owner_through_re_id(session_id, re_id)
 
         if ownership:
-            dao = MeetingDAO()
-            return dao.updateReservation(re_id, date, start, end)
+            return self.dao.updateReservation(re_id, date, start, end)
         else:
             return "User is not creator of this reservation. Cannot modify", 403
 
@@ -169,14 +162,12 @@ class MeetingController:
         ownership = UserLevelValidationController().validate_owner_through_mt_id(session_id, mt_id)
 
         if ownership or (us_id == session_id):
-            dao = MeetingDAO()
-            return dao.deleteAttending(mt_id, us_id)
+            return self.dao.deleteAttending(mt_id, us_id)
         else:
             return "User is not creator of this meeting, or non-creator user is trying to remove another user", 403
 
     def remove_meeting(self, mt_id):
-        dao = MeetingDAO()
-        return dao.deleteMeeting(mt_id)
+        return self.dao.deleteMeeting(mt_id)
 
     # Controller Methods------------------------------------------------------------------------------------------------
 
@@ -244,21 +235,20 @@ class MeetingController:
         return jsonify(success), 200
 
     def getAvailableMeetingTime(self, json):
-        time_slots = MeetingDAO().get_available_time_attendees(json['date'],
+        time_slots = self.dao.get_available_time_attendees(json['date'],
                                                                tuple(json['attendees']))
         time_slot_dict = [self.build_available_meeting_time_dict(time_slot) for time_slot in time_slots]
         return jsonify(time_slot_dict), 200
 
     def getReserverByTime(self, ro_id, start_time, date):
-        reserver = MeetingDAO().get_reserver_by_time(ro_id, start_time, date)
+        reserver = self.dao.get_reserver_by_time(ro_id, start_time, date)
         if reserver:
             return jsonify(self.build_user_map_dict(reserver)), 200
         else:
             return jsonify("Room not booked at this time"), 404
 
     def get_busiest_hour(self):
-        dao = MeetingDAO()
-        meeting_list = dao.busiest_hour()
+        meeting_list = self.dao.busiest_hour()
         meeting = [self.build_busiest_hour_map_dict(row) for row in meeting_list]
         return jsonify(meeting)
 
