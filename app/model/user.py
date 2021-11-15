@@ -280,7 +280,7 @@ class UserDAO:
         users_list = [row for row in cur]
         return users_list
 
-    def most_used_room(self, id):
+    def most_used_room(self, us_id):
         try:
             cur = self.db.connection.cursor()
             query = """select us_name, ro_name, count(ro_id)
@@ -288,7 +288,7 @@ class UserDAO:
                        Natural Inner Join "Reservation"
                        Where us_id=%s group by us_name, ro_name
                        order by count(ro_id) DESC LIMIT 10"""
-            query_values = (id,)
+            query_values = (us_id,)
             cur.execute(query, query_values)
             self.db.connection.commit()
 
@@ -330,7 +330,6 @@ class UserDAO:
             )
 
             cur.execute(query, query_values)
-            print(cur.execute(query, query_values))
             self.db.connection.commit()
 
         except(Exception, psycopg2.Error) as error:

@@ -86,7 +86,7 @@ def room_types_by_id(id):
         return RoomsController().get_room_type(id)
 
 
-@app.route('/rooms/most')
+@app.route('/rooms/most-booked')
 def most_booked_rooms():
     return RoomsController().get_most_booked_room()
 
