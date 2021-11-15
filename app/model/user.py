@@ -280,15 +280,15 @@ class UserDAO:
         users_list = [row for row in cur]
         return users_list
 
-    def most_used_room(self, us_name):
+    def most_used_room(self, id):
         try:
             cur = self.db.connection.cursor()
             query = """select us_name, ro_name, count(ro_id)
                        from "Room" Natural Inner Join "User" 
                        Natural Inner Join "Reservation"
-                       Where us_name=%s group by us_name, ro_name
+                       Where us_id=%s group by us_name, ro_name
                        order by count(ro_id) DESC LIMIT 10"""
-            query_values = (us_name,)
+            query_values = (id,)
             cur.execute(query, query_values)
             self.db.connection.commit()
 
@@ -303,7 +303,7 @@ class UserDAO:
                 self.db.close()
                 return result
 
-    def user_most_meeting_with_user(self, us_name):
+    def user_most_meeting_with_user(self, us_id):
         try:
             cur = self.db.connection.cursor()
 
@@ -316,20 +316,21 @@ class UserDAO:
             from (
                 select M.mt_id, M.us_id
                 from (select mt_id as MT1
-                      from "Attending" natural inner join
-                      "User" where us_name = %s) as A,
+                      from "Attending" where us_id = %s) as A,
                 "Attending" as M
                 where M.mt_id = A.MT1
-                EXCEPT (SELECT mt_id, us_id FROM "Attending"
-                natural inner join "User" where us_name = %s)
+                EXCEPT (SELECT mt_id, us_id FROM "Attending" 
+                where us_id = %s)
             ) as R  natural inner join "User"
             group by us_name
             order by count(us_id) DESC LIMIT 1"""
             query_values = (
-                us_name,
-                us_name,
+                us_id,
+                us_id,
             )
+
             cur.execute(query, query_values)
+            print(cur.execute(query, query_values))
             self.db.connection.commit()
 
         except(Exception, psycopg2.Error) as error:
