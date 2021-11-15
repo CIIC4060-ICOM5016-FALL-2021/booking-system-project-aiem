@@ -364,3 +364,6 @@ class MeetingDAO:
         rooms_list = [row for row in cur]
         cur.close()
         return rooms_list
+
+    def dispose(self):
+        self.conn.close()

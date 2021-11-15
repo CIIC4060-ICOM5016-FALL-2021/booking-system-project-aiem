@@ -173,56 +173,74 @@ class MeetingController:
 
     #
     def GetMeetings(self):
-        return jsonify(self.get_all_meetings()), 200
+        result = self.get_all_meetings()
+        self.dao.dispose()
+        return jsonify(result), 200
 
     #
     def GetMeetingByID(self, mt_id, session_id):
         meeting = self.get_meeting_by_id(mt_id, session_id)
+        self.dao.dispose()
         if not meeting:
             return "NOT FOUND", 404
         return jsonify(meeting), 200
 
     #
     def GetAllAttendingMeeting(self, mt_id, session_id):
-        return jsonify(self.get_all_attending_meeting(mt_id, session_id)), 200
+        result = self.get_all_attending_meeting(mt_id, session_id)
+        self.dao.dispose()
+        return jsonify(result), 200
 
     #
     def GetMeetingsForRoomOn(self, ro_id, date, session_id):
         # We don't actually check if the meeting exists but eh its not entirely necessary
-        return jsonify(self.get_meetings_for_room_on(ro_id, date, session_id)), 200
+        result = self.get_meetings_for_room_on(ro_id, date, session_id)
+        self.dao.dispose()
+        return jsonify(result), 200
 
     #
     def GetMeetingsForUserOn(self, us_id, date):
-        return jsonify(self.get_meetings_for_user_on(us_id, date)), 200
+        result = self.get_meetings_for_user_on(us_id, date)
+        self.dao.dispose()
+        return jsonify(result), 200
 
     def GetMeetingForRoomDuring(self, ro_id, date, time, session_id):
-        return jsonify(self.get_meetings_for_room_during(ro_id, date, time, session_id)), 200
+        result = self.get_meetings_for_room_during(ro_id, date, time, session_id)
+        self.dao.dispose()
+        return jsonify(result), 200
 
     #
     def CreateMeeting(self, json):
         result = self.create_meeting(json['name'], json['desc'], json['date'], json['start'], json['end'],
                                      json['us_id'], json['ro_id'])
+        self.dao.dispose()
         if result == -1:
             return "CONFLICT FOUND", 400
         return jsonify(result), 201
 
     #
     def AddAttending(self, json, session_id):
-        return self.add_attending(json['mt_id'], json['us_id'],
-                                  session_id)  # Because Add Attending has 3 possibilities it handles
+        result = self.add_attending(json['mt_id'], json['us_id'], session_id)
+        self.dao.dispose()
+        return result # Because Add Attending has 3 possibilities it handles
         # its own JSON and code generation.
 
     #
     def UpdateMeeting(self, json, us_id):
-        return jsonify(self.update_meeting(json['id'], json['name'], json['desc'], us_id)), 200
+        result = self.update_meeting(json['id'], json['name'], json['desc'], us_id)
+        self.dao.dispose()
+        return jsonify(result), 200
 
     #
     def UpdateReservation(self, json, session_id):
-        return jsonify(self.update_reservation(json['id'], json['date'], json['start'], json['end'], session_id)), 200
+        result = self.update_reservation(json['id'], json['date'], json['start'], json['end'], session_id)
+        self.dao.dispose()
+        return jsonify(result), 200
 
     #
     def RemoveAttending(self, json, session_id):
         success = self.remove_attending(json['mt_id'], json['us_id'], session_id), 200
+        self.dao.dispose()
         if not success:
             return jsonify("NOT FOUND"), 404
         return jsonify(success), 200
@@ -230,6 +248,7 @@ class MeetingController:
     #
     def RemoveMeeting(self, mt_id):
         success = self.remove_meeting(mt_id)
+        self.dao.dispose()
         if not success:
             return jsonify("OOPS"), 500
         return jsonify(success), 200
@@ -238,10 +257,12 @@ class MeetingController:
         time_slots = self.dao.get_available_time_attendees(json['date'],
                                                                tuple(json['attendees']))
         time_slot_dict = [self.build_available_meeting_time_dict(time_slot) for time_slot in time_slots]
+        self.dao.dispose()
         return jsonify(time_slot_dict), 200
 
     def getReserverByTime(self, ro_id, start_time, date):
         reserver = self.dao.get_reserver_by_time(ro_id, start_time, date)
+        self.dao.dispose()
         if reserver:
             return jsonify(self.build_user_map_dict(reserver)), 200
         else:
@@ -250,5 +271,6 @@ class MeetingController:
     def get_busiest_hour(self):
         meeting_list = self.dao.busiest_hour()
         meeting = [self.build_busiest_hour_map_dict(row) for row in meeting_list]
+        self.dao.dispose()
         return jsonify(meeting)
 
