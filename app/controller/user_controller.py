@@ -200,3 +200,4 @@ class UserController:
             users_list = us_dao.user_most_meeting_with_user(us_id)
             users = [self.build_most_booked_user_map_dict(row) for row in users_list]
             return jsonify(users)
+        
