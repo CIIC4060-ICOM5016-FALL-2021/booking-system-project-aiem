@@ -256,11 +256,11 @@ def most_booked_user():
     return UserController().get_most_booked_users()
 
 
-@app.route('/users/most-rooms/<string:d>')
-def most_used_rooms(d):
-    return UserController().get_user_most_used_room(d)
+@app.route('/users/most-rooms/<int:id>')
+def most_used_rooms(id):
+    return UserController().get_user_most_used_room(id)
 
-@app.route('/users/meetings/<string:d>')
-def most_meeting_users(d):
-    return UserDAO().user_most_meeting_with_user(d)
+@app.route('/users/meetings/<int:id>')
+def most_meeting_users(id):
+    return UserController().get_user_most_meeting_with_user(id)
 

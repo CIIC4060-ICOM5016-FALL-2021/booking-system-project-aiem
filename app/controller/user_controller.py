@@ -181,14 +181,14 @@ class UserController:
         users = [self.build_most_booked_user_map_dict(row) for row in users_list]
         return jsonify(users)
 
-    def get_user_most_used_room(self, us_name):
+    def get_user_most_used_room(self, us_id):
         dao = UserDAO()
-        users_list = dao.most_used_room(us_name)
+        users_list = dao.most_used_room(us_id)
         users = [self.build_user_most_used_room_map_dict(row) for row in users_list]
         return jsonify(users)
 
-    def get_user_most_meeting_with_user(self, us_name):
+    def get_user_most_meeting_with_user(self, us_id):
         dao = UserDAO()
-        users_list = dao.user_most_meeting_with_user(us_name)
+        users_list = dao.user_most_meeting_with_user(us_id)
         users = [self.build_most_booked_user_map_dict(row) for row in users_list]
         return jsonify(users)
