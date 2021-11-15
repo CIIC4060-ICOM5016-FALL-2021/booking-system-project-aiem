@@ -259,7 +259,6 @@ class MeetingController:
     def get_busiest_hour(self):
         dao = MeetingDAO()
         meeting_list = dao.busiest_hour()
-        for row in meeting_list:
-            build = self.build_busiest_hour_map_dict(row)
-            meeting = [build for row in meeting_list]
+        meeting = [self.build_busiest_hour_map_dict(row) for row in meeting_list]
         return jsonify(meeting)
+
