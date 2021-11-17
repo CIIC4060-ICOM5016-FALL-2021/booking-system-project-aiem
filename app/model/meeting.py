@@ -107,7 +107,7 @@ class MeetingDAO:
 
     # Check if a user is busy during a certain time range (IE If the user is busy or unavailable). Used to check if we
     # can add them as attending
-    def checkUserBusy(self, us_id, date, start, end):
+    def checkUserBusy(self, us_id, date, start, end): #this function may now actually be unused
         cursor = self.conn.cursor()
         query = """select count(*) from (
                      select "re_startTime" as startp, "re_endTime" as endp, re_date as datep
@@ -135,17 +135,17 @@ class MeetingDAO:
 
     # Check if a meeting is possible (IE The reserve user is not busy/unavailable and the room is not busy/unavailable).
     # Used to check if we should create a meeting or not
-    def checkMeetingBusy(self, us_id, ro_id, date, start, end):
+    def checkMeetingBusy(self, attendees, ro_id, date, start, end):
         cursor = self.conn.cursor()
         query = """select count(*) from (
                     --Times that are unavailable because either the user is in a meeting or the room is busy
                      select "re_startTime" as startp, "re_endTime" as endp, re_date as datep 
                      from "Meeting" natural inner join "Reservation"
-                     where mt_id in (select mt_id from "Attending" where us_id=%s) or ro_id = %s
+                     where mt_id in (select mt_id from "Attending" where us_id in %s) or ro_id = %s
                      union ( --User unavailable times just because they said so
                          select "uu_startTime" as startp, "uu_endTime" as endp, uu_date as datep
                          from "UserUnavailability"
-                         where us_id = %s )
+                         where us_id in %s )
                      union ( --Room is unavailable because the department said so
                         select "ru_startTime" as startp, "ru_endTime" as endp, ru_date as datep
                         from "RoomUnavailability"
@@ -160,10 +160,10 @@ class MeetingDAO:
                                                     --given start and end times
                     )
                 ;"""
-        cursor.execute(query, (us_id, ro_id, us_id, ro_id, date, start, start, end, end, start, end,))
+        cursor.execute(query, (attendees, ro_id, attendees, ro_id, date, start, start, end, end, start, end,))
         result = cursor.fetchone()
         cursor.close()
-        return result[0] >= 1  # if there's 1 or more in these things, the user or the room is busy or unavailable
+        return result[0]  # if there's 1 or more in these things, the user or the room is busy or unavailable
         
     # Insert------------------------------------------------------------------------------------------------------------
     def insertMeeting(self, mt_name, mt_desc, re_id):
@@ -187,10 +187,11 @@ class MeetingDAO:
         return re_id
 
     # Does both in order
-    def insertEverythingForMeeting(self, mt_name, mt_desc, re_date, re_startTime, re_endTime, us_id, ro_id):
+    def insertEverythingForMeeting(self, mt_name, mt_desc, re_date, re_startTime, re_endTime, us_id, ro_id, attendees):
         re_id = self.insertReservation(re_date, re_startTime, re_endTime, us_id, ro_id)  # Create the reservation
         mt_id = self.insertMeeting(mt_name, mt_desc, re_id)  # Create the meeting
-        self.insertAttending(mt_id, us_id)  # Register the host as attending as well
+        for a in attendees:
+            self.insertAttending(mt_id, a)  # Register those who are attending
         return mt_id  # finally we're done after three requests que lindo
 
     # Adds an attending user
@@ -214,33 +215,7 @@ class MeetingDAO:
         cursor.close()
         return True
 
-    def updateMeetingReservation(self, mt_id, re_date, re_startTime, re_endTime, ro_id):
-        cursor = self.conn.cursor()
-        query = """update "Reservation" set re_date = %s, 
-                                           "re_startTime" = %s, 
-                                           "re_endTime" = %s, 
-                                           ro_id = %s 
-                  where re_id = (
-                        select re_id 
-                        from "Meeting" 
-                        where mt_id=%s
-                );"""
-        cursor.execute(query, (re_date, re_startTime, re_endTime, ro_id, mt_id,))
-        self.conn.commit()
-        cursor.close()
-        return True
-
-    def updateReservation(self, re_id, re_date, re_startTime, re_endTime):
-        cursor = self.conn.cursor()
-        query = """update "Reservation" set re_date = %s, 
-                                           "re_startTime" = %s, 
-                                           "re_endTime" = %s 
-                  where re_id = %s;"""
-        cursor.execute(query, (re_date, re_startTime, re_endTime, re_id,))
-        self.conn.commit()
-        cursor.close()
-        return True
-
+    # We never need to update any of the reservation data
     # There is no update for attending. You either create it or delete it. That's it
 
     # delete------------------------------------------------------------------------------------------------------------

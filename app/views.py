@@ -117,21 +117,10 @@ def handleMeetingById(id, session_id):
     else:
         return jsonify("Method Not Allowed"), 405
 
-
-@app.route('/meetings/<int:id>/reservation/<int:session_id>', methods=['PUT'])
-def handleReservationUpdate(id, session_id):
-    if request.method == 'PUT':
-        return MeetingController().UpdateReservation(request.json, session_id)
-    else:
-        return jsonify("Method Not Allowed"), 405
-
-
-@app.route('/meetings/<int:id>/attending/<int:session_id>', methods=['GET', 'POST', 'DELETE'])
+@app.route('/meetings/<int:id>/attending/<int:session_id>', methods=['GET', 'DELETE'])
 def handleAttendingById(id, session_id):
     if request.method == 'GET':
         return MeetingController().GetAllAttendingMeeting(id, session_id)
-    elif  request.method == 'POST':
-        return MeetingController().AddAttending(request.json, session_id)
     elif request.method == 'DELETE':
         return MeetingController().RemoveAttending(request.json, session_id)
     else:
@@ -204,6 +193,13 @@ def users():
         return UserController().create_user(request.json)
     else:
         return UserController().get_all_users()
+
+@app.route('/Auth', methods=['POST'])
+def auth():
+    if request.method == 'POST':
+        return UserController().check_user(request.json)
+    else:
+        return jsonify("Method Not Allowed"), 405
 
 
 @app.route('/users/<id>', methods=['GET', 'PUT', 'DELETE'])

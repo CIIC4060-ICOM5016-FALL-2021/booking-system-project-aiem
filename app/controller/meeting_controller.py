@@ -45,7 +45,7 @@ class MeetingController:
     # Init--------------------------------------------------------------------------------------------------------------
 
     def __init__(self):
-        self.dao = MeetingDAO();
+        self.dao = MeetingDAO()
 
     # Internals---------------------------------------------------------------------------------------------------------
 
@@ -114,31 +114,20 @@ class MeetingController:
         return self.dao.checkUserBusy(us_id, date, start, end)
 
     # This will kinda be like an Admin Function?
-    def check_meeting_busy(self, us_id, ro_id, date, start, end):
-        return self.dao.checkMeetingBusy(us_id, ro_id, date, start, end)
+    def check_meeting_busy(self, attendees, ro_id, date, start, end):
+        return self.dao.checkMeetingBusy(attendees, ro_id, date, start, end)
 
     # ONLY A USER THAT MEETS ROOM LEVEL CAN DO THIS - DONE
-    def create_meeting(self, name, desc, date, start, end, us_id, ro_id):
+    def create_meeting(self, name, desc, date, start, end, us_id, ro_id, attendees):
         validate = UserLevelValidationController().validate_permission_to_create(us_id, ro_id)
         if validate:
-            if self.check_meeting_busy(us_id, ro_id, date, start, end):
-                return -1
-            return self.dao.insertEverythingForMeeting(name, desc, date, start, end, us_id, ro_id)
+            conflicts = self.check_meeting_busy(attendees, ro_id, date, start, end)
+            if conflicts >= 1:
+                return jsonify(conflicts + " Conflict(s) Found"), 400
+            return jsonify(
+                self.dao.insertEverythingForMeeting(name, desc, date, start, end, us_id, ro_id, attendees)), 201
         else:
-            return "User does not have permission for this room", 403
-
-    # ONLY OWNER CAN DO THIS - DONE
-    def add_attending(self, mt_id, us_id, session_id):
-        ownership = UserLevelValidationController().validate_owner_through_mt_id(session_id, mt_id)
-        if ownership:
-            meeting = self.get_meeting_by_id(mt_id, session_id)
-            if not meeting:
-                return jsonify("MEETING NOT FOUND"), 404
-            if self.check_user_busy(us_id, meeting["re_date"], meeting["re_startTime"], meeting["re_endTime"]):
-                return jsonify("USER IS BUSY"), 400
-            return jsonify(self.dao.insertAttending(mt_id, us_id)), 201
-        else:
-            return "User is not creator of the meeting. Cannot modify", 403
+            return jsonify("User does not have permission for this room"), 403
 
     # ONLY OWNER CAN DO THIS - DONE
     def update_meeting(self, mt_id, name, description, session_id):
@@ -147,15 +136,6 @@ class MeetingController:
             return self.dao.updateMeeting(mt_id, name, description)
         else:
             return "User is not creator of the meeting. Cannot modify", 403
-
-    # ONLY OWNER CAN DO THIS - DONE
-    def update_reservation(self, re_id, date, start, end, session_id):
-        ownership = UserLevelValidationController().validate_owner_through_re_id(session_id, re_id)
-
-        if ownership:
-            return self.dao.updateReservation(re_id, date, start, end)
-        else:
-            return "User is not creator of this reservation. Cannot modify", 403
 
     # ONLY OWNER CAN DO THIS TO OTHER PEOPLE, UNLESS YOU WANT TO REMOVE YOURSELF - DONE
     def remove_attending(self, mt_id, us_id, session_id):
@@ -211,29 +191,15 @@ class MeetingController:
 
     #
     def CreateMeeting(self, json):
+        # NOTE! ATTENDEES *MUST* INCLUDE THE RESERVING PARTY
         result = self.create_meeting(json['name'], json['desc'], json['date'], json['start'], json['end'],
-                                     json['us_id'], json['ro_id'])
+                                     json['us_id'], json['ro_id'], tuple(json['attendees']))
         self.dao.dispose()
-        if result == -1:
-            return "CONFLICT FOUND", 400
-        return jsonify(result), 201
-
-    #
-    def AddAttending(self, json, session_id):
-        result = self.add_attending(json['mt_id'], json['us_id'], session_id)
-        self.dao.dispose()
-        return result # Because Add Attending has 3 possibilities it handles
-        # its own JSON and code generation.
+        return result  # Crete Meeting now handles this
 
     #
     def UpdateMeeting(self, json, us_id):
         result = self.update_meeting(json['id'], json['name'], json['desc'], us_id)
-        self.dao.dispose()
-        return jsonify(result), 200
-
-    #
-    def UpdateReservation(self, json, session_id):
-        result = self.update_reservation(json['id'], json['date'], json['start'], json['end'], session_id)
         self.dao.dispose()
         return jsonify(result), 200
 
@@ -255,7 +221,7 @@ class MeetingController:
 
     def getAvailableMeetingTime(self, json):
         time_slots = self.dao.get_available_time_attendees(json['date'],
-                                                               tuple(json['attendees']))
+                                                           tuple(json['attendees']))
         time_slot_dict = [self.build_available_meeting_time_dict(time_slot) for time_slot in time_slots]
         self.dao.dispose()
         return jsonify(time_slot_dict), 200
@@ -273,4 +239,3 @@ class MeetingController:
         meeting = [self.build_busiest_hour_map_dict(row) for row in meeting_list]
         self.dao.dispose()
         return jsonify(meeting)
-
