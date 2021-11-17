@@ -202,20 +202,28 @@ class RoomsDAO:
             # preparing GET operation
             cur = self.db.connection.cursor()
             query = """SELECT ro_id, ro_name, ro_location, rt_id
-                       FROM "Room"
-                       WHERE ro_id
-                           NOT IN (
-                              SELECT ro_id
-                              FROM "RoomUnavailability"
-                                       NATURAL INNER JOIN "Reservation"
-                              WHERE (ru_date = %s AND re_date = %s)
-                                AND (("re_startTime" >= %s AND "re_endTime" <= %s)
-                                  OR ("ru_startTime" >= %s AND "ru_endTime" <= %s))
-                          )
-                       GROUP BY ro_id;"""
+                        FROM "Room"
+                        WHERE ro_id
+                                  NOT IN (
+                                  SELECT ro_id
+                                  FROM (SELECT ro_id, ru_date as date, "ru_startTime" as start, "ru_endTime" as finish
+                                        FROM "RoomUnavailability"
+                                        UNION
+                                        select ro_id, re_date as date, "re_startTime" as start, "re_endTime" as finish
+                                        FROM "Reservation") as busy
+                                  WHERE (date = %s)
+                                    AND ((start >= %s AND finish <= %s)
+                                      OR start <= %s AND finish >= %s
+                                      OR start BETWEEN %s AND %s
+                                      OR finish BETWEEN %s AND %s)
+                              )
+                        GROUP BY ro_id;"""
             query_values = (
                 date,
-                date,
+                start,
+                end,
+                start,
+                end,
                 start,
                 end,
                 start,
