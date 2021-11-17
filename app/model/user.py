@@ -162,6 +162,28 @@ class UserDAO:
                 self.db.close()
                 return result
 
+    def check_user(self, username, password):
+        try:
+            cur = self.db.connection.cursor()
+            query = """SELECT count(*)
+                       FROM "User"
+                       WHERE us_username = %s and us_password = %s;"""
+            query_values = (username,password)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user operation", error)
+            self.db.connection = None
+
+        finally:
+            if self.db.connection is not None:
+                result = cur.fetchone()
+                cur.close()
+                self.db.close()
+                return result[0] == 1
+
+
     def get_user_schedule(self, us_id, date):
         try:
             cur = self.db.connection.cursor()
