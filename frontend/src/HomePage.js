@@ -50,11 +50,6 @@ function HomePage() {
 
     const handleChange = (event, newValue) => { setOpen(true); }
 
-    if(cookies.get('SessionID')!==undefined){
-        //We have a session ID so assume we're good to go
-        return(<Navigate to="/UserView"/>)
-    }
-
     return (<Segment><Header dividing textAlign="center" size="huge">Welcome to DB Demo</Header>
         <Modal
             centered={false}
