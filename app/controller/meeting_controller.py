@@ -124,7 +124,8 @@ class MeetingController:
             conflicts = self.check_meeting_busy(attendees, ro_id, date, start, end)
             if conflicts >= 1:
                 return jsonify(conflicts + " Conflict(s) Found"), 400
-            return jsonify(self.dao.insertEverythingForMeeting(name, desc, date, start, end, us_id, ro_id, attendees)), 201
+            return jsonify(
+                self.dao.insertEverythingForMeeting(name, desc, date, start, end, us_id, ro_id, attendees)), 201
         else:
             return jsonify("User does not have permission for this room"), 403
 
@@ -192,7 +193,7 @@ class MeetingController:
     def CreateMeeting(self, json):
         # NOTE! ATTENDEES *MUST* INCLUDE THE RESERVING PARTY
         result = self.create_meeting(json['name'], json['desc'], json['date'], json['start'], json['end'],
-                                     json['us_id'], json['ro_id'], json['attendees'])
+                                     json['us_id'], json['ro_id'], tuple(json['attendees']))
         self.dao.dispose()
         return result  # Crete Meeting now handles this
 
@@ -220,7 +221,7 @@ class MeetingController:
 
     def getAvailableMeetingTime(self, json):
         time_slots = self.dao.get_available_time_attendees(json['date'],
-                                                               tuple(json['attendees']))
+                                                           tuple(json['attendees']))
         time_slot_dict = [self.build_available_meeting_time_dict(time_slot) for time_slot in time_slots]
         self.dao.dispose()
         return jsonify(time_slot_dict), 200
@@ -238,4 +239,3 @@ class MeetingController:
         meeting = [self.build_busiest_hour_map_dict(row) for row in meeting_list]
         self.dao.dispose()
         return jsonify(meeting)
-
