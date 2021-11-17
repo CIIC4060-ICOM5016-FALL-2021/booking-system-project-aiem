@@ -27,10 +27,13 @@ function UserView() {
                 return response.json()
             }).then(data => {
                 console.log(data)
-                if (data !== undefined) { setUser(data) }
-                return data.ut_id
+                if (data !== undefined) { 
+                    setUser(data) 
+                    return data.ut_id
+                }
+                return undefined
             }).then(ut_id => {
-
+                if (ut_id===undefined) {return undefined}
                 fetch(Constants.ApiURL + "users/user-types/" + ut_id).then(response => {
                     if (!response.ok) {
                         setUserCatastrophicError(true)
