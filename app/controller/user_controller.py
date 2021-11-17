@@ -177,6 +177,14 @@ class UserController:
             us_dict = self.build_user_map_dict(user)
             return jsonify(us_dict), 200
 
+    def check_user(self, json):
+        us_dao = UserDAO()
+        user = us_dao.check_user(json['username'], json['password'])
+        if not user:
+            return jsonify("Incorrect username or password"), 400
+        else:
+            return jsonify(True), 200  # if we had a session manager, this is where we'd generate that
+
     def get_user_type(self, ut_id):
         ut_dao = UserTypeDAO()
         user_type = ut_dao.get_user_type(ut_id)

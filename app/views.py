@@ -205,6 +205,13 @@ def users():
     else:
         return UserController().get_all_users()
 
+@app.route('/Auth', methods=['POST'])
+def auth():
+    if request.method == 'POST':
+        return UserController().check_user(request.json)
+    else:
+        return jsonify("Method Not Allowed"), 405
+
 
 @app.route('/users/<id>', methods=['GET', 'PUT', 'DELETE'])
 def users_by_id(id):
