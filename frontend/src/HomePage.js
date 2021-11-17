@@ -32,7 +32,7 @@ function HomePage() {
 
         console.log(requestOptions.body);
 
-        fetch(Constants.ApiURL + "Auth/", requestOptions)
+        fetch(Constants.ApiURL + "Auth", requestOptions)
             .then(response => {
                 setLoginInProgress(false);
                 if (!response.ok) { setLoginError(true) }
@@ -44,7 +44,11 @@ function HomePage() {
                     cookies.set('SessionID', data, { path: '/' })
                     Navigate("/UserView", { replace: true })
                 }
-            })
+            }).catch(e => {
+                setLoginInProgress(false);
+                setLoginError(true);
+            }
+            )
     }
 
     const handleChange = (event, newValue) => { setOpen(true); }
