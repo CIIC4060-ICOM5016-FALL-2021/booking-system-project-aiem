@@ -12,18 +12,16 @@ function HomePage() {
         "username": "",
         "password": ""
     });
-
     const [loginInProgress, setLoginInProgress] = useState(false)
     const [loginError, setLoginError] = useState(false)
 
     const [open, setOpen] = useState(false);
-    console.log(open);
 
     const handleLogin = (e) => {
         console.log(AuthRequest.username)
         setLoginInProgress(true)
+        setLoginError(false)
 
-        //Grab the ID and pin and create a tiny itty bitty object
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -35,24 +33,27 @@ function HomePage() {
         fetch(Constants.ApiURL + "Auth", requestOptions)
             .then(response => {
                 setLoginInProgress(false);
-                if (!response.ok) { setLoginError(true) }
+                if (!response.ok) { 
+                    setLoginError(true)
+                    return undefined
+                 }
                 return response.json()
             }).then(data => {
                 console.log(data)
-                if (data !== undefined && !loginError) {
+                if (data !== undefined) {
                     //We logged in, save a cookie, then let's get the heck out of here
-                    cookies.set('SessionID', data, { path: '/' })
-                    Navigate("/UserView", { replace: true })
+                    cookies.set('SessionID', data, { path: '/', maxAge:900 }) //Have the cookie expire in 15 minutes
+                    window.location.reload()
                 }
-            }).catch(e => {
-                setLoginInProgress(false);
-                setLoginError(true);
-            }
-            )
+            })
     }
 
     const handleChange = (event, newValue) => { setOpen(true); }
 
+    if(cookies.get('SessionID')!==undefined){
+        //We have a session ID so assume we're good to go
+        return(<Navigate to="/UserView"/>)
+    }
 
     return (<Segment><Header dividing textAlign="center" size="huge">Welcome to DB Demo</Header>
         <Modal
