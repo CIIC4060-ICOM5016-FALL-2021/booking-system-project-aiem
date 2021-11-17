@@ -165,7 +165,7 @@ class UserDAO:
     def check_user(self, username, password):
         try:
             cur = self.db.connection.cursor()
-            query = """SELECT count(*)
+            query = """SELECT us_id
                        FROM "User"
                        WHERE us_username = %s and us_password = %s;"""
             query_values = (username,password)
@@ -181,8 +181,10 @@ class UserDAO:
                 result = cur.fetchone()
                 cur.close()
                 self.db.close()
-                return result[0] == 1
-
+                if result is None:
+                    return -1
+                else:
+                    return result[0]
 
     def get_user_schedule(self, us_id, date):
         try:

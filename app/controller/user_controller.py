@@ -180,10 +180,10 @@ class UserController:
     def check_user(self, json):
         us_dao = UserDAO()
         user = us_dao.check_user(json['username'], json['password'])
-        if not user:
+        if user == -1:
             return jsonify("Incorrect username or password"), 400
         else:
-            return jsonify(True), 200  # if we had a session manager, this is where we'd generate that
+            return jsonify(user), 200  # if we had a session manager, this is where we'd generate that
 
     def get_user_type(self, ut_id):
         ut_dao = UserTypeDAO()
