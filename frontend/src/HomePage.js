@@ -157,114 +157,118 @@ function HomePage() {
 
 
 
-    return (<Segment><Header dividing textAlign="center" size="huge">Welcome to the AMIE Scheduling System</Header>
+    return (
+        <div style={{ padding: '50px', margin: 'auto', width:'800px', paddingTop:'10%', backgroundColor:'lightgray'}}>
+            <Header dividing textAlign="center" size="huge">Welcome to the AMIE Scheduling System</Header>
 
-        <Modal
-            centered={true}
-            open={regSuccessOpen}
-            onClose={() => setRegSuccessOpen(false)}
-            onOpen={() => setRegSuccessOpen(true)}
-            size="tiny"
-        >
-            <Modal.Header>Success!</Modal.Header>
-            <Modal.Content>
-                <Modal.Description>You have successfully registered onto AMIE. Please log in now</Modal.Description>
-            </Modal.Content>
-            <Modal.Actions>
-                <Button onClick={() => setRegSuccessOpen(false)}>OK</Button>
-            </Modal.Actions>
+            <Modal
+                centered={true}
+                open={regSuccessOpen}
+                onClose={() => setRegSuccessOpen(false)}
+                onOpen={() => setRegSuccessOpen(true)}
+                size="tiny"
+            >
+                <Modal.Header>Success!</Modal.Header>
+                <Modal.Content>
+                    <Modal.Description>You have successfully registered onto AMIE. Please log in now</Modal.Description>
+                </Modal.Content>
+                <Modal.Actions>
+                    <Button onClick={() => setRegSuccessOpen(false)}>OK</Button>
+                </Modal.Actions>
 
-        </Modal>
+            </Modal>
 
-        <Modal
-            centered={true}
-            open={open}
-            onClose={() => {
-                registrationInProgress ? setOpen(true) :
-                setOpen(false)}
-            }
-            onOpen={() => setOpen(true)}
-            size="tiny"
-        >
-            <Modal.Header>Signup</Modal.Header>
-            <Modal.Content>
-                <Form>
-                    {registrationError ? <Header textAlign="center" size="tiny">{registrationErrorText}</Header> : ""}
-                    <Form.Input
-                        icon='user' iconPosition='left' label='Name' placeholder='Name' required
-                        error={registrationError ? registrationError : regNameError} disabled={registrationInProgress}
-                        onChange={(e) => { setRegisterRequest({ ...registerRequest, "us_name": e.target.value }) }}
-                    />
-                    <Form.Input
-                        icon='user' iconPosition='left' label='Username' placeholder='Username' required
-                        error={registrationError ? registrationError : regUserError} disabled={registrationInProgress}
-                        onChange={(e) => { setRegisterRequest({ ...registerRequest, "us_username": e.target.value }) }}
-                    />
-                    <Form.Input
-                        icon='lock' iconPosition='left' label='Password' type='password' required
-                        error={registrationError ? registrationError : regPassError}
-                        disabled={registrationInProgress}
-                        onChange={(e) => { setRegisterRequest({ ...registerRequest, "us_password": e.target.value }) }}
-                    />
-                    {
-                        utypes === undefined ?
-                            <Placeholder>
-                                <Placeholder.Line />
-                            </Placeholder> :
-                            <Form.Dropdown
-                                label="User Type" placeholder='' required
-                                search selection options={utypes} disabled={registrationInProgress}
-                                error={registrationError ? registrationError : regUtIdError}
-                                onChange={(event, data) => {
-                                    setRegisterRequest({ ...registerRequest, "ut_id": data.value })
-                                    console.log(data.value)
-                                }}
-                            />
-
-                    }
-                    <Segment basic textAlign={"center"}>
-                        <Button loading={registrationInProgress} content='Register' primary onClick={handleRegister} />
-                    </Segment>
-                </Form>
-
-                <Modal.Description> <br />By signing up, you agree to the Terms and Conditions of AMIE </Modal.Description>
-            </Modal.Content>
-        </Modal>
-        <Segment placeholder>
-
-            <Grid columns={2} relaxed='very' stackable>
-                <Grid.Column>
+            <Modal
+                centered={true}
+                open={open}
+                onClose={() => {
+                    registrationInProgress ? setOpen(true) :
+                        setOpen(false)
+                }
+                }
+                onOpen={() => setOpen(true)}
+                size="tiny"
+            >
+                <Modal.Header>Signup</Modal.Header>
+                <Modal.Content>
                     <Form>
-                        {loginError ? <Header textAlign="center" size="tiny">Incorrect Username or Password</Header> : ""}
+                        {registrationError ? <Header textAlign="center" size="tiny">{registrationErrorText}</Header> : ""}
                         <Form.Input
-                            icon='user'
-                            iconPosition='left'
-                            label='Username'
-                            placeholder='Username'
-                            error={loginError}
-                            disabled={loginInProgress}
-                            onChange={(e) => { SetAuthRequest({ ...AuthRequest, "username": e.target.value }) }}
+                            icon='user' iconPosition='left' label='Name' placeholder='Name' required
+                            error={registrationError ? registrationError : regNameError} disabled={registrationInProgress}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "us_name": e.target.value }) }}
                         />
                         <Form.Input
-                            icon='lock'
-                            iconPosition='left'
-                            label='Password'
-                            type='password'
-                            error={loginError}
-                            disabled={loginInProgress}
-                            onChange={(e) => { SetAuthRequest({ ...AuthRequest, "password": e.target.value }) }}
+                            icon='user' iconPosition='left' label='Username' placeholder='Username' required
+                            error={registrationError ? registrationError : regUserError} disabled={registrationInProgress}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "us_username": e.target.value }) }}
                         />
-                        <Button loading={loginInProgress} content='Login' primary onClick={handleLogin} />
-                    </Form>
-                </Grid.Column>
-                <Grid.Column verticalAlign='middle'>
-                    <Button content='Sign up' icon='signup' size='big' onClick={handleChange} />
-                </Grid.Column>
-            </Grid>
+                        <Form.Input
+                            icon='lock' iconPosition='left' label='Password' type='password' required
+                            error={registrationError ? registrationError : regPassError}
+                            disabled={registrationInProgress}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "us_password": e.target.value }) }}
+                        />
+                        {
+                            utypes === undefined ?
+                                <Placeholder>
+                                    <Placeholder.Line />
+                                </Placeholder> :
+                                <Form.Dropdown
+                                    label="User Type" placeholder='' required
+                                    search selection options={utypes} disabled={registrationInProgress}
+                                    error={registrationError ? registrationError : regUtIdError}
+                                    onChange={(event, data) => {
+                                        setRegisterRequest({ ...registerRequest, "ut_id": data.value })
+                                        console.log(data.value)
+                                    }}
+                                />
 
-            <Divider vertical>Or</Divider>
-        </Segment>
-    </Segment>
+                        }
+                        <Segment basic textAlign={"center"}>
+                            <Button loading={registrationInProgress} content='Register' primary onClick={handleRegister} />
+                        </Segment>
+                    </Form>
+
+                    <Modal.Description> <br />By signing up, you agree to the Terms and Conditions of AMIE </Modal.Description>
+                </Modal.Content>
+            </Modal>
+            <div style={{ padding: '50px', margin: 'auto' }}>
+                <Segment placeholder>
+                    <Grid columns={2} padded relaxed='very' stackable verticalAlign='middle'>
+                        <Grid.Column>
+                            <Form>
+                                {loginError ? <Header textAlign="center" size="tiny">Incorrect Username or Password</Header> : ""}
+                                <Form.Input
+                                    icon='user'
+                                    iconPosition='left'
+                                    label='Username'
+                                    placeholder='Username'
+                                    error={loginError}
+                                    disabled={loginInProgress}
+                                    onChange={(e) => { SetAuthRequest({ ...AuthRequest, "username": e.target.value }) }}
+                                />
+                                <Form.Input
+                                    icon='lock'
+                                    iconPosition='left'
+                                    label='Password'
+                                    type='password'
+                                    error={loginError}
+                                    disabled={loginInProgress}
+                                    onChange={(e) => { SetAuthRequest({ ...AuthRequest, "password": e.target.value }) }}
+                                />
+                                <Button loading={loginInProgress} content='Login' primary onClick={handleLogin} />
+                            </Form>
+                        </Grid.Column>
+                        <Grid.Column verticalAlign='middle'>
+                            <Button content='Sign up' icon='signup' size='big' onClick={handleChange} />
+                        </Grid.Column>
+                    </Grid>
+
+                    <Divider vertical>Or</Divider>
+                </Segment>
+            </div>
+        </div>
     )
 }
 
