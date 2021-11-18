@@ -1,6 +1,5 @@
-import React, { Component, Fragment, useState } from 'react';
-import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
-import { Button, Card, Container, Grid, Modal, Form, Segment, Header, Placeholder, Loader } from "semantic-ui-react";
+import React, { Fragment, useState } from 'react';
+import { Button, Grid, Modal, Form, Segment, Placeholder} from "semantic-ui-react";
 import Constants from './Constants'
 import Cookies from 'universal-cookie';
 
