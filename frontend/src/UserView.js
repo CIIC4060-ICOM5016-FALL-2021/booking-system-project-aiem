@@ -59,7 +59,6 @@ function UserView() {
         console.log("Oops we're really screwed now")
     }
 
-
     const adminPanes = [
         {
             menuItem: 'Booking', render: () => <BookMeeting />
@@ -71,7 +70,7 @@ function UserView() {
             menuItem: 'Room Management', render: () => <BookMeeting /> //There is no room management component we still have to change this
         },
         {
-            menuItem: 'Account Management', render: () => <AccountManagement User={loggedInUser} UserType={LoggedInUserType} />
+            menuItem: 'Account Management', render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType} />
         }
     ]
 
@@ -83,7 +82,7 @@ function UserView() {
             menuItem: 'Schedule', render: () => <Schedule />
         },
         {
-            menuItem: 'Account Management', render: () => <AccountManagement User={loggedInUser} />
+            menuItem: 'Account Management', render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType}/>
         }
     ]
 
