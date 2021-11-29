@@ -8,6 +8,7 @@ import Schedule from "./Schedule";
 import Cookies from 'universal-cookie';
 import Constants from './Constants'
 import AccountManagement from './AccountManagement'
+import UserStatistics from './UserStatistics';
 
 function UserView() {
     const [isAdmin, setIsAdmin] = useState(false)
@@ -71,6 +72,9 @@ function UserView() {
         },
         {
             menuItem: 'Account Management', render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType} />
+        },
+        {
+            menuItem: 'User Statistics', render: () => <UserStatistics user={loggedInUser} />
         }
     ]
 
@@ -83,6 +87,9 @@ function UserView() {
         },
         {
             menuItem: 'Account Management', render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType}/>
+        },
+        {
+            menuItem: 'User Statistics', render: () => <UserStatistics user={loggedInUser} />
         }
     ]
 
