@@ -9,6 +9,17 @@ import Constants from './Constants';
 function RoomManagement(){
 
     const [RoomData, setRD] = useState(undefined)
+    let payload =  (             <Table singleLine>
+                                <Table.Header>
+                                  <Table.Row>
+                                    <Table.HeaderCell>ID</Table.HeaderCell>
+                                    <Table.HeaderCell>Name</Table.HeaderCell>
+                                    <Table.HeaderCell>Location</Table.HeaderCell>
+                                    <Table.HeaderCell>Type ID</Table.HeaderCell>
+                                  </Table.Row>
+                                </Table.Header>
+                              </Table>
+    )
 
     if(RoomData === undefined){
         fetch(Constants.ApiURL + "/rooms")
@@ -25,6 +36,30 @@ function RoomManagement(){
                 }
         })
 
+    }else{
+                            payload = (           <Table singleLine>
+                                <Table.Header>
+                                  <Table.Row>
+                                    <Table.HeaderCell>ID</Table.HeaderCell>
+                                    <Table.HeaderCell>Name</Table.HeaderCell>
+                                    <Table.HeaderCell>Location</Table.HeaderCell>
+                                    <Table.HeaderCell>Type ID</Table.HeaderCell>
+                                  </Table.Row>
+                                </Table.Header>
+                                  <Table.Body>
+                                      {RoomData.map((u) =>{
+                                          return (
+                                  <Table.Row key={u.ro_id}>
+                                    <Table.Cell>{u.ro_id}</Table.Cell>
+                                    <Table.Cell>{u.ro_name}</Table.Cell>
+                                    <Table.Cell>{u.ro_location}</Table.Cell>
+                                    <Table.Cell>{u.rt_id}</Table.Cell>
+                                  </Table.Row>
+                                );
+                                      })}
+                                  </Table.Body>
+                              </Table>
+                    )
     }
 
     console.log("Current state value: " + RoomData)
@@ -55,7 +90,7 @@ function RoomManagement(){
         })
     }*/
 
-    const renderTable = (
+  /*  const renderTable = (
               <Table singleLine>
                 <Table.Header>
                   <Table.Row>
@@ -78,9 +113,9 @@ function RoomManagement(){
                       })}
                   </Table.Body>
               </Table>
-    )
+    )*/
 
-    return renderTable
+    return payload
 
 }
 
