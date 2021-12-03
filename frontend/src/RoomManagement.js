@@ -1,6 +1,7 @@
 import React, { Component, useState, Fragment } from 'react';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import './RoomManagement.css'
 import moment from 'moment';
 import {
     Button,
@@ -37,6 +38,13 @@ function RoomManagement(){
     const [regTypeError, setRegTypeError] = useState(false)
 
     const [open, setOpen] = useState(false)
+
+    const [openOp, setOpenOp] = useState(false)
+
+    const openOperation = (e) => {
+        console.log("You have clicked!")
+
+    }
 
     const handleRoomCreation = (e) => {
                 if (RTypes === undefined) {
@@ -153,14 +161,14 @@ function RoomManagement(){
 
     }else{
                             payload = (
-                                <div style={{ padding: '10px', margin: 'auto', width:'800px', paddingTop:'1%', backgroundColor:'lightgray'}}>
+                                <div style={{ padding: '15px', margin: 'auto', width:'auto', paddingTop:'3%', backgroundColor:'lightgray'}}>
                                                 <Modal
                 centered={true}
                 open={open}
                 onClose={() => {
                     RoomCreationInProgress ? setOpen(true) :
                         setOpen(false)
-                }
+                    }
                 }
                 onOpen={() => setOpen(true)}
                 size="tiny"
@@ -195,7 +203,7 @@ function RoomManagement(){
 
                         }
                         <Segment basic textAlign={"center"}>
-                            <Button loading={RoomCreationInProgress} content='Create Room' primary onClick={handleSubmission} />
+                            <Button className='ui button positive' loading={RoomCreationInProgress} content='Create Room' primary onClick={handleSubmission} />
                         </Segment>
                     </Form>
 
@@ -214,9 +222,14 @@ function RoomManagement(){
                                       <Table.Body>
                                           {RoomData.map((u) =>{
                                               return (
-                                      <Table.Row key={u.ro_id}>
+                                      <Table.Row key={u.ro_id} positive onClick={() => openOperation()}>
                                         <Table.Cell>{u.ro_id}</Table.Cell>
-                                        <Table.Cell>{u.ro_name}</Table.Cell>
+                                        <Table.Cell>{u.ro_name}
+                                            <div className='ui right floated buttons'>
+                                                <button className='ui right floated very compact button negative'>Delete</button>
+                                                <button className='ui right floated very compact button primary'>Update</button>
+                                            </div>
+                                        </Table.Cell>
                                         <Table.Cell>{u.ro_location}</Table.Cell>
                                         <Table.Cell>{u.rt_id}</Table.Cell>
                                       </Table.Row>
@@ -225,7 +238,7 @@ function RoomManagement(){
                                       </Table.Body>
                                   </Table>
                                     <div>
-                                        <button onClick={handleRoomCreation}>Create new room</button>
+                                        <button className='ui button positive' onClick={handleRoomCreation}>Create new room</button>
                                     </div>
                                 </div>
 
