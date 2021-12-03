@@ -32,6 +32,18 @@ class UserController:
         return result
 
     @staticmethod
+    def build_complete_user_schedule_dict(row):
+        result = {'date': row[0].strftime("%Y-%m-%d"),
+                  'start': row[1].strftime("%H:%M:%S"),
+                  'end': row[2].strftime("%H:%M:%S"),
+                  'title': row[3],
+                  'desc': row[4],
+                  'room': row[5],
+                  'creator': row[6],
+                  'username': row[7]}
+        return result
+
+    @staticmethod
     def  build_most_booked_user_map_dict(row):
         result = {'us_name': row[0], 'count': row[1]}
         return result
@@ -162,9 +174,14 @@ class UserController:
         user_exists = us_dao.get_user(us_id)
         if user_exists:
             us_dao = UserDAO()
-            user_schedule = us_dao.get_user_schedule(us_id, r_date)
-            schedule_dict = [self.build_user_schedule_map_dict(row) for row in user_schedule]
-            return jsonify(schedule_dict), 200
+            if r_date is not None:
+                user_schedule = us_dao.get_user_schedule(us_id, r_date)
+                schedule_dict = [self.build_user_schedule_map_dict(row) for row in user_schedule]
+                return jsonify(schedule_dict), 200
+            else:
+                user_schedule = us_dao.get_complete_user_schedule(us_id)
+                schedule_dict = [self.build_complete_user_schedule_dict(row) for row in user_schedule]
+                return jsonify(schedule_dict), 200
         else:
             return jsonify("No such user"), 404
 
