@@ -74,6 +74,56 @@ function RoomManagement(){
         setOpen(true);
     }
 
+    const handleSubmission = (e) => {
+        console.log(RoomCreationRequest)
+        setRoomCreationProgress(true)
+        setRoomCreationError(false)
+
+        //Validation
+
+        if (RoomCreationRequest.ro_name === "") { setRegNameError("Please input a name") } else { setRegNameError(false) }
+        if (RoomCreationRequest.ro_location === "") { setRegLocationError("Please specify a location") } else { setRegLocationError(false) }
+        if (RoomCreationRequest.rt_id === "") { setRegTypeError("Please specify a type") } else { setRegTypeError(false) }
+
+        if (RoomCreationRequest.ro_name === "" ||
+            RoomCreationRequest.ro_location === "" ||
+            RoomCreationRequest.rt_id === "") {
+            setRoomCreationProgress(false)
+            return;
+        }
+
+        //Build a re
+
+        const requestOptions = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(RoomCreationRequest)
+        };
+
+        fetch(Constants.ApiURL + "/rooms", requestOptions)
+            .then(response => {
+                setRoomCreationProgress(false);
+                if (response.status === 500) {
+                    setRoomCreationError(true)
+                    console.log("An unknown error occurred on the server")
+                }
+                if (response.status !== 201) {
+                    console.log("Room already exists!")
+                    return undefined
+                }
+                return response.json()
+            }).then(data => {
+                console.log(data)
+                if (data === undefined) { return }
+                if (data.ro_id === null) {
+                    setRoomCreationError("Room already exists!")
+                    return undefined
+                }
+                setOpen(false)
+            })
+
+    }
+
     let payload =  (             <Table singleLine>
                                 <Table.Header>
                                   <Table.Row>
@@ -145,7 +195,7 @@ function RoomManagement(){
 
                         }
                         <Segment basic textAlign={"center"}>
-                            <Button loading={RoomCreationInProgress} content='Create Room' primary onClick={handleRoomCreation} />
+                            <Button loading={RoomCreationInProgress} content='Create Room' primary onClick={handleSubmission} />
                         </Segment>
                     </Form>
 
