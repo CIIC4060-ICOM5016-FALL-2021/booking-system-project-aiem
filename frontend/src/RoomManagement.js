@@ -19,10 +19,19 @@ import {
 } from "semantic-ui-react";
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import Constants from './Constants';
+import {resetFirstInputPolyfill} from "web-vitals/dist/modules/lib/polyfills/firstInputPolyfill";
 
-function RoomManagement(){
+function useForceUpdate(){
+    const [val, setValue] = useState(0); // integer state
+    return () => setValue(val => val + 1); // update the state to force render
+}
+
+export default function RoomManagement(){
 
     const [RoomData, setRD] = useState(undefined)
+    const [DeleteID, setDI] = useState(undefined)
+    const [changed, setChanged] = useState(false)
+    const forceUpdate = useForceUpdate()
 
     const [RoomCreationRequest, setRoomCreationRequest] = useState({
         "ro_name": "",
@@ -38,11 +47,170 @@ function RoomManagement(){
     const [regTypeError, setRegTypeError] = useState(false)
 
     const [open, setOpen] = useState(false)
+    const [openDel, setOpenDel] = useState(false)
 
-    const [openOp, setOpenOp] = useState(false)
+    const [RoomDeletionInProgress, setRoomDeletionProgress] = useState(false)
+    const [RoomDeletionError, setRoomDeletionError] = useState(false)
 
-    const openOperation = (e) => {
-        console.log("You have clicked!")
+    let payload =  (             <Table singleLine>
+                                <Table.Header>
+                                  <Table.Row>
+                                    <Table.HeaderCell>ID</Table.HeaderCell>
+                                    <Table.HeaderCell>Name</Table.HeaderCell>
+                                    <Table.HeaderCell>Location</Table.HeaderCell>
+                                    <Table.HeaderCell>Type ID</Table.HeaderCell>
+                                  </Table.Row>
+                                </Table.Header>
+                              </Table>
+    )
+
+
+    const refreshData = (e) => {
+        fetch(Constants.ApiURL + "/rooms")
+            .then(response => {
+                if (!response.ok) {
+                    console.log("There has been an error getting all rooms")
+                    return undefined
+                }
+                return response.json()
+            }).then(data => {
+            if (data !== undefined) {
+                setRD(data)
+            }
+        })
+
+        return (
+                                <div style={{ padding: '15px', margin: 'auto', width:'auto', paddingTop:'3%', backgroundColor:'lightgray'}}>
+                                                <Modal
+                centered={true}
+                open={open}
+                onClose={() => {
+                    RoomCreationInProgress ? setOpen(true) :
+                        setOpen(false)
+                    }
+                }
+                onOpen={() => setOpen(true)}
+                size="tiny"
+            >
+                <Modal.Header>Room Creation</Modal.Header>
+                <Modal.Content>
+                    <Form>
+                        <Form.Input
+                            label='Name' placeholder='Name' required
+                            error={RoomCreationError ? RoomCreationError : regNameError} disabled={RoomCreationInProgress}
+                            onChange={(e) => { setRoomCreationRequest({ ...RoomCreationRequest, "ro_name": e.target.value }) }}
+                        />
+                        <Form.Input
+                            label='Location' placeholder='Location' required
+                            error={RoomCreationError ? RoomCreationError : regLocationError} disabled={RoomCreationInProgress}
+                            onChange={(e) => { setRoomCreationRequest({ ...RoomCreationRequest, "ro_location": e.target.value }) }}
+                        />
+                        {
+                            RTypes === undefined ?
+                                <Placeholder>
+                                    <Placeholder.Line />
+                                </Placeholder> :
+                                <Form.Dropdown
+                                    label="Room Type" placeholder='' required
+                                    search selection options={RTypes} disabled={RoomCreationInProgress}
+                                    error={RoomCreationError ? RoomCreationError : regTypeError}
+                                    onChange={(event, data) => {
+                                        setRoomCreationRequest({ ...RoomCreationRequest, "rt_id": data.value })
+                                        console.log(data.value)
+                                    }}
+                                />
+
+                        }
+                        <Segment basic textAlign={"center"}>
+                            <Button className='ui button positive' loading={RoomCreationInProgress} content='Create Room' primary onClick={handleSubmission} />
+                        </Segment>
+                    </Form>
+
+                    <Modal.Description> <br />Developed by AMIE </Modal.Description>
+                </Modal.Content>
+            </Modal>
+                                    <Modal
+                centered={true}
+                open={openDel}
+                onClose={() => {
+                    RoomDeletionInProgress ? setOpenDel(true) :
+                        setOpenDel(false)
+                    }
+                }
+                onOpen={() => setOpenDel(true)}
+                size="tiny"
+            >
+                <Modal.Header>Room Deletion</Modal.Header>
+                <Modal.Content>
+                    <Modal.Description>
+                        <p>Are you sure you would like to delete this room?</p>
+                    </Modal.Description>
+                    <Form>
+                        <Segment basic textAlign={"center"}>
+                            <Button className='ui button negative' loading={RoomCreationInProgress} content='Yes, I am sure' primary onClick={handleDeleteSubmission} />
+                            <Button className='ui button ' loading={RoomCreationInProgress} content='No, take me back' />
+                        </Segment>
+                    </Form>
+
+                    <Modal.Description> <br />Developed by AMIE </Modal.Description>
+                </Modal.Content>
+            </Modal>
+                                    <Table className={"ui selectable celled table"} singleLine>
+                                    <Table.Header>
+                                      <Table.Row>
+                                        <Table.HeaderCell>ID</Table.HeaderCell>
+                                        <Table.HeaderCell>Name</Table.HeaderCell>
+                                        <Table.HeaderCell>Location</Table.HeaderCell>
+                                        <Table.HeaderCell>Type ID</Table.HeaderCell>
+                                      </Table.Row>
+                                    </Table.Header>
+                                      <Table.Body>
+                                          {RoomData.map((u) =>{
+                                              return (
+                                      <Table.Row key={u.ro_id} positive>
+                                        <Table.Cell>{u.ro_id}</Table.Cell>
+                                        <Table.Cell>{u.ro_name}
+                                            <div className='ui right floated buttons'>
+                                                <button  onClick={handleRoomDeletion.bind(this, u.ro_id)} className='ui right floated very compact button negative'>Delete</button>
+                                                <button className='ui right floated very compact button primary'>Update</button>
+                                            </div>
+                                        </Table.Cell>
+                                        <Table.Cell>{u.ro_location}</Table.Cell>
+                                        <Table.Cell>{u.rt_id}</Table.Cell>
+                                      </Table.Row>
+                                    );
+                                          })}
+                                      </Table.Body>
+                                  </Table>
+                                    <div>
+                                        <button className='ui button positive' onClick={handleRoomCreation}>Create new room</button>
+                                    </div>
+                                </div>
+
+                    )
+    }
+
+    const handleRoomDeletion = (id) => {
+        setOpenDel(true)
+        setRoomDeletionProgress(true)
+        setDI(id)
+    }
+
+    const handleDeleteSubmission = (e) => {
+        if(DeleteID !== undefined){
+            const requestOptions = { method: 'DELETE'};
+
+            fetch(Constants.ApiURL + "rooms/" + DeleteID, requestOptions)
+                .then(response => {
+                    setRoomDeletionProgress(false);
+                    return response, response.json()
+                }).then((response, data) =>{
+                    console.log("Value of changed during delete submission: " + changed)
+                    setOpenDel(false)
+                    setChanged(true)
+                    console.log("Value of change after delete submission: " + changed)
+            })
+        }
 
     }
 
@@ -61,7 +229,6 @@ function RoomManagement(){
                             text: x.rt_name,
                             value: x.rt_id
                         }))
-                        console.log(R)
                         setRTypes(R)
                     }
                 })
@@ -119,6 +286,7 @@ function RoomManagement(){
                     console.log("Room already exists!")
                     return undefined
                 }
+
                 return response.json()
             }).then(data => {
                 console.log(data)
@@ -128,23 +296,12 @@ function RoomManagement(){
                     return undefined
                 }
                 setOpen(false)
+                setChanged(true)
+                console.log("Value of changed in creation:" + changed)
             })
-
     }
 
-    let payload =  (             <Table singleLine>
-                                <Table.Header>
-                                  <Table.Row>
-                                    <Table.HeaderCell>ID</Table.HeaderCell>
-                                    <Table.HeaderCell>Name</Table.HeaderCell>
-                                    <Table.HeaderCell>Location</Table.HeaderCell>
-                                    <Table.HeaderCell>Type ID</Table.HeaderCell>
-                                  </Table.Row>
-                                </Table.Header>
-                              </Table>
-    )
-
-    if(RoomData === undefined){
+            if(RoomData === undefined){
         fetch(Constants.ApiURL + "/rooms")
             .then(response => {
                 if(!response.ok){
@@ -160,7 +317,7 @@ function RoomManagement(){
         })
 
     }else{
-                            payload = (
+                payload = (
                                 <div style={{ padding: '15px', margin: 'auto', width:'auto', paddingTop:'3%', backgroundColor:'lightgray'}}>
                                                 <Modal
                 centered={true}
@@ -210,6 +367,32 @@ function RoomManagement(){
                     <Modal.Description> <br />Developed by AMIE </Modal.Description>
                 </Modal.Content>
             </Modal>
+                                    <Modal
+                centered={true}
+                open={openDel}
+                onClose={() => {
+                    RoomDeletionInProgress ? setOpenDel(true) :
+                        setOpenDel(false)
+                    }
+                }
+                onOpen={() => setOpenDel(true)}
+                size="tiny"
+            >
+                <Modal.Header>Room Deletion</Modal.Header>
+                <Modal.Content>
+                    <Modal.Description>
+                        <p>Are you sure you would like to delete this room?</p>
+                    </Modal.Description>
+                    <Form>
+                        <Segment basic textAlign={"center"}>
+                            <Button className='ui button negative' loading={RoomCreationInProgress} content='Yes, I am sure' primary onClick={handleDeleteSubmission} />
+                            <Button className='ui button ' loading={RoomCreationInProgress} content='No, take me back' />
+                        </Segment>
+                    </Form>
+
+                    <Modal.Description> <br />Developed by AMIE </Modal.Description>
+                </Modal.Content>
+            </Modal>
                                     <Table className={"ui selectable celled table"} singleLine>
                                     <Table.Header>
                                       <Table.Row>
@@ -222,11 +405,11 @@ function RoomManagement(){
                                       <Table.Body>
                                           {RoomData.map((u) =>{
                                               return (
-                                      <Table.Row key={u.ro_id} positive onClick={() => openOperation()}>
+                                      <Table.Row key={u.ro_id} positive>
                                         <Table.Cell>{u.ro_id}</Table.Cell>
                                         <Table.Cell>{u.ro_name}
                                             <div className='ui right floated buttons'>
-                                                <button className='ui right floated very compact button negative'>Delete</button>
+                                                <button  onClick={handleRoomDeletion.bind(this, u.ro_id)} className='ui right floated very compact button negative'>Delete</button>
                                                 <button className='ui right floated very compact button primary'>Update</button>
                                             </div>
                                         </Table.Cell>
@@ -243,14 +426,23 @@ function RoomManagement(){
                                 </div>
 
                     )
-    }
+            }
 
+
+
+    if(changed){
+        payload = refreshData()
+        setChanged(false)
+    }
 
     return payload
 
 }
 
-export default RoomManagement
+function timeout(delay) {
+    return new Promise( res => setTimeout(res, delay) );
+}
+
 
 
 
