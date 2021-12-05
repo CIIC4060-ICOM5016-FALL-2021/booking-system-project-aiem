@@ -243,7 +243,6 @@ def user_availability_by_id(id, session_id):
 
 @app.route('/users/<int:id>/schedule')
 def user_schedule(id):
-    print(request.args.get("date"))
     return UserController().get_user_schedule(id, request.args.get("date"))
 
 

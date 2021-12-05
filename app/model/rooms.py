@@ -197,6 +197,67 @@ class RoomsDAO:
                 self.db.close()
                 return result
 
+    def get_complete_room_schedule(self, ro_id):
+        try:
+            # preparing GET operation
+            cur = self.db.connection.cursor()
+            query = """SELECT date, "start", "end", title, "desc", room, creator, username
+                        FROM ((
+                            SELECT res.re_date AS date,
+                                   res."re_startTime" AS "start",
+                                   res."re_endTime" AS "end",
+                                   met.mt_name AS title,
+                                   met.mt_desc AS "desc",
+                                   rm.ro_name AS room,
+                                   usr.us_name AS creator,
+                                   usr.us_username AS username
+                            FROM (SELECT * FROM "Reservation") AS res,
+                                 (SELECT * FROM "Meeting") AS met,
+                                 (SELECT * FROM "Attending") AS att,
+                                 (SELECT * FROM "User") AS usr,
+                                 (SELECT * FROM "Room") AS rm
+                            WHERE met.re_id = res.re_id
+                                AND met.mt_id = att.mt_id
+                                AND usr.us_id = res.us_id
+                                AND res.ro_id = rm.ro_id
+                                AND rm.ro_id = %s
+                        )UNION(
+                            SELECT ru.ru_date AS date,
+                                   ru."ru_startTime" AS "start",
+                                   ru."ru_endTime" AS "end",
+                                   'Unavailable' AS title,
+                                   '' AS "desc",
+                                   ro.ro_name AS room,
+                                   'Administrator' AS creator,
+                                   '' AS username
+                            FROM (SELECT * FROM "RoomUnavailability") AS ru,
+                                 (SELECT * FROM "Room") AS ro
+                            WHERE ru.ro_id = %s
+                                AND ro.ro_id = ru.ro_id
+                        )) AS schedule
+                        ORDER BY "date", "start";"""
+            query_values = (
+                ro_id,
+                ro_id
+            )
+            # executing GET operation
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing get_complete_room_schedule operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection and returning the all day schedule of a room
+            # including unavailable times and names and descriptions of meetings
+            if self.db.connection is not None:
+                result = [row for row in cur]
+                cur.close()
+                self.db.close()
+                return result
+
     def get_available_by_date_and_time(self, date, start, end):
         try:
             # preparing GET operation

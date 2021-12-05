@@ -65,7 +65,7 @@ function UserView() {
             menuItem: 'Booking', render: () => <BookMeeting />
         },
         {
-            menuItem: 'Schedule', render: () => <Schedule />
+            menuItem: 'Schedule', render: () => <Schedule user={loggedInUser} />
         },
         {
             menuItem: 'Room Management', render: () => <BookMeeting /> //There is no room management component we still have to change this
@@ -83,7 +83,7 @@ function UserView() {
             menuItem: 'Booking', render: () => <BookMeeting />
         },
         {
-            menuItem: 'Schedule', render: () => <Schedule />
+            menuItem: 'Schedule', render: () => <Schedule user={loggedInUser} />
         },
         {
             menuItem: 'Account Management', render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType}/>
