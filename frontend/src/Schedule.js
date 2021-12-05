@@ -48,6 +48,33 @@ export default function Schedule(props){
                 }
             })
         }
+        else {
+            fetch(Constants.ApiURL + "rooms/" + props.room.ro_id + "/schedule")
+                .then(response => {
+                    if (!response.ok) {
+                        setDates([{
+                            'title': 'Selection',
+                            'allDay': false,
+                            'start': new Date(moment.now()),
+                            'end': new Date(moment.now())
+                        }])
+                        return undefined
+                    }
+                    return response.json()
+                }).then(data => {
+                console.log(data)
+                if (data !== undefined) {
+                    let events = data.map( event => ({
+                        title: event.title,
+                        desc: ': ' + event.desc,
+                        start: new Date(event.date + ' ' + event.start),
+                        end: new Date(event.date + ' ' + event.end),
+                        allDay: false
+                    }))
+                    setDates(events)
+                }
+            })
+        }
     }, []);
 
     const EventWrapper = ({event, children}) =>
@@ -69,6 +96,7 @@ export default function Schedule(props){
 
     return <Container style={{ height: 800 }}><Calendar
         localizer={localizer}
+        formats={formats}
         components={{
             eventWrapper: EventWrapper,
             event: Event
@@ -76,7 +104,7 @@ export default function Schedule(props){
         startAccessor="start"
         events={dates}
         endAccessor="end"
-        views={["month", "day"]}
+        views={['month', 'day']}
         defaultDate={Date.now()}
     >
 
