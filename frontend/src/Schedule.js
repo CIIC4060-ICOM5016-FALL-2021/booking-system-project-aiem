@@ -1,4 +1,4 @@
-import React, {Component, useEffect, useState} from 'react';
+import React, {Children, Component, useEffect, useState} from 'react';
 import {Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
@@ -39,9 +39,9 @@ export default function Schedule(props){
                 if (data !== undefined) {
                     let events = data.map( event => ({
                         title: event.title,
-                        desc: event.desc,
+                        desc: ' Room: ' + event.room + ' Description: ' + event.desc + ' Reserved by: ' + event.creator + ' (' + event.username + ')',
                         start: new Date(event.date + ' ' + event.start),
-                        end: new Date(event.date + ' ' + event.start),
+                        end: new Date(event.date + ' ' + event.end),
                         allDay: false
                     }))
                     setDates(events)
@@ -50,8 +50,29 @@ export default function Schedule(props){
         }
     }, []);
 
+    const EventWrapper = ({event, children}) =>
+    React.cloneElement(Children.only(children), {
+        style: {
+            ...children.style,
+            backgroundColor: event.title === 'Unavailable'  ? 'crimson' : 'steelblue',
+        },
+    });
+
+    function Event({ event }) {
+      return (
+        <span>
+          <strong>{event.title}</strong>
+          {event.desc}
+        </span>
+      )
+    }
+
     return <Container style={{ height: 800 }}><Calendar
         localizer={localizer}
+        components={{
+            eventWrapper: EventWrapper,
+            event: Event
+        }}
         startAccessor="start"
         events={dates}
         endAccessor="end"
