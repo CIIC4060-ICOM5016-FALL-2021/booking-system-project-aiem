@@ -9,6 +9,7 @@ import Cookies from 'universal-cookie';
 import Constants from './Constants'
 import AccountManagement from './AccountManagement'
 import UserStatistics from './UserStatistics';
+import RoomManagement from './RoomManagement';
 
 function UserView() {
     const [isAdmin, setIsAdmin] = useState(false)
@@ -65,10 +66,10 @@ function UserView() {
             menuItem: 'Booking', render: () => <BookMeeting />
         },
         {
-            menuItem: 'Schedule', render: () => <Schedule />
+            menuItem: 'Schedule', render: () => <Schedule user={loggedInUser} />
         },
         {
-            menuItem: 'Room Management', render: () => <BookMeeting /> //There is no room management component we still have to change this
+            menuItem: 'Room Management', render: () => <RoomManagement /> //There is no room management component we still have to change this
         },
         {
             menuItem: 'Account Management', render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType} />
@@ -83,7 +84,7 @@ function UserView() {
             menuItem: 'Booking', render: () => <BookMeeting />
         },
         {
-            menuItem: 'Schedule', render: () => <Schedule />
+            menuItem: 'Schedule', render: () => <Schedule user={loggedInUser} />
         },
         {
             menuItem: 'Account Management', render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType}/>

@@ -1,0 +1,13 @@
+.inner_button {
+  display:flex;
+  /* centering the text inside the button */
+  align-items:center;
+  justify-content:center;
+
+  /* plus the other properties */
+}
+
+.cont_class {
+  margin-left: auto;
+  margin-right: 0;
+}

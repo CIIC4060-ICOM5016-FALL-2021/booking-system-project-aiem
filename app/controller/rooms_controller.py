@@ -42,6 +42,18 @@ class RoomsController:
         return result
 
     @staticmethod
+    def build_complete_room_schedule(row):
+        result = {'date': row[0].strftime("%Y-%m-%d"),
+                  'start': row[1].strftime("%H:%M:%S"),
+                  'end': row[2].strftime("%H:%M:%S"),
+                  'title': row[3],
+                  'desc': row[4],
+                  'room': row[5],
+                  'creator': row[6],
+                  'username': row[7]}
+        return result
+
+    @staticmethod
     def build_most_booked_room_map_dict(row):
         result = {'ro_name': row[0], 'count': row[1]}
         return result
@@ -137,9 +149,14 @@ class RoomsController:
         room_exists = ro_dao.get_room(ro_id)
         if room_exists:
             ro_dao = RoomsDAO()
-            room_schedule = ro_dao.get_room_schedule(ro_id, r_date)
-            schedule_dict = [self.build_room_schedule_dict(row) for row in room_schedule]
-            return jsonify(schedule_dict), 200
+            if r_date is not None:
+                room_schedule = ro_dao.get_room_schedule(ro_id, r_date)
+                schedule_dict = [self.build_room_schedule_dict(row) for row in room_schedule]
+                return jsonify(schedule_dict), 200
+            else:
+                room_schedule = ro_dao.get_complete_room_schedule(ro_id)
+                schedule_dict = [self.build_complete_room_schedule(row) for row in room_schedule]
+                return jsonify(schedule_dict), 200
         else:
             return jsonify("No such room"), 404
 

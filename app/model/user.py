@@ -265,7 +265,7 @@ class UserDAO:
             self.db.connection.commit()
 
         except(Exception, psycopg2.Error) as error:
-            print("Error executing get_user_schedule operation", error)
+            print("Error executing get_complete_user_schedule operation", error)
             self.db.connection = None
 
         finally:
