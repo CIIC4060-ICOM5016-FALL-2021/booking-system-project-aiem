@@ -3,7 +3,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './RoomManagement.css'
 import {Button, Form, Modal, Placeholder, Segment, Table} from "semantic-ui-react";
 import Constants from './Constants';
-
+import Schedule from './Schedule';
 
 export default function RoomManagement() {
 
@@ -11,6 +11,7 @@ export default function RoomManagement() {
     const [DeleteID, setDI] = useState(undefined)
     const [SchedID, setSID] = useState(undefined)
     const [changed, setChanged] = useState(false)
+    const [SchedData, setSchedData] = useState(undefined)
 
     const [RoomCreationRequest, setRoomCreationRequest] = useState({
         "ro_name": "",
@@ -233,8 +234,7 @@ export default function RoomManagement() {
                     <Modal.Header>Room Schedule</Modal.Header>
                     <Modal.Content>
                         <Modal.Description>
-                            <p>This is a placeholder for the room schedule. Here is the room id</p>
-                            <p>ID:{SchedID}</p>
+                            <Schedule room={SchedID}/>
                         </Modal.Description>
                         <Form>
                             <Segment basic textAlign={"center"}>
@@ -674,8 +674,7 @@ export default function RoomManagement() {
                     <Modal.Header>Room Schedule</Modal.Header>
                     <Modal.Content>
                         <Modal.Description>
-                            <p>This is a placeholder for the room schedule.</p>
-                            <p>ID:{SchedID}</p>
+                            <Schedule room={SchedID}/>
                         </Modal.Description>
                         <Form>
                             <Segment basic textAlign={"center"}>
