@@ -39,7 +39,12 @@ export default function Schedule(props) {
                 if (data !== undefined) {
                     let events = data.map(event => ({
                         title: event.title,
-                        desc: ' Room: ' + event.room + ' Description: ' + event.desc + ' Reserved by: ' + event.creator + ' (' + event.username + ')',
+                        desc: {
+                            'Room': event.room,
+                            'Description': event.desc,
+                            'Creator': event.creator,
+                            'Username': event.username
+                        },
                         start: new Date(event.date + ' ' + event.start),
                         end: new Date(event.date + ' ' + event.end),
                         allDay: false
@@ -65,7 +70,11 @@ export default function Schedule(props) {
                 if (data !== undefined) {
                     let events = data.map(event => ({
                         title: event.title,
-                        desc: ': ' + event.desc,
+                        desc: {
+                            'Room': event.room,
+                            'Creator': event.creator,
+                            'Username': event.username
+                        },
                         start: new Date(event.date + ' ' + event.start),
                         end: new Date(event.date + ' ' + event.end),
                         allDay: false
@@ -76,34 +85,41 @@ export default function Schedule(props) {
         }
     }, []);
 
-    const EventWrapper = ({event, children}) =>
-        React.cloneElement(Children.only(children), {
-            style: {
-                ...children.style,
-                backgroundColor: event.title === 'Unavailable' ? 'crimson' : 'steelblue',
-            },
-        });
+    function EventPropGetter(event, start, end, isSelected) {
+        return {
+            style: {backgroundColor: event.title === 'Unavailable' ? 'crimson' : 'steelblue'}
+        }
+    }
 
     function Event({event}) {
+        let title = event.title + ' - Room: ' + event.desc.Room;
+        let description = 'Description: ' + event.desc.Description;
+        let reservation = 'Reserved by: ' + event.desc.Creator + ' (' + event.desc.Username + ')';
+        if(event.title === 'Unavailable'){
+            title = event.title;
+            description = '';
+            reservation = 'Reserved by: ' + event.desc.Creator;
+        }
         return (
             <span>
-          <strong>{event.title}</strong>
-                {event.desc}
-        </span>
+              <strong>{title}</strong>
+                    <div class="text--wrap">
+                        <p>{description}</p>
+                        <p>{reservation}</p>
+                    </div>
+            </span>
         )
     }
 
     return <Container style={{height: 800}}><Calendar
         localizer={localizer}
-        components={{
-            eventWrapper: EventWrapper,
-            event: Event
-        }}
+        components={{event: Event}}
         startAccessor="start"
         events={dates}
         endAccessor="end"
         views={['month', 'day']}
         defaultDate={Date.now()}
+        eventPropGetter={EventPropGetter}
     >
 
     </Calendar>
