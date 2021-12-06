@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react';
+import React, {Component, useEffect, useState} from 'react';
 import {Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
@@ -26,12 +26,15 @@ import Constants from './Constants'
 
 
 function BookMeeting(props) {
+
     const [dates, setDates] = useState([]);
     const [MeetingData, setMT] = useState(undefined);
     const [openReservation, setOpenReservation] = useState(false);
     const [openUnavailable, setopenUnavailableReservation] = useState(false);
     const [openUpdateReservation, setOpenUpdateReservation] = useState(false)
     const [openDel, setOpenDel] = useState(false)
+
+    const [EventMenu, setEventMenu] = useState(false)
 
     const [User, Setuser] = useState(undefined)
     const localizer = momentLocalizer(moment)
@@ -75,7 +78,6 @@ function BookMeeting(props) {
     const [regAttendeesError, setAttendeesError] = useState(false)
     const [regIdError, setIdError] = useState(false)
 
-    const [Checkbox, setCheckbox]= useState(false)
 
     const [regSuccessOpen, setRegSuccessOpen] = useState(false)
 
@@ -231,24 +233,20 @@ function BookMeeting(props) {
             setRegSuccessOpen(true)
         })
     }
+    const handleUpdateSubmission = (e) => {
 
- const handleRoomDeletion = (id) => {
-        setOpenDel(true)
-        setMeetingDeletionProgress(true)
-        setDI(id)
     }
-
     const handleDeleteSubmission = (e) => {
 
-        if(DeleteID === ""){
+        if(DeleteID.meeting_id === ""){
             setIdError("Meeting does not exist")
         } else{
             setIdError(false)
         }
-       if(DeleteID !== "" && props.user !== undefined) {
+       if(DeleteID.meeting_id !== "" && props.user !== undefined) {
             let user = props.user.us_id
             const requestOptions = {method: 'DELETE'};
-            fetch(Constants.ApiURL + "/meetings/" + user + "/" + DeleteID, requestOptions)
+            fetch(Constants.ApiURL + "/meetings/" + user + "/" + DeleteID.meeting_id, requestOptions)
                 .then(response => {
                     setMeetingDeletionProgress(false);
                     return response, response.json()
@@ -258,6 +256,7 @@ function BookMeeting(props) {
                 setChanged(true)
                 console.log("Value of change after delete submission: " + changed)
             })
+           fetch(Constants.ApiURL)
         }
 
     }
@@ -280,24 +279,127 @@ function BookMeeting(props) {
         return separatedArray
     }
 
+        //Adding calendar effect, to see Reservation & Unavailability
+        useEffect(() => {
+        if (props.user !== undefined) {
+            fetch(Constants.ApiURL + "users/" + props.user.us_id + "/schedule")
+                .then(response => {
+                    if (!response.ok) {
+                        setDates([{
+                            'title': 'Selection',
+                            'allDay': false,
+                            'start': new Date(moment.now()),
+                            'end': new Date(moment.now())
+                        }])
+                        return undefined
+                    }
+                    return response.json()
+                }).then(data => {
+                console.log(data)
+                if (data !== undefined) {
+                    let events = data.map(event => ({
+                        title: event.title,
+                        desc: {
+                            'Room': event.room,
+                            'Description': event.desc,
+                            'Creator': event.creator,
+                            'Username': event.username
+                        },
+                        start: new Date(event.date + ' ' + event.start),
+                        end: new Date(event.date + ' ' + event.end),
+                        allDay: false
+                    }))
+                    setDates(events)
+                }
+            })
+        } else {
+            if(props.room !== undefined){
+                fetch(Constants.ApiURL + "rooms/" + props.room + "/schedule")
+                    .then(response => {
+                        if (!response.ok) {
+                            setDates([{
+                                'title': 'Selection',
+                                'allDay': false,
+                                'start': new Date(moment.now()),
+                                'end': new Date(moment.now())
+                            }])
+                            return undefined
+                        }
+                        return response.json()
+                    }).then(data => {
+                    console.log(data)
+                    if (data !== undefined) {
+                        let events = data.map(event => ({
+                            title: event.title,
+                            desc: {
+                                'Room': event.room,
+                                'Creator': event.creator,
+                                'Username': event.username
+                            },
+                            start: new Date(event.date + ' ' + event.start),
+                            end: new Date(event.date + ' ' + event.end),
+                            allDay: false
+                        }))
+                        setDates(events)
+                    }
+                })
+            }
+        }
+        }, []);
+
+    function EventPropGetter(event, start, end, isSelected) {
+        return {
+            style: {backgroundColor: event.title === 'Unavailable' ? 'crimson' : 'steelblue'}
+        }
+    }
+
+    function Event({event}) {
+        if(event !== undefined || event !== ""){
+            let title = event.title + ' - Room: ' + event.desc.Room;
+            let description = 'Description: ' + event.desc.Description;
+            let reservation = 'Reserved by: ' + event.desc.Creator + ' (' + event.desc.Username + ')';
+
+            if(event.title === 'Unavailable'){
+                title = event.title;
+                description = '';
+                reservation = 'Reserved by: ' + event.desc.Creator;
+            }
+            return (
+                <span>
+              <strong>{title}</strong>
+                    <div class="text--wrap">
+                        <p>{description}</p>
+                        <p>{reservation}</p>
+                    </div>
+            </span>
+            )
+        }
+    }
 
     return <Container style={{ height: 800 }}><Calendar
         selectable
         localizer={localizer}
+        components={{event: Event}}
         startAccessor="start"
         events={dates}
         endAccessor="end"
         views={["month", "day"]}
         defaultDate={Date.now()}
+
+        onSelectEvent = {event => setEventMenu(true)}
+
         onSelecting = {(selected) =>{ setDates([{
                         'title': 'Selection',
                         'allDay': false,
                         'start': new Date(selected.start),
                         'end': new Date(selected.end)
                     }] ) } }
+        eventPropGetter={EventPropGetter}
     >
 
     </Calendar>
+
+        {/*Reservation Creation*/}
         <Modal
             centered={false}
             open={openReservation}
@@ -324,9 +426,6 @@ function BookMeeting(props) {
                             onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "date": e.target.value }) }}
                         />
 
-                        {/*<button className="ui toggle button"*/}
-                        {/*        aria-pressed="false">All Day</button>*/}
-
                         <Form.Input
                             label='Meeting Start Time' placeholder='HH:MM:SS' required
                             error={registrationError ? registrationError : regStTimeError} disabled={registrationInProgress}
@@ -348,7 +447,7 @@ function BookMeeting(props) {
                             label='Attendees' type='Attendees' required
                             error={registrationError ? registrationError : regAttendeesError}
                             disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequestUnavailability({ ...registerRequestReservation, "attendees": ListMaker(e.target.value)}) }}
+                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "attendees": ListMaker(e.target.value)}) }}
                         />
 
                         <Segment basic textAlign={"center"}>
@@ -394,8 +493,28 @@ function BookMeeting(props) {
                     </Segment>
                 </Form>
             </Modal.Content>
-      </Modal>
+            </Modal>
 
+         {/*Reservation Menu*/}
+         <Modal
+            centered={false}
+            open={EventMenu}
+            onClose={() => setEventMenu(false)}
+            onOpen={() => setEventMenu(true)}
+        >
+            <Modal.Content>
+                {registrationError ? <Header textAlign="center" size="tiny">{registrationErrorText}</Header> : ""}
+                <Form>
+
+                    <Segment basic textAlign={"center"}>
+                        <Button color={"red"} content='Delete' primary onClick={handleDeleteSubmission}/>
+                        <Button content='Update' primary onClick={handleUpdateSubmission} />
+                    </Segment>
+                </Form>
+            </Modal.Content>
+         </Modal>
+
+         {/*Deleting Reservation*/}
          <Modal
             centered={false}
             open={openDel}
@@ -413,7 +532,7 @@ function BookMeeting(props) {
 
                     <Segment basic textAlign={"center"}>
 
-                        <Button loading={registrationInProgress} content='Delete' primary onClick={handleDeleteSubmission} />
+                        <Button loading={registrationInProgress} content='Temp' primary onClick={handleDeleteSubmission} />
                     </Segment>
                 </Form>
             </Modal.Content>
@@ -441,6 +560,7 @@ function BookMeeting(props) {
             onClick={() => {setOpenUpdateReservation()} }
             class='ui left floated very compact button negative'
          > Update Meeting</Button>
+
     </div>
     </Container>
 
