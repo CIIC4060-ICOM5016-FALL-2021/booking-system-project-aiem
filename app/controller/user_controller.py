@@ -40,7 +40,8 @@ class UserController:
                   'desc': row[4],
                   'room': row[5],
                   'creator': row[6],
-                  'username': row[7]}
+                  'username': row[7],
+                  'mt_id': row[8]}
         return result
 
     @staticmethod

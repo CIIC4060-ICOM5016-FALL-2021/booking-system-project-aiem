@@ -224,7 +224,7 @@ class UserDAO:
     def get_complete_user_schedule(self, us_id):
         try:
             cur = self.db.connection.cursor()
-            query = """SELECT date, "start", "end", title, "desc", room, creator, username
+            query = """SELECT date, "start", "end", title, "desc", room, creator, username, mt_id
                         FROM ((
                             SELECT res.re_date AS date,
                                    res."re_startTime" AS "start",
@@ -233,7 +233,8 @@ class UserDAO:
                                    met.mt_desc AS "desc",
                                    rm.ro_name AS room,
                                    usr.us_name AS creator,
-                                   usr.us_username AS username
+                                   usr.us_username AS username,
+                                   met.mt_id AS mt_id
                             FROM (SELECT * FROM "Reservation") AS res,
                                  (SELECT * FROM "Meeting") AS met,
                                  (SELECT * FROM "Attending") AS att,
@@ -252,7 +253,8 @@ class UserDAO:
                                    '' AS "desc",
                                    '' AS room,
                                    usr.us_name AS creator,
-                                   usr.us_username AS username
+                                   usr.us_username AS username,
+                                   -1 AS mt_id
                             FROM (SELECT * FROM "UserUnavailability") AS uu,
                                  (SELECT * FROM "User") AS usr
                             WHERE usr.us_id = %s
