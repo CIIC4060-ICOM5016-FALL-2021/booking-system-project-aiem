@@ -221,24 +221,33 @@ class MeetingDAO:
     # delete------------------------------------------------------------------------------------------------------------
     # Delete just the meeting
     def deleteMeeting(self, mt_id):
-        cursor = self.conn.cursor()
-        query = """delete from "Meeting" where mt_id=%s;"""
-        cursor.execute(query, (mt_id,))
+
+        # Reservation wasn't being deleted so we need to add a delete from reservation
+        # because of the cascade, if we delete the reservation, we delete the meeting, and then delete the attending
+        # Therefore:
+
+        return self.deleteReservation(mt_id)
+
+        # And that's it
+
+        # cursor = self.conn.cursor()
+        # query = """delete from "Meeting" where mt_id=%s;"""
+        # cursor.execute(query, (mt_id,))
         
         # determine affected rows
-        affected_rows = cursor.rowcount
-        self.conn.commit()
+        # affected_rows = cursor.rowcount
+        # self.conn.commit()
         
         # if affected rows == 0, the part was not found and hence not deleted
         # otherwise, it was deleted, so check if affected_rows != 0
-        cursor.close()
-        return affected_rows != 0
+        # cursor.close()
+        # return affected_rows != 0
 
     # Deletes a meeting's tied reservation
-    def deleteReservationOnly(self, re_id):
+    def deleteReservation(self, mt_id):
         cursor = self.conn.cursor()
-        query = """delete from "Reservation" where re_id = %s"""
-        cursor.execute(query, (re_id,))
+        query = """delete from "Reservation" where re_id in (select re_id from "Meeting" where mt_id = %s)"""
+        cursor.execute(query, (mt_id,))
         affected_rows = cursor.rowcount
         self.conn.commit()
         cursor.close()
