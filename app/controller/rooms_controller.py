@@ -5,6 +5,7 @@ from flask import jsonify
 from app.model.room_type import RoomTypeDAO
 from app.model.rooms import RoomsDAO
 from app.controller.level_validation_controller import UserLevelValidationController
+from app.model.user import UserDAO
 
 
 class RoomsController:
@@ -56,6 +57,11 @@ class RoomsController:
     @staticmethod
     def build_most_booked_room_map_dict(row):
         result = {'ro_name': row[0], 'count': row[1]}
+        return result
+
+    @staticmethod
+    def build_user_type_map_dict(row):
+        result = {'ut_id': row[0], 'ut_name': row[1], 'ut_isAdmin': row[2], 'ut_level': row[3]}
         return result
 
     def get_all_rooms(self):
@@ -160,9 +166,9 @@ class RoomsController:
         else:
             return jsonify("No such room"), 404
 
-    def get_available_by_date_and_time(self, r_date, r_start, r_end):
+    def get_available_by_date_and_time(self, us_level, r_date, r_start, r_end):
         ro_dao = RoomsDAO()
-        available_rooms = ro_dao.get_available_by_date_and_time(r_date, r_start, r_end)
+        available_rooms = ro_dao.get_available_by_date_and_time(us_level, r_date, r_start, r_end)
         available_dict = [self.build_room_dict(row) for row in available_rooms]
         return jsonify(available_dict), 200
 

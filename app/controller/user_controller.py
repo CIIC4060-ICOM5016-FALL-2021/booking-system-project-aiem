@@ -211,6 +211,11 @@ class UserController:
             ut_dict = self.build_user_type_map_dict(user_type)
             return jsonify(ut_dict), 200
 
+    def get_user_level(self, us_id):
+        us_dao = UserDAO()
+        user_level = us_dao.get_user_level(us_id)
+        return user_level
+
     def get_all_users(self):
         dao = UserDAO()
         user_list = dao.get_all_users()

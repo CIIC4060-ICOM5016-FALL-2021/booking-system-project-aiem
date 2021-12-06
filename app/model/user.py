@@ -348,6 +348,25 @@ class UserDAO:
                 self.db.close()
                 return result
 
+    def get_user_level(self, us_id):
+        try:
+            cur = self.db.connection.cursor()
+            query = """select ut_level
+                                from "User" Natural Inner Join "UserType"
+                                where us_id = %s"""
+            query_values = (us_id,)
+            cur.execute(query, query_values)
+            self.db.connection.commit()
+        except(Exception, psycopg2.Error) as error:
+            print("Error executing get_user_level operation", error)
+            self.db.connection = None
+        finally:
+            if self.db.connection is not None:
+                result = cur.fetchone()[0]
+                cur.close()
+                self.db.close()
+                return result
+
         # Global Statistic to find top 10 most booking user
     def most_booked_user(self):
         cur = self.db.connection.cursor()
