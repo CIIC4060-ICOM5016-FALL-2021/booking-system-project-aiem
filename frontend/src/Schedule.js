@@ -49,7 +49,7 @@ export default function Schedule(props){
             })
         }
         else {
-            fetch(Constants.ApiURL + "rooms/" + props.room.ro_id + "/schedule")
+            fetch(Constants.ApiURL + "rooms/" + props.room + "/schedule")
                 .then(response => {
                     if (!response.ok) {
                         setDates([{
@@ -96,7 +96,7 @@ export default function Schedule(props){
 
     return <Container style={{ height: 800 }}><Calendar
         localizer={localizer}
-        formats={formats}
+        //formats={formats}
         components={{
             eventWrapper: EventWrapper,
             event: Event

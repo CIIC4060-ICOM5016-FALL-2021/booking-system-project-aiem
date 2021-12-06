@@ -14,21 +14,23 @@ import Constants from './Constants'
 // }
 
 
-function BookMeeting(props){
+function BookMeeting(props) {
     const [dates, setDates] = useState([]);
     const [open, setOpen] = useState(false);
     const [User, Setuser] = useState(undefined)
     const localizer = momentLocalizer(moment)
 
-       const [registerRequest, setRegisterRequest] = useState({
-        "mt_name": "",
-        "mt_desc": "",
-        "re_date": "",
-        "re_startTime": "",
-        "re_endTime": "",
+    const [registerRequest, setRegisterRequest] = useState({
+        "name": "",
+        "desc": "",
+        "date": "",
+        "start": "",
+        "end": "",
         "ro_id": "",
-        "attendees": "",
+        "us_id": "",
+        "attendees": [],
     })
+
     const [loginInProgress, setLoginInProgress] = useState(false)
     const [MeetingError, setMeetingError] = useState(false)
 
@@ -48,50 +50,75 @@ function BookMeeting(props){
 
     const [regSuccessOpen, setRegSuccessOpen] = useState(false)
 
-    const createMeeting = (e) => {
+
+      // class ButtonExampleToggle extends Component {
+  //   state = {}
+  //   handleClick = () =>
+  //   this.setState((prevState) => ({ active: !prevState.active }))
+  //
+  //   render() {
+  //   const { active } = this.state
+  //
+  //       return (
+  //       <Button toggle active={active} onClick={this.handleClick}>
+  //           Toggle
+  //       </Button>
+  //       )
+  //   }
+  // }
+
+    // const handleMeetingDeletion = (id) => {
+    //     setOpenDel(true)
+    //     setRoomDeletionProgress(true)
+    //     setDI(id)
+    // }
+    //
+    // const handleDeleteSubmission = (e) => {
+    //     if (DeleteID !== undefined) {
+    //         const requestOptions = {method: 'DELETE'};
+    //
+    //         fetch(Constants.ApiURL + "rooms/" + DeleteID, requestOptions)
+    //             .then(response => {
+    //                 setRoomDeletionProgress(false);
+    //                 return response, response.json()
+    //             }).then((response, data) => {
+    //             console.log("Value of changed during delete submission: " + changed)
+    //             setOpenDel(false)
+    //             setChanged(true)
+    //             console.log("Value of change after delete submission: " + changed)
+    //         })
+    //     }
+    //
+    // }
+
+    const handleMeetingSubmission = (e) => {
         console.log(registerRequest)
         setRegistrationInProgress(true)
         setRegistrationError(false)
 
-  class ButtonExampleToggle extends Component {
-    state = {}
-    handleClick = () =>
-    this.setState((prevState) => ({ active: !prevState.active }))
-
-    render() {
-    const { active } = this.state
-
-        return (
-        <Button toggle active={active} onClick={this.handleClick}>
-            Toggle
-        </Button>
-        )
-    }
-  }
-
         //Validation
 
-        if (registerRequest.mt_name === "") {
+        if (registerRequest.name === "") {
             setMTNameError("Please input a meetings name")
         } else {
             setMTNameError(false)
         }
-         if (registerRequest.mt_desc === "") {
+         if (registerRequest.desc === "") {
             setMtDescError("Please input a meetings description")
         } else {
             setMtDescError(false)
         }
-        if (registerRequest.re_date === "") {
+        if (registerRequest.date === "") {
             setDateError("Please specify date of the meeting")
         } else {
             setDateError(false)
         }
-        if (registerRequest.re_startTime === "") {
+        if (registerRequest.start === "") {
             setStTimeError("Please specify starting time")
         } else {
             setStTimeError(false)
         }
-        if (registerRequest.re_endTime === "") {
+        if (registerRequest.end === "") {
             setEndTimeError("Please specify end time")
         } else {
             setEndTimeError(false)
@@ -101,22 +128,24 @@ function BookMeeting(props){
         } else {
             setRegRoIdError(false)
         }
-            if (registerRequest.attendees === "") {
+            if (registerRequest.attendees === []) {
             setAttendeesError("Please specify attendees")
         } else {
             setAttendeesError(false)
         }
 
-        if (registerRequest.mt_name === "" ||
-            registerRequest.mt_desc === "" ||
-            registerRequest.re_date === "" ||
-            registerRequest.re_startTime === "" ||
-            registerRequest.re_endTime === "" ||
+        if (registerRequest.name === "" ||
+            registerRequest.desc === "" ||
+            registerRequest.date === "" ||
+            registerRequest.start === "" ||
+            registerRequest.end === "" ||
             registerRequest.ro_id === "" ||
             registerRequest.attendees === "") {
             setRegistrationInProgress(false)
             return;
         }
+
+        registerRequest.us_id= props.user.us_id
 
         const requestOptions = {
             method: 'POST',
@@ -124,7 +153,7 @@ function BookMeeting(props){
             body: JSON.stringify(registerRequest)
         };
 
-        fetch(Constants.ApiURL + "meetings", requestOptions)
+        fetch(Constants.ApiURL + "/meetings", requestOptions)
             .then(response => {
                 setRegistrationInProgress(false);
                 if (response.status === 500) {
@@ -148,6 +177,26 @@ function BookMeeting(props){
             setOpen(false)
             setRegSuccessOpen(true)
         })
+    }
+
+
+
+    function ListMaker(temp) {
+        let originalstring, separatedArray, separated;
+        originalstring = temp;
+        separatedArray = [];
+
+        let  previousIndex= 0, i;
+
+        for(i= 0; i<originalstring.length; i++){
+            if(originalstring[i]== ','){
+                separated = originalstring.slice(previousIndex, i);
+                separatedArray.push(separated.toString());
+                previousIndex = i + 1;
+            }
+        }
+        separatedArray.push(originalstring.slice(previousIndex,i))
+        return separatedArray
     }
 
 
@@ -181,37 +230,37 @@ function BookMeeting(props){
                         <Form.Input
                             label='Meeting Name' placeholder='Meeting Name' required
                             error={registrationError ? registrationError : regMtNameError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "mt_name": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "name": e.target.value }) }}
                         />
                         <Form.Input
                             label='Meeting Description' placeholder='Description' required
                             error={registrationError ? registrationError : regMtDescError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "mt_desc": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "desc": e.target.value }) }}
                         />
                         <Form.Input
                             label='Meeting Date' placeholder='year:month:date' required
                             error={registrationError ? registrationError : regDateError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "re_date": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "date": e.target.value }) }}
                         />
 
-                        <button className="ui toggle button"
-                                aria-pressed="false">All Day</button>
+                        {/*<button className="ui toggle button"*/}
+                        {/*        aria-pressed="false">All Day</button>*/}
 
                         <Form.Input
-                            label='Meeting Start Time' placeholder='Starttime: HH:MM:SS' required
+                            label='Meeting Start Time' placeholder='HH:MM:SS' required
                             error={registrationError ? registrationError : regStTimeError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "re_starttime": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "start": e.target.value }) }}
                         />
                         <Form.Input
-                            label='Meeting End Time' placeholder='Endtime: HH:MM:SS' required
+                            label='Meeting End Time' placeholder='HH:MM:SS' required
                             error={registrationError ? registrationError : regEndTimeError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "re_endtime": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "end": e.target.value }) }}
                         />
                         <Form.Input
                             label='Room Id' type='Room' required
                             error={registrationError ? registrationError : regRoIdError}
                             disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "ro_id": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "ro_id": e.target.value  }) }}
                         />
 
                         {
@@ -234,15 +283,13 @@ function BookMeeting(props){
                             label='Attendees' type='Attendees' required
                             error={registrationError ? registrationError : regAttendeesError}
                             disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "attendees": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "attendees": ListMaker(e.target.value)}) }}
                         />
 
                         <Segment basic textAlign={"center"}>
-                            <Button loading={registrationInProgress} content='Register' primary onClick={createMeeting} />
+                            <Button loading={registrationInProgress} content='Create Meeting' primary onClick={handleMeetingSubmission} />
                         </Segment>
                     </Form>
-
-                    <Modal.Description> <br />By signing up, you agree to the Terms and Conditions of AMIE </Modal.Description>
                 </Modal.Content>
             </Modal>
 
