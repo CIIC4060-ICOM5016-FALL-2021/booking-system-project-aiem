@@ -647,18 +647,9 @@ function BookMeeting(props) {
         <Button
             color={"green"}
             onClick={() => {setopenUnavailableReservation(true)}}
-            class='ui left floated very compact button negative'
+            class='ui right floated very compact button negative'
         > Mark as unavailable</Button>
-        <Button
-            color={"red"}
-            onClick={() => {setOpenDel(true)} }
-            class='ui left floated very compact button negative'
-        > Delete Meeting</Button>
-        <Button
-            color={"blue"}
-            onClick={() => {setOpenUpdateReservation(true)} }
-            class='ui left floated very compact button negative'
-         > Update Meeting</Button>
+
 
     </div>
     </Container>
