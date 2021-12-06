@@ -1,8 +1,8 @@
-import React, {Children, Component, useEffect, useState} from 'react';
-import {Calendar, momentLocalizer, Views } from 'react-big-calendar';
+import React, {Children, useEffect, useState} from 'react';
+import {Calendar, momentLocalizer} from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import {Button, Card, Container, Modal} from "semantic-ui-react";
+import {Container} from "semantic-ui-react";
 import Constants from "./Constants";
 
 
@@ -15,7 +15,7 @@ import Constants from "./Constants";
 // }
 
 
-export default function Schedule(props){
+export default function Schedule(props) {
     const [dates, setDates] = useState(undefined);
     const [open, setOpen] = useState(false);
     const localizer = momentLocalizer(moment)
@@ -37,9 +37,14 @@ export default function Schedule(props){
                 }).then(data => {
                 console.log(data)
                 if (data !== undefined) {
-                    let events = data.map( event => ({
+                    let events = data.map(event => ({
                         title: event.title,
-                        desc: ' Room: ' + event.room + ' Description: ' + event.desc + ' Reserved by: ' + event.creator + ' (' + event.username + ')',
+                        desc: {
+                            'Room': event.room,
+                            'Description': event.desc,
+                            'Creator': event.creator,
+                            'Username': event.username
+                        },
                         start: new Date(event.date + ' ' + event.start),
                         end: new Date(event.date + ' ' + event.end),
                         allDay: false
@@ -47,8 +52,7 @@ export default function Schedule(props){
                     setDates(events)
                 }
             })
-        }
-        else {
+        } else {
             fetch(Constants.ApiURL + "rooms/" + props.room + "/schedule")
                 .then(response => {
                     if (!response.ok) {
@@ -64,9 +68,13 @@ export default function Schedule(props){
                 }).then(data => {
                 console.log(data)
                 if (data !== undefined) {
-                    let events = data.map( event => ({
+                    let events = data.map(event => ({
                         title: event.title,
-                        desc: ': ' + event.desc,
+                        desc: {
+                            'Room': event.room,
+                            'Creator': event.creator,
+                            'Username': event.username
+                        },
                         start: new Date(event.date + ' ' + event.start),
                         end: new Date(event.date + ' ' + event.end),
                         allDay: false
@@ -77,35 +85,41 @@ export default function Schedule(props){
         }
     }, []);
 
-    const EventWrapper = ({event, children}) =>
-    React.cloneElement(Children.only(children), {
-        style: {
-            ...children.style,
-            backgroundColor: event.title === 'Unavailable'  ? 'crimson' : 'steelblue',
-        },
-    });
-
-    function Event({ event }) {
-      return (
-        <span>
-          <strong>{event.title}</strong>
-          {event.desc}
-        </span>
-      )
+    function EventPropGetter(event, start, end, isSelected) {
+        return {
+            style: {backgroundColor: event.title === 'Unavailable' ? 'crimson' : 'steelblue'}
+        }
     }
 
-    return <Container style={{ height: 800 }}><Calendar
+    function Event({event}) {
+        let title = event.title + ' - Room: ' + event.desc.Room;
+        let description = 'Description: ' + event.desc.Description;
+        let reservation = 'Reserved by: ' + event.desc.Creator + ' (' + event.desc.Username + ')';
+        if(event.title === 'Unavailable'){
+            title = event.title;
+            description = '';
+            reservation = 'Reserved by: ' + event.desc.Creator;
+        }
+        return (
+            <span>
+              <strong>{title}</strong>
+                    <div class="text--wrap">
+                        <p>{description}</p>
+                        <p>{reservation}</p>
+                    </div>
+            </span>
+        )
+    }
+
+    return <Container style={{height: 800}}><Calendar
         localizer={localizer}
-        //formats={formats}
-        components={{
-            eventWrapper: EventWrapper,
-            event: Event
-        }}
+        components={{event: Event}}
         startAccessor="start"
         events={dates}
         endAccessor="end"
         views={['month', 'day']}
         defaultDate={Date.now()}
+        eventPropGetter={EventPropGetter}
     >
 
     </Calendar>
