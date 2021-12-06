@@ -229,7 +229,7 @@ export default function RoomManagement() {
                     centered={true}
                     open={openSched}
                     onOpen={() => setOpenSched(true)}
-                    size="tiny"
+                    size="large"
                 >
                     <Modal.Header>Room Schedule</Modal.Header>
                     <Modal.Content>
@@ -669,7 +669,7 @@ export default function RoomManagement() {
                     centered={true}
                     open={openSched}
                     onOpen={() => setOpenSched(true)}
-                    size="tiny"
+                    size="large"
                 >
                     <Modal.Header>Room Schedule</Modal.Header>
                     <Modal.Content>
