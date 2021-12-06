@@ -63,7 +63,7 @@ function UserView() {
 
     const adminPanes = [
         {
-            menuItem: 'Booking', render: () => <BookMeeting />
+            menuItem: 'Booking', render: () => <BookMeeting user={loggedInUser} />
         },
         {
             menuItem: 'Schedule', render: () => <Schedule user={loggedInUser} />
@@ -81,7 +81,7 @@ function UserView() {
 
     const panes = [
         {
-            menuItem: 'Booking', render: () => <BookMeeting />
+            menuItem: 'Booking', render: () => <BookMeeting user={loggedInUser}/>
         },
         {
             menuItem: 'Schedule', render: () => <Schedule user={loggedInUser} />
