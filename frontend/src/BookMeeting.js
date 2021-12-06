@@ -34,17 +34,22 @@ function BookMeeting(props) {
     const [openUpdateReservation, setOpenUpdateReservation] = useState(false)
     const [openDel, setOpenDel] = useState(false)
 
-    const [EventMenu, setEventMenu] = useState(false)
+    const [EventMenu, setEventMenu] = useState({false, undefined})
 
     const [User, Setuser] = useState(undefined)
     const localizer = momentLocalizer(moment)
     const [changed, setChanged] = useState(false)
 
     const [MeetingDeletionInProcess, setMeetingDeletionProgress] = useState(false)
+    const [MeetingUpdateProcess, setMeetingUpdateProcess] = useState(false)
     const [MeetingDeletionError, setMeetingDeletionError]= useState(false)
 
-    const [DeleteID, setDI] = useState({
+    const [MeetingID, setDI] = useState({
         "meeting_id": "",
+    })
+    const [registerUpdateMeeting, setRegisterUpdateMeeting] = useState({
+        "name": "",
+        "desc": "",
     })
     const [registerRequestReservation, setRegisterRequestReservation] = useState({
         "name": "",
@@ -77,7 +82,7 @@ function BookMeeting(props) {
     const [regRoIdError, setRegRoIdError] = useState(false)
     const [regAttendeesError, setAttendeesError] = useState(false)
     const [regIdError, setIdError] = useState(false)
-
+    const [MeetingUpdateError, setMeetingUpdateError] = useState(false)
 
     const [regSuccessOpen, setRegSuccessOpen] = useState(false)
 
@@ -234,19 +239,75 @@ function BookMeeting(props) {
         })
     }
     const handleUpdateSubmission = (e) => {
+        console.log(registerUpdateMeeting)
+        setMeetingUpdateProcess(true)
+        setRegistrationError(false)
 
+        //Validation
+        if (registerUpdateMeeting.name === "") {
+            setMTNameError("Please specify new name")
+        } else {
+            setMTNameError(false)
+        }
+        if (registerUpdateMeeting.desc === "") {
+            setMtDescError("Please specify new description")
+        } else {
+            setMtDescError(false)
+        }
+
+        if (registerUpdateMeeting.name === "" ||
+            registerUpdateMeeting.desc === ""
+        ) {
+            setRegistrationInProgress(false)
+            return;
+        }
+        const requestOptions = {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(registerUpdateMeeting)
+        };
+        if(props.user !== undefined) {
+            let user = props.user.us_id
+            fetch(Constants.ApiURL + "/meetings/" + user + "/" + 27, requestOptions)
+                .then(response => {
+                    setMeetingUpdateProcess(false);
+                    if (response.status === 500) {
+                        setMeetingUpdateError(true)
+                        console.log("An unknown error occurred on the server")
+                    }
+                    if (response.status !== 201) {
+                        console.log("Meeting already exists!")
+                        return undefined
+                    }
+
+                    return response.json()
+                }).then(data => {
+                console.log(data)
+                setOpenUpdateReservation(false)
+                setChanged(true)
+                console.log("Value of changed in creation:" + changed)
+            })
+        }
     }
+
+    const handleMeetingDelete = (e) => {
+        setOpenDel(true)
+    }
+    const handleMeetingUpdate = (e) => {
+        setOpenUpdateReservation(true)
+    }
+
     const handleDeleteSubmission = (e) => {
 
-        if(DeleteID.meeting_id === ""){
+        if(MeetingID.meeting_id === ""){
             setIdError("Meeting does not exist")
         } else{
             setIdError(false)
         }
-       if(DeleteID.meeting_id !== "" && props.user !== undefined) {
+       if(MeetingID.meeting_id !== "" && props.user !== undefined) {
             let user = props.user.us_id
             const requestOptions = {method: 'DELETE'};
-            fetch(Constants.ApiURL + "/meetings/" + user + "/" + DeleteID.meeting_id, requestOptions)
+            fetch(Constants.ApiURL + "/meetings/" + user + "/" + MeetingID.meeting_id, requestOptions)
                 .then(response => {
                     setMeetingDeletionProgress(false);
                     return response, response.json()
@@ -280,7 +341,7 @@ function BookMeeting(props) {
     }
 
         //Adding calendar effect, to see Reservation & Unavailability
-        useEffect(() => {
+    useEffect(() => {
         if (props.user !== undefined) {
             fetch(Constants.ApiURL + "users/" + props.user.us_id + "/schedule")
                 .then(response => {
@@ -303,7 +364,8 @@ function BookMeeting(props) {
                             'Room': event.room,
                             'Description': event.desc,
                             'Creator': event.creator,
-                            'Username': event.username
+                            'Username': event.username,
+                            'Meeting_Id': event.mt_id
                         },
                         start: new Date(event.date + ' ' + event.start),
                         end: new Date(event.date + ' ' + event.end),
@@ -345,7 +407,7 @@ function BookMeeting(props) {
                 })
             }
         }
-        }, []);
+    }, []);
 
     function EventPropGetter(event, start, end, isSelected) {
         return {
@@ -386,7 +448,7 @@ function BookMeeting(props) {
         views={["month", "day"]}
         defaultDate={Date.now()}
 
-        onSelectEvent = {event => setEventMenu(true)}
+        onSelectEvent = {event => setEventMenu(true, event.title)}
 
         onSelecting = {(selected) =>{ setDates([{
                         'title': 'Selection',
@@ -507,14 +569,43 @@ function BookMeeting(props) {
                 <Form>
 
                     <Segment basic textAlign={"center"}>
-                        <Button color={"red"} content='Delete' primary onClick={handleDeleteSubmission}/>
-                        <Button content='Update' primary onClick={handleUpdateSubmission} />
+                        <Button color={"red"} content='Delete' primary onClick={handleMeetingDelete}/>
+                        <Button content='Update' primary onClick={handleMeetingUpdate} />
                     </Segment>
                 </Form>
             </Modal.Content>
          </Modal>
 
-         {/*Deleting Reservation*/}
+        {/*Update Reservation*/}
+         <Modal
+            centered={false}
+            open={openUpdateReservation}
+            onClose={() => setOpenUpdateReservation(false)}
+            onOpen={() => setOpenUpdateReservation(true)}
+        >
+            <Modal.Content>
+                {registrationError ? <Header textAlign="center" size="tiny">{registrationErrorText}</Header> : ""}
+                <Form>
+                    <Form.Input
+                        label='Meeting Name' placeholder='New Name:' required
+                        error={registrationError ? registrationError : regMtNameError} disabled={registrationInProgress}
+                        onChange={(e) => { setRegisterUpdateMeeting({ ...registerUpdateMeeting, "name": e.target.value }) }}
+                    />
+                    <Form.Input
+                        label='Meeting Description' placeholder='New Description:' required
+                        error={registrationError ? registrationError : regMtDescError} disabled={registrationInProgress}
+                        onChange={(e) => { setRegisterUpdateMeeting({ ...registerUpdateMeeting, "desc": e.target.value }) }}
+                    />
+
+                    <Segment basic textAlign={"center"}>
+
+                        <Button loading={registrationInProgress} content='Update' primary onClick={handleUpdateSubmission} />
+                    </Segment>
+                </Form>
+            </Modal.Content>
+         </Modal>
+
+        {/*Deleting Reservation*/}
          <Modal
             centered={false}
             open={openDel}
@@ -527,7 +618,7 @@ function BookMeeting(props) {
                     <Form.Input
                         label='Meeting Id' placeholder='Meeting Number:' required
                         error={registrationError ? registrationError : regIdError} disabled={registrationInProgress}
-                        onChange={(e) => { setDI({ ...DeleteID, "meeting_id": e.target.value }) }}
+                        onChange={(e) => { setDI({ ...MeetingID, "meeting_id": e.target.value }) }}
                     />
 
                     <Segment basic textAlign={"center"}>
@@ -557,7 +648,7 @@ function BookMeeting(props) {
         > Delete Meeting</Button>
         <Button
             color={"blue"}
-            onClick={() => {setOpenUpdateReservation()} }
+            onClick={() => {setOpenUpdateReservation(true)} }
             class='ui left floated very compact button negative'
          > Update Meeting</Button>
 
