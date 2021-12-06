@@ -34,7 +34,7 @@ function BookMeeting(props) {
     const [openUpdateReservation, setOpenUpdateReservation] = useState(false)
     const [openDel, setOpenDel] = useState(false)
 
-    const [EventMenu, setEventMenu] = useState({false, undefined})
+    const [EventMenu, setEventMenu] = useState(false)
 
     const [User, Setuser] = useState(undefined)
     const localizer = momentLocalizer(moment)
@@ -48,6 +48,7 @@ function BookMeeting(props) {
         "meeting_id": "",
     })
     const [registerUpdateMeeting, setRegisterUpdateMeeting] = useState({
+        "id": "",
         "name": "",
         "desc": "",
     })
@@ -261,6 +262,7 @@ function BookMeeting(props) {
             setRegistrationInProgress(false)
             return;
         }
+        registerUpdateMeeting.id = MeetingData
         const requestOptions = {
             method: 'PUT',
             headers: {'Content-Type': 'application/json'},
@@ -268,7 +270,7 @@ function BookMeeting(props) {
         };
         if(props.user !== undefined) {
             let user = props.user.us_id
-            fetch(Constants.ApiURL + "/meetings/" + user + "/" + 27, requestOptions)
+            fetch(Constants.ApiURL + "/meetings/" + MeetingData + "/" + user, requestOptions)
                 .then(response => {
                     setMeetingUpdateProcess(false);
                     if (response.status === 500) {
@@ -276,7 +278,7 @@ function BookMeeting(props) {
                         console.log("An unknown error occurred on the server")
                     }
                     if (response.status !== 201) {
-                        console.log("Meeting already exists!")
+                        console.log("Meeting created by another user")
                         return undefined
                     }
 
@@ -290,8 +292,16 @@ function BookMeeting(props) {
         }
     }
 
+
     const handleMeetingDelete = (e) => {
         setOpenDel(true)
+    }
+    const handleDeleteClose = (e) => {
+        setOpenDel(false)
+    }
+    const handleMenu = (id) => {
+        setMT(id)
+        setEventMenu(true)
     }
     const handleMeetingUpdate = (e) => {
         setOpenUpdateReservation(true)
@@ -299,15 +309,16 @@ function BookMeeting(props) {
 
     const handleDeleteSubmission = (e) => {
 
-        if(MeetingID.meeting_id === ""){
+        if(MeetingData === ""){
             setIdError("Meeting does not exist")
         } else{
             setIdError(false)
         }
-       if(MeetingID.meeting_id !== "" && props.user !== undefined) {
+       if(props.user !== undefined) {
             let user = props.user.us_id
             const requestOptions = {method: 'DELETE'};
-            fetch(Constants.ApiURL + "/meetings/" + user + "/" + MeetingID.meeting_id, requestOptions)
+
+            fetch(Constants.ApiURL + "/meetings/" + MeetingData + "/" + user, requestOptions)
                 .then(response => {
                     setMeetingDeletionProgress(false);
                     return response, response.json()
@@ -420,11 +431,13 @@ function BookMeeting(props) {
             let title = event.title + ' - Room: ' + event.desc.Room;
             let description = 'Description: ' + event.desc.Description;
             let reservation = 'Reserved by: ' + event.desc.Creator + ' (' + event.desc.Username + ')';
+            let id = 'Reservation Id:' + event.desc.Meeting_Id;
 
             if(event.title === 'Unavailable'){
                 title = event.title;
                 description = '';
                 reservation = 'Reserved by: ' + event.desc.Creator;
+                id = 'Reservation Id:' + event.desc.Meeting_Id;
             }
             return (
                 <span>
@@ -432,6 +445,7 @@ function BookMeeting(props) {
                     <div class="text--wrap">
                         <p>{description}</p>
                         <p>{reservation}</p>
+                        <p>{id}</p>
                     </div>
             </span>
             )
@@ -447,8 +461,7 @@ function BookMeeting(props) {
         endAccessor="end"
         views={["month", "day"]}
         defaultDate={Date.now()}
-
-        onSelectEvent = {event => setEventMenu(true, event.title)}
+        onSelectEvent = {event => handleMenu(event.desc.Meeting_Id)}
 
         onSelecting = {(selected) =>{ setDates([{
                         'title': 'Selection',
@@ -559,7 +572,7 @@ function BookMeeting(props) {
 
          {/*Reservation Menu*/}
          <Modal
-            centered={false}
+            centered={true}
             open={EventMenu}
             onClose={() => setEventMenu(false)}
             onOpen={() => setEventMenu(true)}
@@ -607,25 +620,20 @@ function BookMeeting(props) {
 
         {/*Deleting Reservation*/}
          <Modal
-            centered={false}
+            centered={true}
             open={openDel}
             onClose={() => setOpenDel(false)}
             onOpen={() => setOpenDel(true)}
         >
             <Modal.Content>
-                {registrationError ? <Header textAlign="center" size="tiny">{registrationErrorText}</Header> : ""}
-                <Form>
-                    <Form.Input
-                        label='Meeting Id' placeholder='Meeting Number:' required
-                        error={registrationError ? registrationError : regIdError} disabled={registrationInProgress}
-                        onChange={(e) => { setDI({ ...MeetingID, "meeting_id": e.target.value }) }}
-                    />
+                {registrationError ? <Header textAlign="center" size="medium">{registrationErrorText}</Header> : "Are you Sure You Want to Delete This Meeting?"}
 
                     <Segment basic textAlign={"center"}>
 
-                        <Button loading={registrationInProgress} content='Temp' primary onClick={handleDeleteSubmission} />
+                        <Button loading={registrationInProgress} content='Delete' className='ui button negative' primary onClick={handleDeleteSubmission} />
+                        <Button loading={registrationInProgress} content='Go Back' className='ui button positive' primary onClick={handleDeleteClose} />
                     </Segment>
-                </Form>
+
             </Modal.Content>
          </Modal>
 
