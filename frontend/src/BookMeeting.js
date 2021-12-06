@@ -2,7 +2,19 @@ import React, {Component, useState} from 'react';
 import {Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import moment from 'moment';
-import {Button, Card, Container, Divider, Form, Grid, Header, Modal, Placeholder, Segment} from "semantic-ui-react";
+import {
+    Button,
+    Card,
+    Container,
+    Divider,
+    Form,
+    Grid,
+    Header,
+    Modal,
+    Placeholder,
+    Segment,
+    Table
+} from "semantic-ui-react";
 import Constants from './Constants'
 // Event {
 //     title: string,
@@ -15,20 +27,22 @@ import Constants from './Constants'
 
 function BookMeeting(props) {
     const [dates, setDates] = useState([]);
+    const [MeetingData, setMT] = useState(undefined);
     const [openReservation, setOpenReservation] = useState(false);
     const [openUnavailable, setopenUnavailableReservation] = useState(false);
     const [openUpdateReservation, setOpenUpdateReservation] = useState(false)
-    const [openDeleteReservation, setOpenDeleteReservation] = useState(false)
+    const [openDel, setOpenDel] = useState(false)
 
     const [User, Setuser] = useState(undefined)
     const localizer = momentLocalizer(moment)
-    const [DeleteID, setDI] = useState(undefined)
     const [changed, setChanged] = useState(false)
-    const [openDel, setOpenDel] = useState(false)
+
     const [MeetingDeletionInProcess, setMeetingDeletionProgress] = useState(false)
     const [MeetingDeletionError, setMeetingDeletionError]= useState(false)
 
-
+    const [DeleteID, setDI] = useState({
+        "meeting_id": "",
+    })
     const [registerRequestReservation, setRegisterRequestReservation] = useState({
         "name": "",
         "desc": "",
@@ -59,6 +73,7 @@ function BookMeeting(props) {
     const [regEndTimeError, setEndTimeError] = useState(false)
     const [regRoIdError, setRegRoIdError] = useState(false)
     const [regAttendeesError, setAttendeesError] = useState(false)
+    const [regIdError, setIdError] = useState(false)
 
     const [Checkbox, setCheckbox]= useState(false)
 
@@ -224,10 +239,16 @@ function BookMeeting(props) {
     }
 
     const handleDeleteSubmission = (e) => {
-        if (DeleteID !== undefined) {
-            const requestOptions = {method: 'DELETE'};
 
-            fetch(Constants.ApiURL + "/meetings/" + props.user.us_id + "/" + DeleteID, requestOptions)
+        if(DeleteID === ""){
+            setIdError("Meeting does not exist")
+        } else{
+            setIdError(false)
+        }
+       if(DeleteID !== "" && props.user !== undefined) {
+            let user = props.user.us_id
+            const requestOptions = {method: 'DELETE'};
+            fetch(Constants.ApiURL + "/meetings/" + user + "/" + DeleteID, requestOptions)
                 .then(response => {
                     setMeetingDeletionProgress(false);
                     return response, response.json()
@@ -336,6 +357,8 @@ function BookMeeting(props) {
                     </Form>
                 </Modal.Content>
             </Modal>
+
+        {/*Create Unavailability*/}
         <Modal
             centered={false}
             open={openUnavailable}
@@ -367,10 +390,34 @@ function BookMeeting(props) {
                     />
                     <Segment basic textAlign={"center"}>
                         <Button loading={registrationInProgress} content='Mark Unavailable' primary onClick={handleUnavailableSubmission} />
+
                     </Segment>
                 </Form>
             </Modal.Content>
       </Modal>
+
+         <Modal
+            centered={false}
+            open={openDel}
+            onClose={() => setOpenDel(false)}
+            onOpen={() => setOpenDel(true)}
+        >
+            <Modal.Content>
+                {registrationError ? <Header textAlign="center" size="tiny">{registrationErrorText}</Header> : ""}
+                <Form>
+                    <Form.Input
+                        label='Meeting Id' placeholder='Meeting Number:' required
+                        error={registrationError ? registrationError : regIdError} disabled={registrationInProgress}
+                        onChange={(e) => { setDI({ ...DeleteID, "meeting_id": e.target.value }) }}
+                    />
+
+                    <Segment basic textAlign={"center"}>
+
+                        <Button loading={registrationInProgress} content='Delete' primary onClick={handleDeleteSubmission} />
+                    </Segment>
+                </Form>
+            </Modal.Content>
+         </Modal>
 
         <div class = "fluid">
         <Button
@@ -386,7 +433,7 @@ function BookMeeting(props) {
         > Mark as unavailable</Button>
         <Button
             color={"red"}
-            onClick={() => {setOpenUpdateReservation()} }
+            onClick={() => {setOpenDel(true)} }
             class='ui left floated very compact button negative'
         > Delete Meeting</Button>
         <Button
