@@ -192,6 +192,7 @@ class MeetingDAO:
         mt_id = self.insertMeeting(mt_name, mt_desc, re_id)  # Create the meeting
         for a in attendees:
             self.insertAttending(mt_id, a)  # Register those who are attending
+        self.insertAttending(mt_id, us_id)
         return mt_id  # finally we're done after three requests que lindo
 
     # Adds an attending user
