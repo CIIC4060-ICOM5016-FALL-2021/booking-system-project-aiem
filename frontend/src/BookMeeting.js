@@ -29,7 +29,7 @@ function BookMeeting(props) {
     const [MeetingDeletionError, setMeetingDeletionError]= useState(false)
 
 
-    const [registerRequest, setRegisterRequest] = useState({
+    const [registerRequestReservation, setRegisterRequestReservation] = useState({
         "name": "",
         "desc": "",
         "date": "",
@@ -39,7 +39,12 @@ function BookMeeting(props) {
         "us_id": "",
         "attendees": [],
     })
-
+    const [registerRequestUnavailability, setRegisterRequestUnavailability] = useState({
+        "uu_date": "",
+        "uu_startTime": "",
+        "uu_endTime": "",
+        "us_id": "",
+    })
     const [loginInProgress, setLoginInProgress] = useState(false)
     const [MeetingError, setMeetingError] = useState(false)
 
@@ -60,82 +65,130 @@ function BookMeeting(props) {
     const [regSuccessOpen, setRegSuccessOpen] = useState(false)
 
 
-      // class ButtonExampleToggle extends Component {
-  //   state = {}
-  //   handleClick = () =>
-  //   this.setState((prevState) => ({ active: !prevState.active }))
-  //
-  //   render() {
-  //   const { active } = this.state
-  //
-  //       return (
-  //       <Button toggle active={active} onClick={this.handleClick}>
-  //           Toggle
-  //       </Button>
-  //       )
-  //   }
-  // }
+     const handleUnavailableSubmission = (e) => {
+         console.log(registerRequestUnavailability)
+         setRegistrationInProgress(true)
+         setRegistrationError(false)
+
+         //Validation
+         if (registerRequestUnavailability.uu_date === "") {
+             setDateError("Please specify date")
+         } else {
+             setDateError(false)
+         }
+         if (registerRequestUnavailability.uu_startTime === "") {
+             setStTimeError("Please specify starting time")
+         } else {
+             setStTimeError(false)
+         }
+         if (registerRequestUnavailability.uu_endTime === "") {
+             setEndTimeError("Please specify end time")
+         } else {
+             setEndTimeError(false)
+         }
+         if (registerRequestUnavailability.uu_date === "" ||
+             registerRequestUnavailability.uu_startTime === "" ||
+             registerRequestUnavailability.uu_endTime === ""
+         ) {
+             setRegistrationInProgress(false)
+             return;
+         }
+
+             registerRequestUnavailability.us_id = props.user.us_id
+
+             const requestOptions = {
+                 method: 'POST',
+                 headers: {'Content-Type': 'application/json'},
+                 body: JSON.stringify(registerRequestUnavailability)
+             };
+
+             fetch(Constants.ApiURL + "/users/availability/" + props.user.us_id, requestOptions)
+                 .then(response => {
+                     setRegistrationInProgress(false);
+                     if (response.status === 500) {
+                         setRegistrationError(true)
+                         setRegistrationErrorText("An unknown error occurred on the server")
+                     }
+                     if (response.status !== 201) {
+                         setMTNameError("Unavailability already exists!")
+                         return undefined
+                     }
+                     return response.json()
+                 }).then(data => {
+                 console.log(data)
+                 if (data === undefined) {
+                     return
+                 }
+                if (data.uu_id === null) {
+                    setMTNameError("Reservation already exists!")
+                    return undefined
+                }
+                 setopenUnavailableReservation(false)
+                 setRegSuccessOpen(true)
+             })
+         }
+
 
     const handleMeetingSubmission = (e) => {
-        console.log(registerRequest)
+        console.log(registerRequestReservation)
         setRegistrationInProgress(true)
         setRegistrationError(false)
 
         //Validation
 
-        if (registerRequest.name === "") {
+        if (registerRequestReservation.name === "") {
             setMTNameError("Please input a meetings name")
         } else {
             setMTNameError(false)
         }
-         if (registerRequest.desc === "") {
+         if (registerRequestReservation.desc === "") {
             setMtDescError("Please input a meetings description")
         } else {
             setMtDescError(false)
         }
-        if (registerRequest.date === "") {
+        if (registerRequestReservation.date === "") {
             setDateError("Please specify date of the meeting")
         } else {
             setDateError(false)
         }
-        if (registerRequest.start === "") {
+        if (registerRequestReservation.start === "") {
             setStTimeError("Please specify starting time")
         } else {
             setStTimeError(false)
         }
-        if (registerRequest.end === "") {
+        if (registerRequestReservation.end === "") {
             setEndTimeError("Please specify end time")
         } else {
             setEndTimeError(false)
         }
-        if (registerRequest.ro_id === "") {
+        if (registerRequestReservation.ro_id === "") {
             setRegRoIdError("Please specify Room")
         } else {
             setRegRoIdError(false)
         }
-            if (registerRequest.attendees === []) {
+            if (registerRequestReservation.attendees === []) {
             setAttendeesError("Please specify attendees")
         } else {
             setAttendeesError(false)
         }
 
-        if (registerRequest.name === "" ||
-            registerRequest.desc === "" ||
-            registerRequest.date === "" ||
-            registerRequest.start === "" ||
-            registerRequest.end === "" ||
-            registerRequest.ro_id === "" ||
-            registerRequest.attendees === "") {
+        if (registerRequestReservation.name === "" ||
+            registerRequestReservation.desc === "" ||
+            registerRequestReservation.date === "" ||
+            registerRequestReservation.start === "" ||
+            registerRequestReservation.end === "" ||
+            registerRequestReservation.ro_id === "" ||
+            registerRequestReservation.attendees === "") {
             setRegistrationInProgress(false)
             return;
         }
 
-        registerRequest.us_id= props.user.us_id
+        registerRequestReservation.us_id= props.user.us_id
 
         const requestOptions = {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(registerRequest)
+            body: JSON.stringify(registerRequestReservation)
         };
 
         fetch(Constants.ApiURL + "/meetings", requestOptions)
@@ -159,7 +212,7 @@ function BookMeeting(props) {
                 setMTNameError("Meeting already exists!")
                 return undefined
             }
-            setopenUnavailableReservation(false)
+            setOpenReservation(false)
             setRegSuccessOpen(true)
         })
     }
@@ -237,17 +290,17 @@ function BookMeeting(props) {
                         <Form.Input
                             label='Meeting Name' placeholder='Meeting Name' required
                             error={registrationError ? registrationError : regMtNameError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "name": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "name": e.target.value }) }}
                         />
                         <Form.Input
                             label='Meeting Description' placeholder='Description' required
                             error={registrationError ? registrationError : regMtDescError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "desc": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "desc": e.target.value }) }}
                         />
                         <Form.Input
                             label='Meeting Date' placeholder='YYYY-MM-DD' required
                             error={registrationError ? registrationError : regDateError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "date": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "date": e.target.value }) }}
                         />
 
                         {/*<button className="ui toggle button"*/}
@@ -256,25 +309,25 @@ function BookMeeting(props) {
                         <Form.Input
                             label='Meeting Start Time' placeholder='HH:MM:SS' required
                             error={registrationError ? registrationError : regStTimeError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "start": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "start": e.target.value }) }}
                         />
                         <Form.Input
                             label='Meeting End Time' placeholder='HH:MM:SS' required
                             error={registrationError ? registrationError : regEndTimeError} disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "end": e.target.value }) }}
+                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "end": e.target.value }) }}
                         />
                         <Form.Input
                             label='Room Id' type='Room' required
                             error={registrationError ? registrationError : regRoIdError}
                             disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "ro_id": e.target.value  }) }}
+                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "ro_id": e.target.value  }) }}
                         />
 
                         <Form.Input
                             label='Attendees' type='Attendees' required
                             error={registrationError ? registrationError : regAttendeesError}
                             disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequest({ ...registerRequest, "attendees": ListMaker(e.target.value)}) }}
+                            onChange={(e) => { setRegisterRequestUnavailability({ ...registerRequestReservation, "attendees": ListMaker(e.target.value)}) }}
                         />
 
                         <Segment basic textAlign={"center"}>
@@ -289,16 +342,35 @@ function BookMeeting(props) {
             onClose={() => setopenUnavailableReservation(false)}
             onOpen={() => setopenUnavailableReservation(true)}
         >
-             <Modal.Header>Create a Meeting </Modal.Header>
-                <Modal.Content>
-                    This is a temporary thing, la cagaste xdxdxd
+             <Modal.Header> Mark Unavailable time </Modal.Header>
+            <Modal.Content>
+                {registrationError ? <Header textAlign="center" size="tiny">{registrationErrorText}</Header> : ""}
+                <Form>
+                    <Form.Input
+                        label='Unavailability Date' placeholder='YYYY-MM-DD' required
+                        error={registrationError ? registrationError : regDateError} disabled={registrationInProgress}
+                        onChange={(e) => { setRegisterRequestUnavailability({ ...registerRequestUnavailability, "uu_date": e.target.value }) }}
+                    />
+
+                    {/*<button className="ui toggle button"*/}
+                    {/*        aria-pressed="false">All Day</button>*/}
+
+                    <Form.Input
+                        label='Meeting Start Time' placeholder='HH:MM:SS' required
+                        error={registrationError ? registrationError : regStTimeError} disabled={registrationInProgress}
+                        onChange={(e) => { setRegisterRequestUnavailability({ ...registerRequestUnavailability, "uu_startTime": e.target.value }) }}
+                    />
+                    <Form.Input
+                        label='Meeting End Time' placeholder='HH:MM:SS' required
+                        error={registrationError ? registrationError : regEndTimeError} disabled={registrationInProgress}
+                        onChange={(e) => { setRegisterRequestUnavailability({ ...registerRequestUnavailability, "uu_endTime": e.target.value }) }}
+                    />
                     <Segment basic textAlign={"center"}>
-                        <Button onClick={ () => setopenUnavailableReservation(false)} > Close </Button>
-                        </Segment>
-                </Modal.Content>
-
-
-        </Modal>
+                        <Button loading={registrationInProgress} content='Mark Unavailable' primary onClick={handleUnavailableSubmission} />
+                    </Segment>
+                </Form>
+            </Modal.Content>
+      </Modal>
 
         <div class = "fluid">
         <Button
