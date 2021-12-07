@@ -1,4 +1,4 @@
-from app.model.db import Database
+from backend.app.model.db import Database
 
 
 # Handles Meeting/meeting attending DAO Operations

@@ -2,8 +2,8 @@ from datetime import datetime
 
 from flask import jsonify
 
-from app.model.room_type import RoomTypeDAO
-from app.model.rooms import RoomsDAO
+from backend.app.model.room_type import RoomTypeDAO
+from backend.app.model.rooms import RoomsDAO
 
 
 class RoomsController:
