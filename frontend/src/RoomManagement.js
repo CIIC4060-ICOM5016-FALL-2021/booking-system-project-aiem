@@ -314,7 +314,6 @@ export default function RoomManagement(props) {
                             <Segment basic textAlign={"center"}>
                                 <Button className='ui button primary positive ' content='Mark Unavail.'
                                         onClick={handleUnavail}/>
-                                <Button className='ui button primary Negative ' content='Delete Unavail.'/>
                                 <Button className='ui button ' content='Close' onClick={closeSchedWindow}/>
                             </Segment>
                             <Segment>{UnavailError}</Segment>
@@ -879,7 +878,6 @@ export default function RoomManagement(props) {
                             <Segment basic textAlign={"center"}>
                                 <Button className='ui button primary positive ' content='Mark Unavail.'
                                         onClick={handleUnavail}/>
-                                <Button className='ui button primary Negative ' content='Delete Unavail.'/>
                                 <Button className='ui button ' content='Close' onClick={closeSchedWindow}/>
                             </Segment>
                             <Segment>{UnavailError}</Segment>
