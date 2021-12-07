@@ -4,7 +4,6 @@ from flask import jsonify
 
 from app.model.room_type import RoomTypeDAO
 from app.model.rooms import RoomsDAO
-from app.controller.level_validation_controller import UserLevelValidationController
 
 
 class RoomsController:
@@ -205,6 +204,14 @@ class RoomsController:
     def delete_room(self, ro_id):
         ro_dao = RoomsDAO()
         result = ro_dao.delete_room(ro_id)
+        if result:
+            return jsonify("Deleted"), 200
+        else:
+            return jsonify("No such room"), 404
+
+    def delete_room_unavailability(self, ru_id):
+        ro_dao = RoomsDAO()
+        result = ro_dao.delete_room_unavailability(ru_id)
         if result:
             return jsonify("Deleted"), 200
         else:
