@@ -68,6 +68,13 @@ function BookMeeting(props) {
         "uu_endTime": "",
         "us_id": "",
     })
+
+    const [roomDetails, setRoomDetails] = useState({
+        "date": "",
+        "start": "",
+        "end": ""
+    })
+
     const [loginInProgress, setLoginInProgress] = useState(false)
     const [MeetingError, setMeetingError] = useState(false)
 
@@ -88,7 +95,9 @@ function BookMeeting(props) {
     const [regSuccessOpen, setRegSuccessOpen] = useState(false)
 
     const [timeSlot, setTimeSlot] = useState(false)
+    const [roomSlot, setRoomSlot] = useState(false)
     const [attendeesSelected, setAttendeesSelected] = useState(true)
+    const [roomSelected, setRoomSelected] = useState(true)
 
     const handleTimeSlots = (e) => {
         const requestOptions = {
@@ -113,7 +122,7 @@ function BookMeeting(props) {
             console.log(data)
             if (data !== undefined) {
                 let t = data.map(x => ({
-                    value:{
+                    value: {
                         start: x.start_time,
                         end: x.end_time
                     }
@@ -124,9 +133,75 @@ function BookMeeting(props) {
 
     }
 
+    const handleRoomSlots = (e) => {
+
+        if(props.user !== undefined){
+            fetch(Constants.ApiURL + "rooms/available/" + props.user.us_id + "?date=" +
+                roomDetails.date + "&start=" + roomDetails.start + "&end="+ roomDetails.end)
+                .then(response => {
+                    if (!response.ok) {
+                        return undefined
+                    }
+                    return response.json()
+                }).then(data => {
+                console.log(data)
+                if (data !== undefined) {
+                    let t = data.map(x => ({
+                        value: x.ro_id,
+                        text: x.ro_name,
+                        key: x.ro_id
+                    }))
+                    setRoomSlot(t)
+                }
+            })
+        }
+    }
+
     const handleSetAttendees = (e) => {
         handleTimeSlots();
         setAttendeesSelected(false);
+    }
+
+    const handleGetRooms = (e) => {
+        if(registerRequestReservation.date === ""){
+            setDateError("Please specify date")
+        } else {
+            setDateError(false)
+        }
+
+        if(registerRequestReservation.start === ""){
+            setStTimeError("Please specify starting time")
+        } else {
+            setStTimeError(false)
+        }
+
+        if(registerRequestReservation.end === ""){
+            setEndTimeError("Please specify end time")
+        } else {
+            setEndTimeError(false)
+        }
+
+         if (registerRequestReservation.date === "" ||
+             registerRequestReservation.start === "" ||
+             registerRequestReservation.end === ""
+         ) {
+             setRegistrationInProgress(false)
+             return;
+         }
+
+        // setRoomDetails({...roomDetails,
+        //     "date": registerRequestReservation.date,
+        //     "start": registerRequestReservation.start,
+        //     "end": registerRequestReservation.end
+        // })
+
+        roomDetails.date = registerRequestReservation.date
+        roomDetails.start= registerRequestReservation.start
+        roomDetails.end = registerRequestReservation.end
+
+
+        handleRoomSlots();
+        setRoomSelected(false);
     }
 
      const handleUnavailableSubmission = (e) => {
@@ -550,38 +625,49 @@ function BookMeeting(props) {
 
                         <Button loading={registrationInProgress} content='Set Attendees' primary onClick={handleSetAttendees} />
 
-{/*                        <Form.Input
+                       <Form.Input
                             label='Meeting Start Time' placeholder='HH:MM:SS' required
                             error={registrationError ? registrationError : regStTimeError} disabled={registrationInProgress}
                             onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "start": e.target.value }) }}
-                        />*/}
+                        />
 
-                        {
-                            timeSlot === undefined ?
-                            <Placeholder>
-                                <Placeholder.Line/>
-                            </Placeholder> :
-                            <Form.Dropdown
-                                label="Meeting Start Time" placeholder='HH:MM:SS' required
-                                search selection options={timeSlot} disabled={attendeesSelected}
-                                onChange={(e, data) => {
-                                    setRegisterRequestReservation({...registerRequestReservation, "start": data.value.start})
-                                    console.log(data.value)
-                                }}
-                            />
+                        {/*{*/}
+                        {/*    timeSlot === undefined ?*/}
+                        {/*    <Placeholder>*/}
+                        {/*        <Placeholder.Line/>*/}
+                        {/*    </Placeholder> :*/}
+                        {/*    <Form.Dropdown*/}
+                        {/*        label="Meeting Start Time" placeholder='HH:MM:SS' required*/}
+                        {/*        search selection options={timeSlot} disabled={attendeesSelected}*/}
+                        {/*        onChange={(e, data) => {*/}
+                        {/*            setRegisterRequestReservation({...registerRequestReservation, "start": data.value.start})*/}
+                        {/*            console.log(data.value)*/}
+                        {/*        }}*/}
+                        {/*    />*/}
 
-                        }
+                        {/*}*/}
                         <Form.Input
                             label='Meeting End Time' placeholder='HH:MM:SS' required
                             error={registrationError ? registrationError : regEndTimeError} disabled={registrationInProgress}
                             onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "end": e.target.value }) }}
                         />
-                        <Form.Input
-                            label='Room Id' type='Room' required
-                            error={registrationError ? registrationError : regRoIdError}
-                            disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "ro_id": e.target.value  }) }}
-                        />
+                        <Button loading={registrationInProgress} content='Check Available Rooms' primary onClick={handleGetRooms} />
+
+                        {
+                            roomSlot === undefined ?
+                                <Placeholder>
+                                    <Placeholder.Line/>
+                                </Placeholder> :
+                                <Form.Dropdown
+                                    label="Rooms" placeholder='Select' required
+                                    error={registrationError ? registrationError : regRoIdError}
+                                    search selection options={roomSlot} disabled={roomSelected}
+                                    onChange={(e, data) => {
+                                        setRegisterRequestReservation({...registerRequestReservation, "ro_id": data.value})
+                                        console.log(data.value)
+                                    }}
+                                />
+                        }
 
                         <Segment basic textAlign={"center"}>
                             <Button loading={registrationInProgress} content='Create Meeting' primary onClick={handleMeetingSubmission} />
