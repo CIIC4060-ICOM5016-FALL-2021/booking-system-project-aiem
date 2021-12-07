@@ -444,6 +444,7 @@ function BookMeeting(props) {
                 setChanged(true)
                 console.log("Value of change after delete submission: " + changed)
             })
+           setEventMenu(false)
            fetch(Constants.ApiURL)
         }
 
@@ -721,13 +722,14 @@ function BookMeeting(props) {
             onClose={() => setEventMenu(false)}
             onOpen={() => setEventMenu(true)}
         >
+             <Modal.Header>Meeting options </Modal.Header>
             <Modal.Content>
                 {registrationError ? <Header textAlign="center" size="tiny">{registrationErrorText}</Header> : ""}
                 <Form>
 
                     <Segment basic textAlign={"center"}>
-                        <Button color={"red"} content='Delete' primary onClick={handleMeetingDelete}/>
-                        <Button content='Update' primary onClick={handleMeetingUpdate} />
+                        <Button content='Delete'  className='ui button inverted' primary onClick={handleMeetingDelete}/>
+                        <Button content='Update'  className='ui button inverted' primary onClick={handleMeetingUpdate} />
                     </Segment>
                 </Form>
             </Modal.Content>
