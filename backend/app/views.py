@@ -1,6 +1,9 @@
 from flask import render_template, request, jsonify
 
 from backend.app import app
+from backend.app.controller.meeting_controller import *
+from backend.app.controller.rooms_controller import *
+from backend.app.controller.user_controller import *
 
 
 @app.route('/')
