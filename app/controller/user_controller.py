@@ -2,6 +2,7 @@ from flask import jsonify
 
 from datetime import datetime
 from app.model.user import UserDAO
+from app.model.meeting import MeetingDAO
 from app.model.user_type import UserTypeDAO
 from app.controller.level_validation_controller import UserLevelValidationController
 
@@ -72,6 +73,15 @@ class UserController:
 
     def delete_user(self, us_id):
         us_dao = UserDAO()
+
+        # Check that there's no meetings
+        mt_dao = MeetingDAO()  # Create a MeetDAO
+        cnt = mt_dao.getUserAttendingCount(us_id)  # Get the count
+        mt_dao.dispose()  # Dispose the meeting DAO
+
+        if cnt > 0:  # If there are meetings
+            return jsonify("USER HAS MEETINGS"), 400  # n o
+
         result = us_dao.delete_user(us_id)
         if result:
             return jsonify("DELETED"), 200
