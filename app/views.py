@@ -28,9 +28,12 @@ def rooms():
 
 
 # View all available rooms at given date and time
-@app.route('/rooms/available')
-def rooms_available():
-    return RoomsController().get_available_by_date_and_time(request.args.get("date"),
+@app.route('/rooms/available/<int:session_id>')
+def rooms_available(session_id):
+    #user_level = UserController.get_user_type(UserController.get_user(session_id)['ut_id'])['ut_level']
+    print(UserController().get_user_level(session_id))
+    return RoomsController().get_available_by_date_and_time(UserController().get_user_level(session_id),
+                                                            request.args.get("date"),
                                                             request.args.get("start"),
                                                             request.args.get("end"))
 

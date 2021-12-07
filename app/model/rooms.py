@@ -258,26 +258,27 @@ class RoomsDAO:
                 self.db.close()
                 return result
 
-    def get_available_by_date_and_time(self, date, start, end):
+    def get_available_by_date_and_time(self, us_level, date, start, end):
         try:
             # preparing GET operation
             cur = self.db.connection.cursor()
             query = """SELECT ro_id, ro_name, ro_location, rt_id
-                        FROM "Room"
+                        FROM "Room" NATURAL INNER JOIN "RoomType"
                         WHERE ro_id
                                   NOT IN (
-                                  SELECT ro_id
+                                  SELECT busy.ro_id
                                   FROM (SELECT ro_id, ru_date as date, "ru_startTime" as start, "ru_endTime" as finish
                                         FROM "RoomUnavailability"
                                         UNION
                                         select ro_id, re_date as date, "re_startTime" as start, "re_endTime" as finish
                                         FROM "Reservation") as busy
                                   WHERE (date = %s)
-                                    AND ((start >= %s AND finish <= %s)
-                                      OR start <= %s AND finish >= %s
-                                      OR start BETWEEN %s AND %s
-                                      OR finish BETWEEN %s AND %s)
+                                    AND ((busy.start >= %s AND busy.finish <= %s)
+                                      OR busy.start <= %s AND busy.finish >= %s
+                                      OR busy.start BETWEEN %s AND %s
+                                      OR busy.finish BETWEEN %s AND %s)
                               )
+                        AND rt_level <= %s
                         GROUP BY ro_id;"""
             query_values = (
                 date,
@@ -288,7 +289,8 @@ class RoomsDAO:
                 start,
                 end,
                 start,
-                end
+                end,
+                us_level
             )
             # executing GET operation
             cur.execute(query, query_values)
