@@ -1,6 +1,6 @@
 import psycopg2
 
-from app.model.db import Database
+from backend.app.model.db import Database
 
 
 class UserTypeDAO:
