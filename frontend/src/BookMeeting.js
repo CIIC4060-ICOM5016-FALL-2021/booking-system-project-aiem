@@ -87,6 +87,48 @@ function BookMeeting(props) {
 
     const [regSuccessOpen, setRegSuccessOpen] = useState(false)
 
+    const [timeSlot, setTimeSlot] = useState(false)
+    const [attendeesSelected, setAttendeesSelected] = useState(true)
+
+    const handleTimeSlots = (e) => {
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "attendees": registerRequestReservation.attendees,
+                "date": registerRequestReservation.date
+            }),
+            redirect: 'follow'
+        };
+
+        fetch(Constants.ApiURL + "/meetings/users/available", requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    return undefined
+                }
+                return response.json()
+            }).then(data => {
+            console.log(data)
+            if (data !== undefined) {
+                let t = data.map(x => ({
+                value: {
+                    start: x.start_time,
+                    end: x.end_time
+                }
+                }))
+                setTimeSlot(t)
+            }
+        })
+
+    }
+
+    const handleSetAttendees = (e) => {
+        handleTimeSlots();
+        setAttendeesSelected(false);
+    }
 
      const handleUnavailableSubmission = (e) => {
          console.log(registerRequestUnavailability)
@@ -500,12 +542,36 @@ function BookMeeting(props) {
                             error={registrationError ? registrationError : regDateError} disabled={registrationInProgress}
                             onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "date": e.target.value }) }}
                         />
-
                         <Form.Input
+                            label='Attendees' type='Attendees' required
+                            error={registrationError ? registrationError : regAttendeesError}
+                            disabled={registrationInProgress}
+                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "attendees": ListMaker(e.target.value)}) }}
+                        />
+
+                        <Button loading={registrationInProgress} content='Set Attendees' primary onClick={handleSetAttendees} />
+
+{/*                        <Form.Input
                             label='Meeting Start Time' placeholder='HH:MM:SS' required
                             error={registrationError ? registrationError : regStTimeError} disabled={registrationInProgress}
                             onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "start": e.target.value }) }}
-                        />
+                        />*/}
+
+                        {
+                            timeSlot === undefined ?
+                            <Placeholder>
+                                <Placeholder.Line/>
+                            </Placeholder> :
+                            <Form.Dropdown
+                                label="Meeting Start Time" placeholder='HH:MM:SS' required
+                                search selection options={timeSlot} disabled={attendeesSelected}
+                                onChange={(e, data) => {
+                                    setRegisterRequestReservation({...registerRequestReservation, "start": data.value.start})
+                                    console.log(data.value)
+                                }}
+                            />
+
+                        }
                         <Form.Input
                             label='Meeting End Time' placeholder='HH:MM:SS' required
                             error={registrationError ? registrationError : regEndTimeError} disabled={registrationInProgress}
@@ -516,13 +582,6 @@ function BookMeeting(props) {
                             error={registrationError ? registrationError : regRoIdError}
                             disabled={registrationInProgress}
                             onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "ro_id": e.target.value  }) }}
-                        />
-
-                        <Form.Input
-                            label='Attendees' type='Attendees' required
-                            error={registrationError ? registrationError : regAttendeesError}
-                            disabled={registrationInProgress}
-                            onChange={(e) => { setRegisterRequestReservation({ ...registerRequestReservation, "attendees": ListMaker(e.target.value)}) }}
                         />
 
                         <Segment basic textAlign={"center"}>
