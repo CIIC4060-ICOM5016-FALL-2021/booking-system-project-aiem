@@ -1,6 +1,4 @@
-from flask import jsonify
-
-from app.model.level_validation import UserLevelValidationDAO
+from backend.app.model.level_validation import UserLevelValidationDAO
 
 #The idea for Requirement #7 is to:
 #First scratch off the base condition by limiting the CREATION of a Meeting

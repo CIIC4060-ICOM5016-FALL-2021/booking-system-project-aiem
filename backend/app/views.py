@@ -1,14 +1,11 @@
 from flask import render_template, request, jsonify
 
-from app import app
-from app.controller.meeting_controller import *
-from app.controller.rooms_controller import *
-from app.controller.user_controller import *
+from backend.app import app
 
 
 @app.route('/')
 def home():
-    return render_template("home.html")
+    return render_template("templates/home.html")
 
 
 """

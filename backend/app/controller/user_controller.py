@@ -1,10 +1,10 @@
 from flask import jsonify
 
 from datetime import datetime
-from app.model.user import UserDAO
-from app.model.meeting import MeetingDAO
-from app.model.user_type import UserTypeDAO
-from app.controller.level_validation_controller import UserLevelValidationController
+from backend.app.model.user import UserDAO
+from backend.app.model.meeting import MeetingDAO
+from backend.app.model.user_type import UserTypeDAO
+from backend.app.controller.level_validation_controller import UserLevelValidationController
 
 
 class UserController:

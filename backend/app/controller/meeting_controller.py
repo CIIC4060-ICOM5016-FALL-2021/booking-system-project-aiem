@@ -1,9 +1,6 @@
-import json
-
 from flask import jsonify
 
-from app.model.meeting import MeetingDAO
-from app.controller.level_validation_controller import *
+from backend.app.model.meeting import MeetingDAO
 
 
 class MeetingController:
