@@ -766,8 +766,8 @@ function BookMeeting(props) {
                 <Form>
 
                     <Segment basic textAlign={"center"}>
-                        <Button content='Delete'  className='ui button inverted' primary onClick={handleMeetingDelete}/>
-                        <Button content='Update'  className='ui button inverted' primary onClick={handleMeetingUpdate} />
+                        <Button content='Delete' className='ui button inverted' primary onClick={handleMeetingDelete}/>
+                        <Button content='Update' className='ui button inverted' primary onClick={handleMeetingUpdate} />
                     </Segment>
                 </Form>
             </Modal.Content>
