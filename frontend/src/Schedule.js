@@ -37,7 +37,7 @@ export default function Schedule(props) {
             setReservation('Reserved by: ' + e.desc.Creator)
         }
 
-        setTitle(e.title)
+        setTitle(e.title + ' - Room: ' + e.desc.Room)
         setDescription('Description: ' + e.desc.Description)
         setReservation('Reserved by: ' + e.desc.Creator + ' (' + e.desc.Username + ')')
         console.log("Value of title: " + e.title)
