@@ -1,13 +1,15 @@
-from app import app
-from app.controller.rooms_controller import *
-from app.controller.meeting_controller import *
-from app.controller.user_controller import *
 from flask import render_template, request, jsonify
+
+from app import app
+from app.controller.meeting_controller import *
+from app.controller.rooms_controller import *
+from app.controller.user_controller import *
 
 
 @app.route('/')
 def home():
     return render_template("home.html")
+
 
 """
                                         ==========
@@ -32,6 +34,7 @@ def rooms_available():
                                                             request.args.get("start"),
                                                             request.args.get("end"))
 
+
 # View/update/delete specific room
 @app.route('/rooms/<int:id>', methods=['GET', 'PUT', 'DELETE'])
 def rooms_by_id(id):
@@ -55,9 +58,9 @@ def rooms_unavailable_by_room(id):
         return RoomsController().set_room_unavailability(id, admin, request.json)
     else:
         if request.args:
-            return RoomsController().get_room_unavailability(id,request.args.get("date"))
+            return RoomsController().get_room_unavailability(id, request.args.get("date"))
         else:
-            return RoomsController().get_room_unavailability(id,None)
+            return RoomsController().get_room_unavailability(id, None)
 
 
 @app.route('/rooms/<int:ro_id>/schedule-unavailable/<int:ru_id>', methods=['GET', 'PUT', 'DELETE'])
@@ -66,7 +69,7 @@ def rooms_unavailable_by_id(ro_id, ru_id):
         admin = UserController().get_admin_status(request.json['us_id'])
         return RoomsController().update_room_unavailability(ru_id, ro_id, admin, request.json)
     if request.method == 'DELETE':
-        return "DELETE"
+        return RoomsController().delete_room_unavailability(ru_id)
     else:
         return RoomsController().get_room_unavailability_by_id(ru_id, ro_id)
 
@@ -83,7 +86,7 @@ def room_types():
 # View/update/delete specific room type
 @app.route('/rooms/room-types/<id>')
 def room_types_by_id(id):
-        return RoomsController().get_room_type(id)
+    return RoomsController().get_room_type(id)
 
 
 @app.route('/rooms/most-booked')
@@ -110,12 +113,13 @@ def handleMeeting():
 def handleMeetingById(id, session_id):
     if request.method == 'GET':
         return MeetingController().GetMeetingByID(id, session_id)
-    elif  request.method == 'PUT':
+    elif request.method == 'PUT':
         return MeetingController().UpdateMeeting(request.json, session_id)
     elif request.method == 'DELETE':
         return MeetingController().RemoveMeeting(id)
     else:
         return jsonify("Method Not Allowed"), 405
+
 
 @app.route('/meetings/<int:id>/attending/<int:session_id>', methods=['GET', 'DELETE'])
 def handleAttendingById(id, session_id):
@@ -136,11 +140,12 @@ def handleRoomMeetingSchedule(id, d, session_id):
 
 
 @app.route('/meetings/rooms/<int:id>/<string:d>/<string:t>/<int:session_id>', methods=['GET'])
-def handleRoomMeetingAt(id,d,t, session_id):
+def handleRoomMeetingAt(id, d, t, session_id):
     if request.method == 'GET':
-        return MeetingController().GetMeetingForRoomDuring(id,d,t, session_id)
+        return MeetingController().GetMeetingForRoomDuring(id, d, t, session_id)
     else:
         return jsonify("Method Not Allowed"), 405
+
 
 @app.route('/meetings/users')
 def getUserInfoByRoomAndTime():
@@ -148,14 +153,16 @@ def getUserInfoByRoomAndTime():
                                                  request.args.get("time"),
                                                  request.args.get("date"))
 
+
 @app.route('/meetings/users/available', methods=['POST'])
 def getDefaultMeetingTime():
     return MeetingController().getAvailableMeetingTime(request.json)
 
+
 @app.route('/meetings/users/<int:id>/<string:d>', methods=['GET'])
-def handleUserMeetingSchedule(id,d):
+def handleUserMeetingSchedule(id, d):
     if request.method == 'GET':
-        return MeetingController().GetMeetingsForUserOn(id,d)
+        return MeetingController().GetMeetingsForUserOn(id, d)
     else:
         return jsonify("Method Not Allowed"), 405
 
@@ -165,6 +172,7 @@ def busiest_hour():
     result = MeetingController()
     return result.get_busiest_hour()
 
+
 """
                                         ==========
                                         User Views
@@ -172,8 +180,8 @@ def busiest_hour():
 """
 
 
-#@app.route('/user/create-user', methods=['GET', 'POST'])
-#def create_new_user():
+# @app.route('/user/create-user', methods=['GET', 'POST'])
+# def create_new_user():
 #    if request.method == 'GET':
 #        return render_template("user_form.html")
 
@@ -193,6 +201,7 @@ def users():
         return UserController().create_user(request.json)
     else:
         return UserController().get_all_users()
+
 
 @app.route('/Auth', methods=['POST'])
 def auth():
@@ -214,7 +223,6 @@ def users_by_id(id):
 
 @app.route('/users/user-types/<id>', methods=['GET'])
 def user_types_by_id(id):
-
     return UserController().get_user_type(id)
 
 
@@ -241,6 +249,7 @@ def user_availability_by_id(id, session_id):
     else:
         return UserController().get_user_unavailability(id)
 
+
 @app.route('/users/<int:id>/schedule')
 def user_schedule(id):
     return UserController().get_user_schedule(id, request.args.get("date"))
@@ -255,7 +264,7 @@ def most_booked_user():
 def most_used_rooms(id):
     return UserController().get_user_most_used_room(id)
 
+
 @app.route('/users/meetings/<int:id>')
 def most_meeting_users(id):
     return UserController().get_user_most_meeting_with_user(id)
-
