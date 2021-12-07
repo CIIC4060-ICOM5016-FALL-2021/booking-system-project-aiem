@@ -68,6 +68,13 @@ function BookMeeting(props) {
         "uu_endTime": "",
         "us_id": "",
     })
+
+    const [roomDetails, setRoomDetails] = useState({
+        "date": "",
+        "start": "",
+        "end": ""
+    })
+
     const [loginInProgress, setLoginInProgress] = useState(false)
     const [MeetingError, setMeetingError] = useState(false)
 
@@ -88,8 +95,10 @@ function BookMeeting(props) {
     const [regSuccessOpen, setRegSuccessOpen] = useState(false)
 
     const [timeSlot, setTimeSlot] = useState(false)
+    const [roomSlot, setRoomSlot] = useState(false)
     const [otherTimeSlot, setOtherTimeSlot] = useState(false)
     const [attendeesSelected, setAttendeesSelected] = useState(true)
+    const [roomSelected, setRoomSelected] = useState(true)
 
     const handleTimeSlot = (e) => {
         const requestOptions = {
@@ -157,10 +166,76 @@ function BookMeeting(props) {
 
     }
 
+    const handleRoomSlots = (e) => {
+
+        if(props.user !== undefined){
+            fetch(Constants.ApiURL + "rooms/available/" + props.user.us_id + "?date=" +
+                roomDetails.date + "&start=" + roomDetails.start + "&end="+ roomDetails.end)
+                .then(response => {
+                    if (!response.ok) {
+                        return undefined
+                    }
+                    return response.json()
+                }).then(data => {
+                console.log(data)
+                if (data !== undefined) {
+                    let t = data.map(x => ({
+                        value: x.ro_id,
+                        text: x.ro_name,
+                        key: x.ro_id
+                    }))
+                    setRoomSlot(t)
+                }
+            })
+        }
+    }
+
     const handleSetAttendees = (e) => {
         handleTimeSlot();
         handleOtherTimeSlot();
         setAttendeesSelected(false);
+    }
+
+    const handleGetRooms = (e) => {
+        if(registerRequestReservation.date === ""){
+            setDateError("Please specify date")
+        } else {
+            setDateError(false)
+        }
+
+        if(registerRequestReservation.start === ""){
+            setStTimeError("Please specify starting time")
+        } else {
+            setStTimeError(false)
+        }
+
+        if(registerRequestReservation.end === ""){
+            setEndTimeError("Please specify end time")
+        } else {
+            setEndTimeError(false)
+        }
+
+         if (registerRequestReservation.date === "" ||
+             registerRequestReservation.start === "" ||
+             registerRequestReservation.end === ""
+         ) {
+             setRegistrationInProgress(false)
+             return;
+         }
+
+        // setRoomDetails({...roomDetails,
+        //     "date": registerRequestReservation.date,
+        //     "start": registerRequestReservation.start,
+        //     "end": registerRequestReservation.end
+        // })
+
+        roomDetails.date = registerRequestReservation.date
+        roomDetails.start= registerRequestReservation.start
+        roomDetails.end = registerRequestReservation.end
+
+
+        handleRoomSlots();
+        setRoomSelected(false);
     }
 
      const handleUnavailableSubmission = (e) => {
@@ -403,6 +478,7 @@ function BookMeeting(props) {
                 setChanged(true)
                 console.log("Value of change after delete submission: " + changed)
             })
+           setEventMenu(false)
            fetch(Constants.ApiURL)
         }
 
@@ -684,13 +760,14 @@ function BookMeeting(props) {
             onClose={() => setEventMenu(false)}
             onOpen={() => setEventMenu(true)}
         >
+             <Modal.Header>Meeting options </Modal.Header>
             <Modal.Content>
                 {registrationError ? <Header textAlign="center" size="tiny">{registrationErrorText}</Header> : ""}
                 <Form>
 
                     <Segment basic textAlign={"center"}>
-                        <Button color={"red"} content='Delete' primary onClick={handleMeetingDelete}/>
-                        <Button content='Update' primary onClick={handleMeetingUpdate} />
+                        <Button content='Delete' className='ui button inverted' primary onClick={handleMeetingDelete}/>
+                        <Button content='Update' className='ui button inverted' primary onClick={handleMeetingUpdate} />
                     </Segment>
                 </Form>
             </Modal.Content>
