@@ -148,7 +148,7 @@ def getUserInfoByRoomAndTime():
                                                  request.args.get("time"),
                                                  request.args.get("date"))
 
-@app.route('/meetings/users/available')
+@app.route('/meetings/users/available', methods=['POST'])
 def getDefaultMeetingTime():
     return MeetingController().getAvailableMeetingTime(request.json)
 
