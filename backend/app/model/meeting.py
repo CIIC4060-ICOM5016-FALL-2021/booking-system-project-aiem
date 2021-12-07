@@ -1,4 +1,4 @@
-from app.model.db import Database
+from backend.app.model.db import Database
 
 
 # Handles Meeting/meeting attending DAO Operations
@@ -55,6 +55,15 @@ class MeetingDAO:
             result.append(row)
         cursor.close()
         return result
+
+    def getUserAttendingCount(self, us_id):
+        cursor = self.conn.cursor()
+        query = """select count(*) from "Attending" where us_id=%s;"""
+        cursor.execute(query, (us_id,))
+        result = cursor.fetchone()
+        cursor.close()
+        return result[0]
+
 
     # Gets meetings reserved by given reserving party ordered by date descending
     def getMeetingsByReserver(self, us_id):

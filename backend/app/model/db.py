@@ -1,6 +1,6 @@
 import psycopg2
 
-from app.config.dbconfig import aiem_config
+from backend.app.config.dbconfig import aiem_config
 
 
 # Creates connection to database for easier legibility in DAO classes
