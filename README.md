@@ -12,7 +12,8 @@ Database: d5gkt64aa114el
 User: seqmujfcvmcqhh
 Port: 5432
 Password: 91bad46d3e7e5df3ff53d48a41e27fd9ac827acae2b75d2eb12b9722f939e860
-URI: postgres://seqmujfcvmcqhh:91bad46d3e7e5df3ff53d48a41e27fd9ac827acae2b75d2eb12b9722f939e860@ec2-18-206-20-102.compute-1.amazonaws.com:5432/d5gkt64aa114el```
+URI: postgres://seqmujfcvmcqhh:91bad46d3e7e5df3ff53d48a41e27fd9ac827acae2b75d2eb12b9722f939e860@ec2-18-206-20-102.compute-1.amazonaws.com:5432/d5gkt64aa114el
+Heroku CLI: heroku pg:psql postgresql-trapezoidal-29381 --app aiem
 ```
 
 ## Endpoints:
