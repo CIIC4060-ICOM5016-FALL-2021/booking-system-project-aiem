@@ -91,7 +91,6 @@ function BookMeeting(props) {
     const [attendeesSelected, setAttendeesSelected] = useState(true)
 
     const handleTimeSlots = (e) => {
-
         const requestOptions = {
             method: 'POST',
             headers: {
@@ -104,7 +103,7 @@ function BookMeeting(props) {
             redirect: 'follow'
         };
 
-        fetch(Constants.ApiURL + "/meetings/users/available", requestOptions)
+        fetch(Constants.ApiURL + "meetings/users/available", requestOptions)
             .then(response => {
                 if (!response.ok) {
                     return undefined
@@ -114,10 +113,8 @@ function BookMeeting(props) {
             console.log(data)
             if (data !== undefined) {
                 let t = data.map(x => ({
-                value: {
                     start: x.start_time,
-                    end: x.end_time
-                }
+                    //end: x.end_time
                 }))
                 setTimeSlot(t)
             }
@@ -566,7 +563,7 @@ function BookMeeting(props) {
                                 label="Meeting Start Time" placeholder='HH:MM:SS' required
                                 search selection options={timeSlot} disabled={attendeesSelected}
                                 onChange={(e, data) => {
-                                    setRegisterRequestReservation({...registerRequestReservation, "start": data.value.start})
+                                    setRegisterRequestReservation({...registerRequestReservation, "start": data.value})
                                     console.log(data.value)
                                 }}
                             />
