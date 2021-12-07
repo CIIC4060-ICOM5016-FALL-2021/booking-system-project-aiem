@@ -113,8 +113,10 @@ function BookMeeting(props) {
             console.log(data)
             if (data !== undefined) {
                 let t = data.map(x => ({
-                    start: x.start_time,
-                    //end: x.end_time
+                    value:{
+                        start: x.start_time,
+                        end: x.end_time
+                    }
                 }))
                 setTimeSlot(t)
             }
@@ -563,7 +565,7 @@ function BookMeeting(props) {
                                 label="Meeting Start Time" placeholder='HH:MM:SS' required
                                 search selection options={timeSlot} disabled={attendeesSelected}
                                 onChange={(e, data) => {
-                                    setRegisterRequestReservation({...registerRequestReservation, "start": data.value})
+                                    setRegisterRequestReservation({...registerRequestReservation, "start": data.value.start})
                                     console.log(data.value)
                                 }}
                             />
