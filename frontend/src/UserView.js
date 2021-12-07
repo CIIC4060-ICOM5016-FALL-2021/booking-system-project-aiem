@@ -1,8 +1,6 @@
-import React, { Component, useState } from 'react';
-import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
+import React, {useState} from 'react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
-import moment from 'moment';
-import { Button, Card, Container, Grid, Modal, Tab } from "semantic-ui-react";
+import {Button, Modal, Tab} from "semantic-ui-react";
 import BookMeeting from "./BookMeeting";
 import Schedule from "./Schedule";
 import Cookies from 'universal-cookie';
@@ -28,14 +26,16 @@ function UserView() {
                 }
                 return response.json()
             }).then(data => {
-                console.log(data)
-                if (data !== undefined) { 
-                    setUser(data) 
-                    return data.ut_id
+            console.log(data)
+            if (data !== undefined) {
+                setUser(data)
+                return data.ut_id
+            }
+            return undefined
+        }).then(ut_id => {
+                if (ut_id === undefined) {
+                    return undefined
                 }
-                return undefined
-            }).then(ut_id => {
-                if (ut_id===undefined) {return undefined}
                 fetch(Constants.ApiURL + "users/user-types/" + ut_id).then(response => {
                     if (!response.ok) {
                         setUserCatastrophicError(true)
@@ -50,7 +50,7 @@ function UserView() {
                     }
                 })
             }
-            )
+        )
 
     }
 
@@ -63,34 +63,36 @@ function UserView() {
 
     const adminPanes = [
         {
-            menuItem: 'Booking', render: () => <BookMeeting />
+            menuItem: 'Booking', render: () => <BookMeeting user={loggedInUser}/>
         },
         {
-            menuItem: 'Schedule', render: () => <Schedule user={loggedInUser} />
+            menuItem: 'Schedule', render: () => <Schedule user={loggedInUser}/>
         },
         {
-            menuItem: 'Room Management', render: () => <RoomManagement /> //There is no room management component we still have to change this
+            menuItem: 'Room Management', render: () => <RoomManagement user={loggedInUser}/> //There is no room management component we still have to change this
         },
         {
-            menuItem: 'Account Management', render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType} />
+            menuItem: 'Account Management',
+            render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType}/>
         },
         {
-            menuItem: 'User Statistics', render: () => <UserStatistics user={loggedInUser} />
+            menuItem: 'User Statistics', render: () => <UserStatistics user={loggedInUser}/>
         }
     ]
 
     const panes = [
         {
-            menuItem: 'Booking', render: () => <BookMeeting />
+            menuItem: 'Booking', render: () => <BookMeeting user={loggedInUser}/>
         },
         {
-            menuItem: 'Schedule', render: () => <Schedule user={loggedInUser} />
+            menuItem: 'Schedule', render: () => <Schedule user={loggedInUser}/>
         },
         {
-            menuItem: 'Account Management', render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType}/>
+            menuItem: 'Account Management',
+            render: () => <AccountManagement user={loggedInUser} userType={LoggedInUserType}/>
         },
         {
-            menuItem: 'User Statistics', render: () => <UserStatistics user={loggedInUser} />
+            menuItem: 'User Statistics', render: () => <UserStatistics user={loggedInUser}/>
         }
     ]
 
@@ -105,13 +107,16 @@ function UserView() {
         >
             <Modal.Header>There has been a catastrophic error</Modal.Header>
             <Modal.Content>
-                <Modal.Description>The session you have may no longer be valid, or there may have been a server side error. This may occur if your account has been deleted while you were logged in. Try refreshing this page. If that does not work, an <b>emergency log out button</b> is provided below</Modal.Description>
+                <Modal.Description>The session you have may no longer be valid, or there may have been a server side
+                    error. This may occur if your account has been deleted while you were logged in. Try refreshing this
+                    page. If that does not work, an <b>emergency log out button</b> is provided
+                    below</Modal.Description>
             </Modal.Content>
             <Modal.Actions>
                 <Button color='red' onClick={handleEmergencyLogout}>EJECT</Button>
             </Modal.Actions>
         </Modal>
-        <Tab panes={isAdmin ? adminPanes : panes} />
+        <Tab panes={isAdmin ? adminPanes : panes}/>
     </>
 
 }

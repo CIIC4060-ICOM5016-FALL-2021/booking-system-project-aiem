@@ -417,6 +417,31 @@ class RoomsDAO:
                 self.db.close()
                 return affected_rows != 0
 
+    def delete_room_unavailability(self, ru_id):
+        try:
+            # preparing DELETE operation
+            cur = self.db.connection.cursor()
+            query = """DELETE 
+                       FROM "RoomUnavailability"
+                       WHERE ru_id = %s;"""
+            query_values = (ru_id,)
+            # executing DELETE operation
+            cur.execute(query, query_values)
+            affected_rows = cur.rowcount
+            self.db.connection.commit()
+
+        except(Exception, psycopg2.Error) as error:
+            # error handling
+            print("Error executing delete_room_unavailability operation", error)
+            self.db.connection = None
+
+        finally:
+            # closing the connection and returning affected rows status
+            if self.db.connection is not None:
+                cur.close()
+                self.db.close()
+                return affected_rows != 0
+
     # Global Statistic
     def most_booked_rooms(self):
         cur = self.db.connection.cursor()

@@ -5,19 +5,13 @@ import {Button, Form, Modal, Placeholder, Segment, Table} from "semantic-ui-reac
 import Constants from './Constants';
 import Schedule from './Schedule';
 
-export default function RoomManagement() {
+export default function RoomManagement(props) {
 
     const [RoomData, setRD] = useState(undefined)
     const [DeleteID, setDI] = useState(undefined)
     const [SchedID, setSID] = useState(undefined)
     const [changed, setChanged] = useState(false)
     const [SchedData, setSchedData] = useState(undefined)
-
-    const [RoomCreationRequest, setRoomCreationRequest] = useState({
-        "ro_name": "",
-        "ro_location": "",
-        "rt_id": ""
-    });
     const [RoomCreationInProgress, setRoomCreationProgress] = useState(false)
     const [RoomCreationError, setRoomCreationError] = useState(false)
     const [RTypes, setRTypes] = useState(undefined)
@@ -26,6 +20,14 @@ export default function RoomManagement() {
     const [regNameError, setRegNameError] = useState(false)
     const [regLocationError, setRegLocationError] = useState(false)
     const [regTypeError, setRegTypeError] = useState(false)
+
+    const [UnavailError, setUnavailError] = useState(false)
+    const [UnavailErrorText, setUnavailErrorText] = useState(undefined)
+    const [UnavailDateError, setUnavailDateError] = useState(false)
+    const [UnavailStartError, setUnavailStartError] = useState(false)
+    const [UnavailEndError, setUnavailEndError] = useState(false)
+    const [UnavailInProgress, setUnavailInProgress] = useState(false)
+    const [UnavailWindowOpen, setUnavailWindowOpen] = useState(false)
 
     const [upNameError, setUpNameError] = useState(false)
     const [upLocationError, setUpLocationError] = useState(false)
@@ -44,6 +46,20 @@ export default function RoomManagement() {
         "ro_location": "",
         "rt_id": ""
     })
+
+    const [RoomUnavailabilityRequest, setRoomUnavailabilityRequest] = useState({
+        "ru_date": "",
+        "ru_startTime": "",
+        "ru_endTime": "",
+        "us_id": ""
+    })
+
+    const [RoomCreationRequest, setRoomCreationRequest] = useState({
+        "ro_name": "",
+        "ro_location": "",
+        "rt_id": ""
+    });
+
     const [roName, setRoName] = useState(undefined)
     const [roLocation, setRoLocation] = useState(undefined)
     const [roType, setRtype] = useState(undefined)
@@ -74,6 +90,14 @@ export default function RoomManagement() {
 
     const closeSchedWindow = (e) => {
         setOpenSched(false)
+    }
+
+    const closeUnavailWindow = (e) => {
+        setUnavailWindowOpen(false)
+    }
+
+    const handleUnavail = (e) => {
+        setUnavailWindowOpen(true)
     }
 
     const refreshData = (e) => {
@@ -204,6 +228,56 @@ export default function RoomManagement() {
                 </Modal>
                 <Modal
                     centered={true}
+                    open={UnavailWindowOpen}
+                    onOpen={() => setUnavailWindowOpen(true)}
+                    size="tiny"
+                >
+                    <Modal.Header>Mark Room Unavailability</Modal.Header>
+                    <Modal.Content>
+                        <Form>
+                            <Form.Input
+                                label='Date' placeholder='' required
+                                disabled={UnavailInProgress}
+                                onChange={(e) => {
+                                    setRoomUnavailabilityRequest({
+                                        ...RoomUnavailabilityRequest,
+                                        "ru_date": e.target.value
+                                    })
+                                }}
+                            />
+                            <Form.Input
+                                label='Start Time' placeholder='' required
+                                disabled={UnavailInProgress}
+                                onChange={(e) => {
+                                    setRoomUnavailabilityRequest({
+                                        ...RoomUnavailabilityRequest,
+                                        "ru_startTime": e.target.value
+                                    })
+                                }}
+                            />
+                            <Form.Input
+                                label='End Time' placeholder='' required
+                                disabled={UnavailInProgress}
+                                onChange={(e) => {
+                                    setRoomUnavailabilityRequest({
+                                        ...RoomUnavailabilityRequest,
+                                        "ru_endTime": e.target.value
+                                    })
+                                }}
+                            />
+                            <Segment basic textAlign={"center"}>
+                                <Button className='ui button positive'
+                                        content='Submit' primary onClick={handleUnavailableSubmission}/>
+                                <Button className='ui button ' content='No, take me back'
+                                        onClick={closeUnavailWindow}/>
+                            </Segment>
+                        </Form>
+
+                        <Modal.Description> <br/>Developed by AMIE </Modal.Description>
+                    </Modal.Content>
+                </Modal>
+                <Modal
+                    centered={true}
                     open={openDel}
                     onOpen={() => setOpenDel(true)}
                     size="tiny"
@@ -229,7 +303,7 @@ export default function RoomManagement() {
                     centered={true}
                     open={openSched}
                     onOpen={() => setOpenSched(true)}
-                    size="tiny"
+                    size="large"
                 >
                     <Modal.Header>Room Schedule</Modal.Header>
                     <Modal.Content>
@@ -238,8 +312,11 @@ export default function RoomManagement() {
                         </Modal.Description>
                         <Form>
                             <Segment basic textAlign={"center"}>
+                                <Button className='ui button primary positive ' content='Mark Unavail.'
+                                        onClick={handleUnavail}/>
                                 <Button className='ui button ' content='Close' onClick={closeSchedWindow}/>
                             </Segment>
+                            <Segment>{UnavailError}</Segment>
                         </Form>
 
                         <Modal.Description> <br/>Developed by AMIE </Modal.Description>
@@ -286,6 +363,77 @@ export default function RoomManagement() {
             </div>
 
         )
+    }
+
+    const handleUnavailableSubmission = (e) => {
+
+        console.log(props.user.us_id)
+
+        setRoomUnavailabilityRequest({
+            ...RoomUnavailabilityRequest,
+            "us_id": props.user.us_id
+        })
+
+        console.log(RoomUnavailabilityRequest)
+        setUnavailInProgress(true)
+        setUnavailError(false)
+
+        //Validation
+        if (RoomUnavailabilityRequest.ru_date === "") {
+            setUnavailDateError("Please specify date")
+        } else {
+            setUnavailDateError(false)
+        }
+        if (RoomUnavailabilityRequest.ru_startTime === "") {
+            setUnavailStartError("Please specify starting time")
+        } else {
+            setUnavailStartError(false)
+        }
+        if (RoomUnavailabilityRequest.ru_endTime === "") {
+            setUnavailEndError("Please specify end time")
+        } else {
+            setUnavailEndError(false)
+        }
+        if (RoomUnavailabilityRequest.ru_date === "" ||
+            RoomUnavailabilityRequest.ru_startTime === "" ||
+            RoomUnavailabilityRequest.ru_endTime === ""
+        ) {
+            setUnavailInProgress(false)
+            return;
+        }
+
+
+        const UnavailRequestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(RoomUnavailabilityRequest)
+        };
+
+        fetch(Constants.ApiURL + "rooms/" + SchedID + "/schedule-unavailable", UnavailRequestOptions)
+            .then(response => {
+                setUnavailInProgress(false);
+                if (response.status === 500) {
+                    setUnavailError(true)
+                    setUnavailErrorText("An unknown error occurred on the server")
+                }
+                if (response.status !== 201) {
+                    setUnavailErrorText("Unavailability already exists!")
+                    return undefined
+                }
+                return response.json()
+            }).then(data => {
+            console.log(data)
+            if (data === undefined) {
+                return
+            }
+            if (data.ru_id === null) {
+                setUnavailErrorText("Reservation already exists!")
+                return undefined
+            }
+            setUnavailInProgress(false)
+            setUnavailWindowOpen(false)
+            setOpenSched(false)
+        })
     }
 
     const handleRoomUpdate = (room) => {
@@ -596,6 +744,56 @@ export default function RoomManagement() {
                 </Modal>
                 <Modal
                     centered={true}
+                    open={UnavailWindowOpen}
+                    onOpen={() => setUnavailWindowOpen(true)}
+                    size="tiny"
+                >
+                    <Modal.Header>Mark Room Unavailability</Modal.Header>
+                    <Modal.Content>
+                        <Form>
+                            <Form.Input
+                                label='Date' placeholder='' required
+                                disabled={UnavailInProgress}
+                                onChange={(e) => {
+                                    setRoomUnavailabilityRequest({
+                                        ...RoomUnavailabilityRequest,
+                                        "ru_date": e.target.value
+                                    })
+                                }}
+                            />
+                            <Form.Input
+                                label='Start Time' placeholder='' required
+                                disabled={UnavailInProgress}
+                                onChange={(e) => {
+                                    setRoomUnavailabilityRequest({
+                                        ...RoomUnavailabilityRequest,
+                                        "ru_startTime": e.target.value
+                                    })
+                                }}
+                            />
+                            <Form.Input
+                                label='End Time' placeholder='' required
+                                disabled={UnavailInProgress}
+                                onChange={(e) => {
+                                    setRoomUnavailabilityRequest({
+                                        ...RoomUnavailabilityRequest,
+                                        "ru_endTime": e.target.value
+                                    })
+                                }}
+                            />
+                            <Segment basic textAlign={"center"}>
+                                <Button className='ui button positive'
+                                        content='Submit' primary onClick={handleUnavailableSubmission}/>
+                                <Button className='ui button ' content='No, take me back'
+                                        onClick={closeUnavailWindow}/>
+                            </Segment>
+                        </Form>
+
+                        <Modal.Description> <br/>Developed by AMIE </Modal.Description>
+                    </Modal.Content>
+                </Modal>
+                <Modal
+                    centered={true}
                     open={openUpd}
                     onOpen={() => setOpenUpd(true)}
                     size="tiny"
@@ -669,7 +867,7 @@ export default function RoomManagement() {
                     centered={true}
                     open={openSched}
                     onOpen={() => setOpenSched(true)}
-                    size="tiny"
+                    size="large"
                 >
                     <Modal.Header>Room Schedule</Modal.Header>
                     <Modal.Content>
@@ -678,8 +876,11 @@ export default function RoomManagement() {
                         </Modal.Description>
                         <Form>
                             <Segment basic textAlign={"center"}>
+                                <Button className='ui button primary positive ' content='Mark Unavail.'
+                                        onClick={handleUnavail}/>
                                 <Button className='ui button ' content='Close' onClick={closeSchedWindow}/>
                             </Segment>
+                            <Segment>{UnavailError}</Segment>
                         </Form>
 
                         <Modal.Description> <br/>Developed by AMIE </Modal.Description>
